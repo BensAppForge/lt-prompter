@@ -1,16 +1,16 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { NgxIndexedDBService, DBConfig } from 'ngx-indexed-db';
 import { PLATFORM_ID } from '@angular/core';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 
 const DB_NAME = 'LT_Prompter_DB';
-const DB_VERSION = 1;
+const DB_VERSION = 5;
 
-const dbConfig = {
+const dbConfig: DBConfig = {
   name: DB_NAME,
   version: DB_VERSION,
   objectStoresMeta: [
@@ -36,8 +36,38 @@ const dbConfig = {
         { name: 'updatedAt', keypath: 'updatedAt', options: { unique: false } },
         { name: 'isDefault', keypath: 'isDefault', options: { unique: false } }
       ]
+    },
+    {
+      store: 'versions',
+      storeConfig: { keyPath: 'id', autoIncrement: true },
+      storeSchema: [
+        { name: 'versionNumber', keypath: 'versionNumber', options: { unique: true } },
+        { name: 'releaseDate', keypath: 'releaseDate', options: { unique: false } },
+        { name: 'shortDescription', keypath: 'shortDescription', options: { unique: false } },
+        { name: 'longDescription', keypath: 'longDescription', options: { unique: false } }
+      ]
     }
-  ]
+  ],
+  migrationFactory: () => {
+    return {
+      1: (db, transaction) => {
+        const versionsStore = transaction.objectStore('versions');
+        versionsStore.clear();
+      },
+      2: (db, transaction) => {
+        const versionsStore = transaction.objectStore('versions');
+        versionsStore.clear();
+      },
+      3: (db, transaction) => {
+        const versionsStore = transaction.objectStore('versions');
+        versionsStore.clear();
+      },
+      4: (db, transaction) => {
+        const versionsStore = transaction.objectStore('versions');
+        versionsStore.clear();
+      }
+    };
+  }
 };
 
 export const appConfig: ApplicationConfig = {

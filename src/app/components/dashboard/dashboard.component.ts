@@ -2,7 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouterLink } from '@angular/router';
+import { VersionService } from '../../services/version.service';
+import { DatePipe } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 interface DashboardCard {
   title: string;
@@ -14,7 +17,7 @@ interface DashboardCard {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, RouterModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, RouterModule, DatePipe, RouterLink],
   template: `
     <div class="dashboard-container">
       <div class="dashboard-grid">
@@ -31,6 +34,11 @@ interface DashboardCard {
         </ng-container>
       </div>
     </div>
+    <footer class="version-footer">
+      <a routerLink="/changelog" class="version-link">
+        Version {{ currentVersion }} - {{ currentDate | date:'dd.MM.yyyy' }}
+      </a>
+    </footer>
   `,
   styles: [
     `
@@ -108,6 +116,19 @@ interface DashboardCard {
           }
         }
       }
+
+      .version-footer {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        padding: 8px 16px;
+        background: rgba(0,0,0,0.1);
+      }
+      .version-link {
+        color: inherit;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
     `,
   ],
 })
@@ -162,6 +183,9 @@ export class DashboardComponent {
       description: 'Rechtliche Informationen',
     },
   ];
+
+  currentVersion = environment.version;
+  currentDate = new Date();
 
   trackCard(index: number, card: DashboardCard): string {
     return card.title;

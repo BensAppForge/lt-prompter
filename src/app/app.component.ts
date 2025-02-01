@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { VersionNotificationComponent } from './components/version-notification/version-notification.component';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
     RouterOutlet,
     MatToolbarModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    VersionNotificationComponent
   ],
   template: `
     <mat-toolbar class="app-toolbar">
@@ -26,6 +28,7 @@ import { MatButtonModule } from '@angular/material/button';
     </mat-toolbar>
 
     <main class="app-content">
+      <app-version-notification></app-version-notification>
       <router-outlet></router-outlet>
     </main>
   `,

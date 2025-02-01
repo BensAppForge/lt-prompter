@@ -1,16 +1,36 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
+import { inject } from '@angular/core';
+import { VersionService } from './services/version.service';
+import { firstValueFrom } from 'rxjs';
+
+// Resolver function to ensure version service is initialized
+async function versionResolver() {
+  const versionService = inject(VersionService);
+  // Wait for versions to be loaded
+  const versions = await firstValueFrom(versionService.getAllVersions());
+  return versions.length > 0;
+}
 
 export const routes: Routes = [
   {
     path: '',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
-    redirectTo: 'dashboard'
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./components/dashboard/dashboard.component')
-      .then(m => m.DashboardComponent)
+    loadComponent: () =>
+      import('./components/dashboard/dashboard.component').then(
+        (c) => c.DashboardComponent
+      ),
+  },
+  {
+    path: 'changelog',
+    resolve: { initialized: versionResolver },
+    loadComponent: () =>
+      import('./components/changelog/changelog.component').then(
+        (c) => c.ChangelogComponent
+      ),
   },
   {
     path: 'templates',
