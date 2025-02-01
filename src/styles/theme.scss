@@ -1,0 +1,54 @@
+@use '@angular/material' as mat;
+
+:root {
+  --primary-color: #3f51b5;    // Indigo 500
+  --accent-color: #ff4081;     // Pink A200
+  --warn-color: #f44336;       // Red 500
+  
+  --background-color: #fafafa;
+  --surface-color: #ffffff;
+  --text-color: rgba(0, 0, 0, 0.87);
+  --secondary-text-color: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #7986cb;    // Indigo 300
+    --accent-color: #ff4081;     // Pink A200
+    --warn-color: #f44336;       // Red 500
+    
+    --background-color: #303030;
+    --surface-color: #424242;
+    --text-color: #ffffff;
+    --secondary-text-color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.mat-mdc-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-mini-fab.mat-primary {
+  --mdc-filled-button-container-color: var(--primary-color);
+  --mdc-filled-button-label-text-color: var(--text-color);
+}
+
+.mat-mdc-button.mat-accent,
+.mat-mdc-raised-button.mat-accent,
+.mat-mdc-fab.mat-accent,
+.mat-mdc-mini-fab.mat-accent {
+  --mdc-filled-button-container-color: var(--accent-color);
+  --mdc-filled-button-label-text-color: var(--text-color);
+}
+
+// Global styles
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease;
+}
+
+.mat-drawer-container {
+  background-color: var(--background-color) !important;
+}
