@@ -44,6 +44,25 @@
   color: var(--text-secondary) !important;
 }
 
+.mat-mdc-slide-toggle .mdc-form-field > label {
+  color: var(--text-color);
+}
+
+.mat-mdc-button {
+  color: var(--text-color);
+  
+  &.mat-primary {
+    color: var(--primary-color);
+  }
+}
+
+.mat-mdc-raised-button {
+  &.mat-primary {
+    --mdc-protected-button-container-color: var(--primary-color);
+    --mdc-protected-button-label-text-color: white;
+  }
+}
+
 .mat-mdc-checkbox {
   --mdc-checkbox-selected-focus-icon-color: var(--primary-color);
   --mdc-checkbox-selected-hover-icon-color: var(--primary-color);

@@ -324,6 +324,35 @@
     margin: 0.5rem 0 1rem;
   }
 
+  @media (prefers-color-scheme: dark) {
+    .vocabulary-container {
+      .form-row.context-row {
+        .dialog-toggle.mat-mdc-slide-toggle {
+          ::ng-deep .mdc-form-field {
+            color: rgba(255, 255, 255, 0.87);
+          }
+        }
+      }
+    }
+
+    .word-input.mat-mdc-chip-input {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .prompt-container {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .error-message {
+      background-color: rgba(244, 67, 54, 0.15);
+    }
+  }
+
   @media (max-width: 600px) {
     .form-row:not(.context-row) {
       flex-direction: column;

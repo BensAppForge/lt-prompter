@@ -17,7 +17,14 @@ interface DashboardCard {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, RouterModule, DatePipe, RouterLink],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    RouterModule,
+    DatePipe,
+    RouterLink,
+  ],
   template: `
     <div class="dashboard-container">
       <div class="dashboard-grid">
@@ -36,7 +43,7 @@ interface DashboardCard {
     </div>
     <footer class="version-footer">
       <a routerLink="/changelog" class="version-link">
-        Version {{ currentVersion }} - {{ currentDate | date:'dd.MM.yyyy' }}
+        Version {{ currentVersion }} - {{ currentDate | date : 'dd.MM.yyyy' }}
       </a>
     </footer>
   `,
@@ -122,7 +129,7 @@ interface DashboardCard {
         bottom: 0;
         right: 0;
         padding: 8px 16px;
-        background: rgba(0,0,0,0.1);
+        background: rgba(0, 0, 0, 0.1);
       }
       .version-link {
         color: inherit;
@@ -135,10 +142,10 @@ interface DashboardCard {
 export class DashboardComponent {
   cards: DashboardCard[] = [
     {
-      title: 'Vokabelübungen',
+      title: 'Vokabelübungen mit Lückentexten',
       icon: 'book',
       route: '/vocabulary',
-      description: 'Prompts für Vokabelübungen erstellen',
+      description: 'Prompts für Vokabelübungen als Lückentext erstellen',
     },
     {
       title: 'Grammatikübungen',
@@ -146,30 +153,30 @@ export class DashboardComponent {
       route: '/grammar',
       description: 'Prompts für Grammatikübungen erstellen',
     },
-    {
-      title: 'Hörverstehen',
-      icon: 'headphones',
-      route: '/listening',
-      description: 'Prompts für Hörverstehen erstellen',
-    },
-    {
-      title: 'Leseverstehen',
-      icon: 'auto_stories',
-      route: '/reading',
-      description: 'Prompts für Leseverstehen erstellen',
-    },
-    {
-      title: 'Promptvorlagen',
-      icon: 'description',
-      route: '/templates',
-      description: 'Verwalten Sie Ihre Übungsvorlagen',
-    },
-    {
-      title: 'Einstellungen',
-      icon: 'settings',
-      route: '/settings',
-      description: 'Passen Sie die Anwendung an Ihre Bedürfnisse an',
-    },
+    // {
+    //   title: 'Hörverstehen',
+    //   icon: 'headphones',
+    //   route: '/listening',
+    //   description: 'Prompts für Hörverstehen erstellen',
+    // },
+    // {
+    //   title: 'Leseverstehen',
+    //   icon: 'auto_stories',
+    //   route: '/reading',
+    //   description: 'Prompts für Leseverstehen erstellen',
+    // },
+    // {
+    //   title: 'Promptvorlagen',
+    //   icon: 'description',
+    //   route: '/templates',
+    //   description: 'Verwalten Sie Ihre Übungsvorlagen',
+    // },
+    // {
+    //   title: 'Einstellungen',
+    //   icon: 'settings',
+    //   route: '/settings',
+    //   description: 'Passen Sie die Anwendung an Ihre Bedürfnisse an',
+    // },
     {
       title: 'Datenschutz',
       icon: 'security',
