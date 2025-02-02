@@ -21,7 +21,14 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () =>
       import('./components/dashboard/dashboard.component').then(
-        (c) => c.DashboardComponent
+        (m) => m.DashboardComponent
+      ),
+  },
+  {
+    path: 'vocabulary',
+    loadComponent: () =>
+      import('./components/vocabulary/vocabulary.component').then(
+        (m) => m.VocabularyComponent
       ),
   },
   {
