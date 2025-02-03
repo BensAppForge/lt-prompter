@@ -1,17 +1,21 @@
 import { Language } from '../models/vocabulary.model';
 
-export interface PromptTemplate {
+export interface BasePromptTemplate {
   intro: string;
-  wordListIntro: string;
   contextIntro: string;
   autoContextIntro: string;
   requirements: string[];
   dialogRequirement?: string;
 }
 
+export interface VocabularyPromptTemplate extends BasePromptTemplate {
+  wordListIntro: string;
+}
+
 export type PromptTemplates = {
-  [key in Language]: PromptTemplate;
+  [key in Language]: VocabularyPromptTemplate;
 };
+
 //English intro template with target language and CEFR level
 let englishIntro: string =
   'You are an expert in teaching English as a foreign language.\n';
@@ -19,14 +23,14 @@ englishIntro +=
   'You teach German students in [TARGET_LANGUAGE] as a foreign language.\n';
 englishIntro += 'Their CEFR level is [CEFR].\n';
 englishIntro +=
-  'Create a gapped vocabulary exercise with the following instructions right under the title:\n';
+  'Create a gapped vocabulary exercise with the following instructions right below the title:\n';
 englishIntro +=
   'Complete the following exercise with the words provided below:\n';
 //French intro template with target language and CEFR level
 let frenchIntro: string =
   "Vous êtes un expert dans l'enseignement du français comme langue étrangère.\n";
 frenchIntro +=
-  'Vous enseignez à des étudiants français en [TARGET_LANGUAGE] comme langue étrangère.\n';
+  'Vous enseignez à des étudiants allemands en [TARGET_LANGUAGE] comme langue étrangère.\n';
 frenchIntro += 'Leur niveau CECR est [CEFR].\n';
 frenchIntro +=
   'Créez un exercice de vocabulaire à trous avec les instructions suivantes juste sous le titre :\n';
@@ -36,7 +40,7 @@ frenchIntro +=
 let spanishIntro: string =
   'Eres un experto en la enseñanza del español como lengua extranjera.\n';
 spanishIntro +=
-  'Enseñas a estudiantes franceses en [TARGET_LANGUAGE] como lengua extranjera.\n';
+  'Enseñas a estudiantes alemanes en [TARGET_LANGUAGE] como lengua extranjera.\n';
 spanishIntro += 'Su nivel MCER es [CEFR].\n';
 spanishIntro +=
   'Crea un ejercicio de vocabulario con espacios en blanco con las siguientes instrucciones justo debajo del título:\n';
@@ -46,7 +50,7 @@ spanishIntro +=
 let italianIntro: string =
   "Sei un esperto nell'insegnamento dell'italiano come lingua straniera.\n";
 italianIntro +=
-  'Insegni a studenti francesi in [TARGET_LANGUAGE] come lingua straniera.\n';
+  'Insegni a studenti tedeschi in [TARGET_LANGUAGE] come lingua straniera.\n';
 italianIntro += 'Il loro livello QCER è [CEFR].\n';
 italianIntro +=
   'Crea un esercizio di vocabolario con spazi vuoti con le seguenti istruzioni subito sotto il titolo:\n';

@@ -132,10 +132,11 @@ export class VocabularyComponent {
         situationalContextIsDialog: formValue.situationalContextIsDialog,
       };
 
+      // Use the target language to select the template
       this.generatedPrompt.set(
         this.promptTemplateService.generateVocabularyPrompt(
           config,
-          this.uiLanguage
+          formValue.targetLanguage
         )
       );
     }

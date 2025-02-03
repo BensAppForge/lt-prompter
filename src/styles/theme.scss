@@ -15,6 +15,7 @@
   --text-color: rgba(0, 0, 0, 0.87);
   --text-secondary: rgba(0, 0, 0, 0.54);
   --border-color: rgba(0, 0, 0, 0.12);
+  --input-background: #ffffff;
 }
 
 // Dark theme styles
@@ -28,6 +29,39 @@
     --text-color: rgba(255, 255, 255, 0.87);
     --text-secondary: rgba(255, 255, 255, 0.54);
     --border-color: rgba(255, 255, 255, 0.12);
+    --input-background: #424242;
+  }
+
+  // Override Material form field styles in dark mode
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--input-background) !important;
+  }
+
+  .mat-mdc-form-field {
+    .mat-mdc-select-value,
+    .mat-mdc-select-arrow,
+    .mat-mdc-input-element,
+    .mat-mdc-select-placeholder,
+    .mdc-floating-label {
+      color: var(--text-color) !important;
+    }
+
+    .mat-mdc-select-panel {
+      background: var(--surface-color) !important;
+      color: var(--text-color) !important;
+    }
+  }
+
+  .mat-mdc-option {
+    color: var(--text-color) !important;
+    
+    &:hover:not(.mat-mdc-option-disabled) {
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+
+    &.mat-mdc-option-active {
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
   }
 }
 
@@ -73,6 +107,15 @@
 .mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
   border-color: var(--primary-color);
   background-color: var(--primary-color);
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+// Override select panel background
+.mat-mdc-select-panel {
+  background: var(--surface-color) !important;
 }
 
 // Add Material Design 3 elevation

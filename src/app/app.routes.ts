@@ -32,6 +32,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'grammar',
+    loadComponent: () =>
+      import('./grammar-con/grammar-con.component').then(
+        (m) => m.GrammarConComponent
+      ),
+  },
+  {
     path: 'changelog',
     resolve: { initialized: versionResolver },
     loadComponent: () =>

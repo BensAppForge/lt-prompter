@@ -148,10 +148,11 @@ export class DashboardComponent {
       description: 'Prompts für Vokabelübungen als Lückentext erstellen',
     },
     {
-      title: 'Grammatikübungen',
+      title: 'Grammatikübungen aus Kontext',
       icon: 'rule',
       route: '/grammar',
-      description: 'Prompts für Grammatikübungen erstellen',
+      description:
+        'Prompts für Grammatikübungen erstellen, die für einen bestimmten Kontext geeignet sind.',
     },
     // {
     //   title: 'Hörverstehen',
