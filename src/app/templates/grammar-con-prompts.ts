@@ -28,7 +28,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
   },
   Français: {
     intro:
-      "Vous êtes un expert dans l'enseignement de l'anglais comme langue étrangère et vous enseignez à des adolescents allemands. Créez un exercice de grammaire en [TARGET_LANGUAGE] adapté aux apprenants de niveau [CEFR].",
+      "Vous êtes un expert dans l'enseignement du français comme langue étrangère et vous enseignez à des adolescents allemands. Créez un exercice de grammaire en [TARGET_LANGUAGE] adapté aux apprenants de niveau [CEFR].",
     phenomenaIntro:
       "L'exercice doit se concentrer sur la pratique des phénomènes grammaticaux suivants :",
     contextIntro: "L'exercice doit être basé sur le contexte suivant :",
@@ -49,7 +49,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
   },
   Español: {
     intro:
-      'Eres un experto en la enseñanza del inglés como lengua extranjera y enseñas a adolescentes alemanes. Crea un ejercicio de gramática en [TARGET_LANGUAGE] adecuado para estudiantes de nivel [CEFR].',
+      'Eres un experto en la enseñanza del español como lengua extranjera y enseñas a adolescentes alemanes. Crea un ejercicio de gramática en [TARGET_LANGUAGE] adecuado para estudiantes de nivel [CEFR].',
     phenomenaIntro:
       'El ejercicio debe centrarse en practicar los siguientes fenómenos gramaticales:',
     contextIntro: 'El ejercicio debe basarse en el siguiente contexto:',
@@ -70,7 +70,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
   },
   Italiano: {
     intro:
-      "Sei un esperto nell'insegnamento dell'inglese come lingua straniera e insegni a studenti adolescenti tedeschi. Crea un esercizio di grammatica in [TARGET_LANGUAGE] adatto a studenti di livello [CEFR].",
+      "Sei un esperto nell'insegnamento dell'italiano come lingua straniera e insegni a studenti adolescenti tedeschi. Crea un esercizio di grammatica in [TARGET_LANGUAGE] adatto a studenti di livello [CEFR].",
     phenomenaIntro:
       "L'esercizio deve concentrarsi sulla pratica dei seguenti fenomeni grammaticali:",
     contextIntro: "L'esercizio deve essere basato sul seguente contesto:",

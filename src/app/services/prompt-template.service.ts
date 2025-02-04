@@ -32,10 +32,12 @@ export class PromptTemplateService {
     config: VocabularyPromptConfig,
     language: Language
   ): string {
+    console.log('Generating vocabulary prompt with language:', language);
     const template = vocabularyPromptTemplates[language];
+    console.log('Template:', template);
     const parts: string[] = [];
 
-    // Format target language based on the UI language
+    // Format target language based on the language
     const targetLanguage = language === 'English' 
       ? config.targetLanguage 
       : config.targetLanguage.toLowerCase();
@@ -44,45 +46,45 @@ export class PromptTemplateService {
     parts.push(
       template.intro
         .replace('[TARGET_LANGUAGE]', targetLanguage)
-        .replace('[CEFR]', config.cefr)
+        .replace('[CEFR]', config.cefr),
+      ''
     );
 
     // Add word list if present
     if (config.words?.length) {
       parts.push(
         template.wordListIntro,
-        config.words.map((w) => `- ${w.word}`).join('\n'),
-        '\n'
+        config.words.map((w) => w.word).join(', '),
+        ''
       );
     }
 
     // Add context if present
     if (config.situationalContext?.trim()) {
-      parts.push(template.contextIntro, config.situationalContext, '\n');
+      parts.push(template.contextIntro, config.situationalContext, '');
     } else {
-      parts.push(template.autoContextIntro, '\n');
+      parts.push(template.autoContextIntro, '');
     }
 
     // Add requirements
-    parts.push(
-      'Requirements:\n',
-      template.requirements
-        .map(
-          (req: string, index: number) =>
-            `${index + 1}. ${req.replace('[CEFR]', config.cefr.toString())}`
-        )
-        .join('\n'),
-      '\n'
-    );
+    console.log('Requirements intro:', template.requirementsIntro);
+    parts.push(template.requirementsIntro);
+    template.requirements.forEach((req, index) => {
+      parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
+    });
+    parts.push('');
 
     // Add dialog requirement if needed
     if (config.situationalContextIsDialog && template.dialogRequirement) {
       parts.push(
-        `${template.requirements.length + 1}. ${template.dialogRequirement}\n`
+        `${template.requirements.length + 1}. ${template.dialogRequirement}`,
+        ''
       );
     }
 
-    return parts.join('\n');
+    const result = parts.join('\n');
+    console.log('Generated prompt:', result);
+    return result;
   }
 
   public generateGrammarPrompt(

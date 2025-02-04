@@ -50,15 +50,12 @@
                   </button>
                 </mat-chip-row>
               </mat-chip-grid>
-            </div>
-            <div class="word-input-container">
-              <input class="word-input" placeholder="Wörter hinzufügen..." [matChipInputFor]="chipGrid"
+              <input placeholder="Neues Wort hinzufügen" [matChipInputFor]="chipGrid"
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addWordFromInput($event)" />
             </div>
             <mat-error *ngIf="form.get('words')?.errors?.['required'] || form.get('words')?.errors?.['minLength']">
               Bitte fügen Sie mindestens ein Wort hinzu
             </mat-error>
-            <mat-hint>Drücken Sie Enter oder Komma, um ein Wort hinzuzufügen</mat-hint>
           </mat-form-field>
         </div>
 

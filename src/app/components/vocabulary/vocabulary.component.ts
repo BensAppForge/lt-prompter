@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -21,6 +21,7 @@ import { RouterModule } from '@angular/router';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { signal } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
+import autoAnimate from '@formkit/auto-animate';
 
 import {
   VocabularyPromptConfig,
@@ -51,6 +52,7 @@ import { PromptTemplateService } from '../../services/prompt-template.service';
 })
 export class VocabularyComponent {
   private readonly promptTemplateService = inject(PromptTemplateService);
+  private readonly parent = inject(ElementRef);
 
   public readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
@@ -58,9 +60,6 @@ export class VocabularyComponent {
   public readonly generatedPrompt = signal<string>('');
   public readonly copySuccess = signal(false);
   public readonly copyError = signal(false);
-
-  // Current UI language - could be made dynamic later
-  private readonly uiLanguage: Language = 'English';
 
   public readonly languages: readonly Language[] = [
     'English',
@@ -86,6 +85,14 @@ export class VocabularyComponent {
       situationalContext: [''],
       situationalContextIsDialog: [false],
     });
+  }
+
+  ngAfterViewInit() {
+    // Enable auto-animate on the chip grid
+    const chipContainer = this.parent.nativeElement.querySelector('.chip-container');
+    if (chipContainer) {
+      autoAnimate(chipContainer);
+    }
   }
 
   public get words(): FormArray {
@@ -132,11 +139,10 @@ export class VocabularyComponent {
         situationalContextIsDialog: formValue.situationalContextIsDialog,
       };
 
-      // Use the target language to select the template
       this.generatedPrompt.set(
         this.promptTemplateService.generateVocabularyPrompt(
           config,
-          formValue.targetLanguage
+          formValue.targetLanguage // Use target language for the prompt
         )
       );
     }
