@@ -64,6 +64,19 @@
     }
   }
 
+  .chip-list-container {
+    width: 100%;
+    min-height: 48px;
+    padding: 4px 0;
+    border-radius: 4px;
+    position: relative;
+    display: block;
+  }
+
+  .chip-list {
+    width: 100%;
+  }
+
   .word-input-container {
     width: 100%;
   }

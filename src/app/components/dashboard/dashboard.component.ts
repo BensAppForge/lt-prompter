@@ -160,12 +160,12 @@ export class DashboardComponent {
     //   route: '/listening',
     //   description: 'Prompts für Hörverstehen erstellen',
     // },
-    // {
-    //   title: 'Leseverstehen',
-    //   icon: 'auto_stories',
-    //   route: '/reading',
-    //   description: 'Prompts für Leseverstehen erstellen',
-    // },
+    {
+      title: 'Textverstehen',
+      icon: 'auto_stories',
+      route: '/comprehension',
+      description: 'Prompts für Lese- Hör- und Hör/Sehverstehen erstellen',
+    },
     // {
     //   title: 'Promptvorlagen',
     //   icon: 'description',

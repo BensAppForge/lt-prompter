@@ -1,6 +1,5 @@
-import { CEFRLevel } from './preferences.model';
+import { CEFRLevel, Language } from './preferences.model';
 
-export type Language = 'English' | 'Français' | 'Español' | 'Italiano';
 export type CefrLevel = CEFRLevel;
 
 export interface VocabularyWord {
@@ -10,7 +9,7 @@ export interface VocabularyWord {
 export interface VocabularyPromptConfig {
   targetLanguage: Language;
   cefr: CefrLevel;
-  words?: VocabularyWord[];
-  situationalContext?: string;
-  situationalContextIsDialog?: boolean;
+  numberOfWords: number;
+  exerciseType: string;
+  wordList: VocabularyWord[];
 }

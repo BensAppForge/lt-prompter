@@ -40,20 +40,22 @@
         <div class="form-row">
           <mat-form-field class="full-width">
             <mat-label>Wortliste (Erforderlich)</mat-label>
-            <div class="chip-container">
-              <mat-chip-grid #chipGrid aria-label="Wortauswahl">
+            <div class="chip-list-container" auto-animate>
+              <mat-chip-grid #chipGrid aria-label="Wortauswahl" class="chip-list">
                 <mat-chip-row *ngFor="let word of words.controls; let i = index" [removable]="true"
                   (removed)="removeWord(i)">
-                  {{ word.get('word')?.value }}
+                  {{ word.value }}
                   <button matChipRemove aria-label="Wort entfernen">
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </mat-chip-row>
+                <input placeholder="Neues Wort..."
+                  [matChipInputFor]="chipGrid"
+                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                  (matChipInputTokenEnd)="addWordFromInput($event)">
               </mat-chip-grid>
-              <input placeholder="Neues Wort hinzufügen" [matChipInputFor]="chipGrid"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addWordFromInput($event)" />
             </div>
-            <mat-error *ngIf="form.get('words')?.errors?.['required'] || form.get('words')?.errors?.['minLength']">
+            <mat-error *ngIf="form.get('words')?.errors?.['required']">
               Bitte fügen Sie mindestens ein Wort hinzu
             </mat-error>
           </mat-form-field>

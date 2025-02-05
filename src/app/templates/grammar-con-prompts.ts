@@ -80,7 +80,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
       "Presenta l'esercizio sotto forma di dialogo tra due o più persone.",
     requirementsIntro: 'Requisiti aggiuntivi:',
     requirements: [
-      'Quando presenti, inserisci sempre le indicazioni tra parentesi dopo gli spazi, mai prima.',
+      'Quando presenti, inserisci sempre le indicazioni tra parentesi dietro gli spazi, mai davanti.',
       'Assicurati che tutti gli esempi siano appropriati per il livello [CEFR].',
       'Assicurati che gli spazi siano abbastanza ampi per permettere agli studenti di scrivere le risposte.',
       'Il testo deve sembrare naturale e autentico.',

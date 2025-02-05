@@ -19,12 +19,7 @@ export type CEFRLevel =
   | 'C1+'
   | 'C2';
 
-export type Language =
-  | 'Deutsch'
-  | 'English'
-  | 'Español'
-  | 'Français'
-  | 'Italiano';
+export type Language = 'English' | 'español' | 'français' | 'italiano';
 
 export type ExerciseCategory =
   | 'vocabulary'

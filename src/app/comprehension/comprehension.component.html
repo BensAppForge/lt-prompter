@@ -1,0 +1,91 @@
+<div class="page-container">
+  <div class="back-button-container">
+    <button mat-icon-button (click)="navigateToDashboard()" aria-label="Zurück zum Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <mat-card class="comprehension-container">
+    <mat-card-header>
+      <mat-card-title>Textverständnisübung erstellen</mat-card-title>
+      <mat-card-subtitle>Erstellen Sie eine Textverständnisübung mit verschiedenen Übungstypen</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="fill" color="primary">
+            <mat-label>Zielsprache</mat-label>
+            <mat-select formControlName="targetLanguage" required>
+              <mat-option *ngFor="let lang of languages; trackBy: trackByIndex" [value]="lang">
+                {{ displayLanguage(lang) }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('targetLanguage')?.hasError('required')">
+              Bitte wählen Sie eine Zielsprache aus
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" color="primary">
+            <mat-label>CEFR-Niveau</mat-label>
+            <mat-select formControlName="cefr" required>
+              <mat-option *ngFor="let level of cefrLevels; trackBy: trackByIndex" [value]="level">
+                {{ level }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('cefr')?.hasError('required')">
+              Bitte wählen Sie ein CEFR-Niveau aus
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="exercise-types-container">
+          <h3>Übungstypen (mindestens 2 auswählen)</h3>
+          <div class="exercise-types-grid">
+            <mat-checkbox *ngFor="let type of exerciseTypes; trackBy: trackByIndex"
+                        [checked]="isExerciseTypeSelected(type)"
+                        (change)="onExerciseTypeChange($event, type)"
+                        color="primary">
+              {{ type }}
+            </mat-checkbox>
+          </div>
+          <mat-error *ngIf="form.get('exerciseTypes')?.hasError('required') || form.get('exerciseTypes')?.hasError('minLength')" class="exercise-type-error">
+            Bitte wählen Sie mindestens 2 Übungstypen aus
+          </mat-error>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="fill" color="primary">
+            <mat-label>Quellentyp</mat-label>
+            <mat-select formControlName="sourceType" required>
+              <mat-option *ngFor="let type of sourceTypes; trackBy: trackByIndex" [value]="type">
+                {{ type }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('sourceType')?.hasError('required')">
+              Bitte wählen Sie einen Quellentyp aus
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="button-container">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
+            Prompt generieren
+          </button>
+        </div>
+      </form>
+
+      <ng-container *ngIf="generatedPrompt">
+        <div class="prompt-container" role="region" aria-label="Generierter Prompt">
+          <div class="prompt-content">
+            <pre>{{ generatedPrompt }}</pre>
+          </div>
+          <button mat-icon-button (click)="copyToClipboard(generatedPrompt)" class="copy-button"
+            aria-label="Prompt in die Zwischenablage kopieren">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </ng-container>
+    </mat-card-content>
+  </mat-card>
+</div>

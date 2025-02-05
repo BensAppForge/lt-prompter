@@ -39,6 +39,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'comprehension',
+    loadComponent: () =>
+      import('./comprehension/comprehension.component').then(
+        (m) => m.ComprehensionComponent
+      ),
+  },
+  {
     path: 'changelog',
     resolve: { initialized: versionResolver },
     loadComponent: () =>

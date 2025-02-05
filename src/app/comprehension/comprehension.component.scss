@@ -1,0 +1,111 @@
+.page-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-button-container {
+  margin-bottom: 1rem;
+}
+
+.comprehension-container {
+  mat-card-header {
+    margin-bottom: 2rem;
+
+    ::ng-deep {
+      .mat-mdc-card-subtitle {
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+
+    mat-form-field {
+      flex: 1;
+      min-width: 200px;
+
+      ::ng-deep {
+        .mat-mdc-form-field-subscript-wrapper {
+          color: var(--text-color);
+        }
+      }
+    }
+  }
+
+  .exercise-types-container {
+    margin-bottom: 1.5rem;
+
+    h3 {
+      margin-bottom: 1rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .exercise-types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+
+      mat-checkbox {
+        ::ng-deep {
+          .mdc-checkbox__background {
+            border-color: var(--text-color);
+          }
+          .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background {
+            border-color: var(--text-color);
+          }
+          .mdc-form-field {
+            color: var(--text-color);
+          }
+          .mdc-checkbox__ripple {
+            background-color: var(--text-color);
+          }
+        }
+      }
+    }
+
+    .exercise-type-error {
+      margin-top: 0.5rem;
+      display: block;
+      color: var(--error-color);
+    }
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin: 2rem 0;
+  }
+
+  .prompt-container {
+    margin-top: 2rem;
+    position: relative;
+    background-color: var(--card-background);
+    border-radius: 4px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+
+    .prompt-content {
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin: 0;
+        padding-right: 2.5rem;
+        color: var(--text-color);
+      }
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      color: var(--text-color);
+    }
+  }
+}

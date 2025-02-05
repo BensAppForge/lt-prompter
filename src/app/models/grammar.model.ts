@@ -1,4 +1,4 @@
-import { Language, CefrLevel } from './vocabulary.model';
+import { Language, CEFRLevel } from './preferences.model';
 
 export interface GrammarPhenomenon {
   description: string;
@@ -7,7 +7,7 @@ export interface GrammarPhenomenon {
 
 export interface GrammarPromptConfig {
   targetLanguage: Language;
-  cefr: CefrLevel;
+  cefr: CEFRLevel;
   phenomena: GrammarPhenomenon[];
   situationalContext?: string;
   situationalContextIsDialog?: boolean;

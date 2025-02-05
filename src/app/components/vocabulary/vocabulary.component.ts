@@ -4,32 +4,36 @@ import {
   FormArray,
   FormBuilder,
   FormGroup,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
+  FormControl,
   ReactiveFormsModule,
+  Validators,
+  NonNullableFormBuilder,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { signal } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
-import autoAnimate from '@formkit/auto-animate';
-
-import {
-  VocabularyPromptConfig,
-  Language,
-  VocabularyWord,
-  CefrLevel,
-} from '../../models/vocabulary.model';
+import { signal } from '@angular/core';
+import { Language, CEFRLevel } from '../../models/preferences.model';
+import { VocabularyPromptConfig } from '../../models/vocabulary.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
+import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
+
+interface VocabularyForm {
+  targetLanguage: Language;
+  cefr: CEFRLevel;
+  words: string[];
+  situationalContext: string;
+  situationalContextIsDialog: boolean;
+}
 
 @Component({
   selector: 'app-vocabulary',
@@ -45,7 +49,9 @@ import { PromptTemplateService } from '../../services/prompt-template.service';
     MatIconModule,
     MatChipsModule,
     MatSlideToggleModule,
+    MatSnackBarModule,
     RouterModule,
+    AutoAnimateDirective,
   ],
   templateUrl: './vocabulary.component.html',
   styleUrls: ['./vocabulary.component.scss'],
@@ -53,67 +59,72 @@ import { PromptTemplateService } from '../../services/prompt-template.service';
 export class VocabularyComponent {
   private readonly promptTemplateService = inject(PromptTemplateService);
   private readonly parent = inject(ElementRef);
+  private readonly fb = inject(NonNullableFormBuilder);
 
-  public readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  readonly form = this.fb.group({
+    targetLanguage: this.fb.control<Language | null>(null, Validators.required),
+    cefr: this.fb.control<CEFRLevel | null>(null, Validators.required),
+    words: this.fb.array<string>([], [Validators.required, Validators.minLength(1)]),
+    situationalContext: this.fb.control(''),
+    situationalContextIsDialog: this.fb.control(false),
+  });
 
-  public readonly form: FormGroup;
-  public readonly generatedPrompt = signal<string>('');
-  public readonly copySuccess = signal(false);
-  public readonly copyError = signal(false);
-
-  public readonly languages: readonly Language[] = [
-    'English',
-    'Français',
-    'Español',
-    'Italiano',
-  ] as const;
-
-  public readonly cefrLevels: readonly CefrLevel[] = [
+  readonly languages: Language[] = ['English', 'español', 'français', 'italiano'];
+  readonly cefrLevels: CEFRLevel[] = [
     'A1',
+    'A1+',
     'A2',
+    'A2+',
     'B1',
+    'B1+',
     'B2',
+    'B2+',
     'C1',
-    'C2',
-  ] as const;
+  ];
 
-  constructor(private readonly fb: FormBuilder) {
-    this.form = this.fb.group({
-      targetLanguage: ['', Validators.required],
-      cefr: ['', Validators.required],
-      words: this.fb.array([], [Validators.required, Validators.minLength(1)]),
-      situationalContext: [''],
-      situationalContextIsDialog: [false],
-    });
+  readonly generatedPrompt = signal<string>('');
+  readonly copySuccess = signal(false);
+  readonly copyError = signal(false);
+
+  get words(): FormArray<FormControl<string>> {
+    return this.form.get('words') as FormArray<FormControl<string>>;
   }
 
-  ngAfterViewInit() {
-    // Enable auto-animate on the chip grid
-    const chipContainer = this.parent.nativeElement.querySelector('.chip-container');
-    if (chipContainer) {
-      autoAnimate(chipContainer);
-    }
-  }
-
-  public get words(): FormArray {
-    return this.form.get('words') as FormArray;
-  }
-
-  public addWordFromInput(event: MatChipInputEvent): void {
+  addWordFromInput(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
     if (value) {
-      const wordGroup = this.createWordFormGroup();
-      wordGroup.get('word')?.setValue(value);
-      this.words.push(wordGroup);
+      this.words.push(this.fb.control(value));
     }
     event.chipInput!.clear();
   }
 
-  public removeWord(index: number): void {
+  removeWord(index: number): void {
     this.words.removeAt(index);
   }
 
-  public async copyToClipboard(text: string): Promise<void> {
+  onSubmit(): void {
+    if (this.form.valid) {
+      const formValue = this.form.getRawValue();
+      const config: VocabularyPromptConfig = {
+        targetLanguage: formValue.targetLanguage!,
+        cefr: formValue.cefr!,
+        numberOfWords: formValue.words.length,
+        exerciseType: 'vocabulary',
+        wordList: formValue.words.map(word => ({ word })),
+      };
+
+      this.generatedPrompt.set(
+        this.promptTemplateService.generateVocabularyPrompt(config)
+      );
+    }
+  }
+
+  navigateToDashboard(): void {
+    window.location.href = '/dashboard';
+  }
+
+  async copyToClipboard(text: string): Promise<void> {
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
@@ -128,70 +139,12 @@ export class VocabularyComponent {
     }
   }
 
-  public onSubmit(): void {
-    if (this.form.valid) {
-      const formValue = this.form.value;
-      const config: VocabularyPromptConfig = {
-        targetLanguage: formValue.targetLanguage,
-        cefr: formValue.cefr,
-        words: formValue.words,
-        situationalContext: formValue.situationalContext,
-        situationalContextIsDialog: formValue.situationalContextIsDialog,
-      };
-
-      this.generatedPrompt.set(
-        this.promptTemplateService.generateVocabularyPrompt(
-          config,
-          formValue.targetLanguage // Use target language for the prompt
-        )
-      );
-    }
-  }
-
-  public navigateToDashboard(): void {
-    // Using Router directly instead of browser history
-    window.location.href = '/dashboard';
-  }
-
-  private createWordFormGroup(): FormGroup {
-    return this.fb.group({
-      word: ['', Validators.required],
-    });
-  }
-
-  private atLeastOneInputValidator(
-    control: AbstractControl
-  ): ValidationErrors | null {
-    const words = control.get('words') as FormArray;
-    const hasWords =
-      words.length > 0 &&
-      words.controls.some((ctrl) => ctrl.get('word')?.value?.trim());
-
-    if (!hasWords) {
-      return { noWords: true };
-    }
-
-    return null;
-  }
-
   private async fallbackCopyToClipboard(text: string): Promise<void> {
     const textArea = document.createElement('textarea');
     textArea.value = text;
-
-    // Make it invisible but keep it in the viewport for iOS
-    Object.assign(textArea.style, {
-      position: 'fixed',
-      top: '0',
-      left: '0',
-      width: '1px',
-      height: '1px',
-      padding: '0',
-      border: 'none',
-      outline: 'none',
-      boxShadow: 'none',
-      background: 'transparent',
-    });
-
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
@@ -200,7 +153,7 @@ export class VocabularyComponent {
       document.execCommand('copy');
       textArea.remove();
     } catch (err) {
-      console.error('Fallback: Unable to copy', err);
+      console.error('Fallback copy failed:', err);
       textArea.remove();
       throw new Error('Copy failed');
     }
@@ -209,18 +162,10 @@ export class VocabularyComponent {
   private showCopyFeedback(success: boolean): void {
     if (success) {
       this.copySuccess.set(true);
-      this.copyError.set(false);
+      setTimeout(() => this.copySuccess.set(false), 2000);
     } else {
-      this.copySuccess.set(false);
       this.copyError.set(true);
+      setTimeout(() => this.copyError.set(false), 2000);
     }
-
-    setTimeout(() => {
-      if (success) {
-        this.copySuccess.set(false);
-      } else {
-        this.copyError.set(false);
-      }
-    }, 2000);
   }
 }

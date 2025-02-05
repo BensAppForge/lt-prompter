@@ -7,19 +7,35 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AutoAnimateDirective } from '../shared/directives/auto-animate.directive';
-import { Language, CefrLevel } from '../models/vocabulary.model';
-import { PromptTemplateService } from '../services/prompt-template.service';
-import { ClipboardModule } from '@angular/cdk/clipboard';
 import { Clipboard } from '@angular/cdk/clipboard';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Language, CEFRLevel } from '../models/preferences.model';
+import { PromptTemplateService } from '../services/prompt-template.service';
+import { GrammarPhenomenon } from '../models/grammar.model';
+import { AutoAnimateDirective } from '../shared/directives/auto-animate.directive';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+
+interface GrammarFormValue {
+  targetLanguage: Language;
+  cefr: CEFRLevel;
+  phenomena: { description: string; hint: string }[];
+  situationalContext: string;
+  situationalContextIsDialog: boolean;
+}
 
 @Component({
   selector: 'app-grammar-con',
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -27,12 +43,11 @@ import { Clipboard } from '@angular/cdk/clipboard';
     MatInputModule,
     MatSelectModule,
     MatSlideToggleModule,
-    ReactiveFormsModule,
     ClipboardModule,
     AutoAnimateDirective,
   ],
   templateUrl: './grammar-con.component.html',
-  styleUrls: ['./grammar-con.component.scss']
+  styleUrls: ['./grammar-con.component.scss'],
 })
 export class GrammarConComponent {
   private readonly fb = inject(FormBuilder);
@@ -41,12 +56,27 @@ export class GrammarConComponent {
   private readonly clipboard = inject(Clipboard);
 
   readonly form: FormGroup;
-  readonly languages: Language[] = ['English', 'Français', 'Español', 'Italiano'];
-  readonly cefrLevels: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-  
+  readonly languages: Language[] = [
+    'English',
+    'español',
+    'français',
+    'italiano',
+  ];
+  readonly cefrLevels: CEFRLevel[] = [
+    'A1',
+    'A1+',
+    'A2',
+    'A2+',
+    'B1',
+    'B1+',
+    'B2',
+    'B2+',
+    'C1',
+  ];
+
   private readonly _generatedPrompt = signal<string>('');
   readonly generatedPrompt = computed(() => this._generatedPrompt());
-  
+
   private readonly _copyStatus = signal<'idle' | 'success' | 'error'>('idle');
   readonly copyStatus = computed(() => this._copyStatus());
 
@@ -54,7 +84,10 @@ export class GrammarConComponent {
     this.form = this.fb.group({
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
-      phenomena: this.fb.array([], [Validators.required, Validators.minLength(1)]),
+      phenomena: this.fb.array(
+        [],
+        [Validators.required, Validators.minLength(1)]
+      ),
       situationalContext: [''],
       situationalContextIsDialog: [false],
     });
@@ -67,7 +100,7 @@ export class GrammarConComponent {
   addPhenomenon(description: string, hint: string = ''): void {
     const trimmedDescription = description.trim();
     if (!trimmedDescription) return;
-    
+
     this.phenomena.push(
       this.fb.group({
         description: [trimmedDescription, Validators.required],
@@ -87,9 +120,23 @@ export class GrammarConComponent {
   onSubmit(): void {
     if (!this.form.valid) return;
 
+    const formValue = this.form.getRawValue() as GrammarFormValue;
+    const targetLanguage = formValue.targetLanguage;
+
+    if (!targetLanguage) return;
+
     const prompt = this.promptService.generateGrammarPrompt(
-      this.form.value,
-      this.form.get('targetLanguage')?.value
+      {
+        targetLanguage,
+        cefr: formValue.cefr,
+        phenomena: formValue.phenomena.map((p: { description: string; hint: string }) => ({
+          description: p.description,
+          hint: p.hint || undefined
+        })),
+        situationalContext: formValue.situationalContext,
+        situationalContextIsDialog: formValue.situationalContextIsDialog
+      },
+      targetLanguage
     );
     this._generatedPrompt.set(prompt);
   }

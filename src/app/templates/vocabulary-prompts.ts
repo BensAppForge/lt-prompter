@@ -1,4 +1,4 @@
-import { Language } from '../models/vocabulary.model';
+import { Language } from '../models/preferences.model';
 
 export interface BasePromptTemplate {
   intro: string;
@@ -74,7 +74,7 @@ export const vocabularyPromptTemplates: PromptTemplates = {
     ],
     dialogRequirement: 'Present the exercise in the form of a dialogue.',
   },
-  Français: {
+  français: {
     intro: frenchIntro,
     wordListIntro: 'Utilisez les mots suivants :\n',
     contextIntro: 'Contexte :\n',
@@ -94,7 +94,7 @@ export const vocabularyPromptTemplates: PromptTemplates = {
     ],
     dialogRequirement: 'Présentez l’exercice sous la forme d’un dialogue.',
   },
-  Español: {
+  español: {
     intro: spanishIntro,
     wordListIntro: 'Utiliza las siguientes palabras:\n',
     contextIntro: 'Contexto:\n',
@@ -114,7 +114,7 @@ export const vocabularyPromptTemplates: PromptTemplates = {
     ],
     dialogRequirement: 'Presenta el ejercicio en forma de diálogo.',
   },
-  Italiano: {
+  italiano: {
     intro: italianIntro,
     wordListIntro: 'Usa le seguenti parole:\n',
     contextIntro: 'Contesto:\n',
