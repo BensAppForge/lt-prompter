@@ -11,8 +11,13 @@ import {
   grammarPromptTemplates,
 } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig, GrammarPhenomenon } from '../models/grammar.model';
-import { ComprehensionPromptConfig } from '../models/comprehension.model';
-import { comprehensionPromptTemplates } from '../templates/comprehension-prompts';
+import { ComprehensionPromptConfig, ComprehensionExerciseType } from '../models/comprehension.model';
+import {
+  comprehensionPromptTemplates,
+  exerciseTypeDescriptions,
+  exerciseTypeInstructions,
+  exerciseTypeTranslations,
+} from '../templates/comprehension-prompts';
 
 @Injectable({
   providedIn: 'root',
@@ -140,17 +145,48 @@ export class PromptTemplateService {
       throw new Error(`No template found for language ${config.targetLanguage}`);
     }
 
-    let prompt = template.exercisesIntro
-      .replace('[TARGET_LANGUAGE]', config.targetLanguage)
-      .replace('[CEFR]', config.cefr)
-      .replace('[COMPREHENSION_TYPES]', config.exercises.join(', '))
-      .replace('[COMPREHENSION_SOURCE_TYPE]', config.sourceType);
+    const parts: string[] = [];
 
-    prompt += '\n\n' + template.requirementsIntro + '\n';
-    template.requirements.forEach(req => {
-      prompt += `- ${req}\n`;
+    // Add intro
+    parts.push(
+      template.exercisesIntro
+        .replace('[TARGET_LANGUAGE]', config.targetLanguage)
+        .replace('[CEFR]', config.cefr)
+        .replace(
+          '[COMPREHENSION_TYPES]',
+          config.exercises
+            .map(ex => exerciseTypeTranslations[config.targetLanguage][ex])
+            .join(', ')
+        )
+        .replace('[COMPREHENSION_SOURCE_TYPE]', config.sourceType)
+    );
+
+    // Add exercise type descriptions for the bot
+    parts.push('\n' + template.formatInstructionsHeader);
+    config.exercises.forEach(exerciseType => {
+      const description = exerciseTypeDescriptions[config.targetLanguage]?.[exerciseType];
+      const translatedType = exerciseTypeTranslations[config.targetLanguage][exerciseType];
+      if (description) {
+        parts.push(`\n${translatedType}:\n${description}`);
+      }
     });
 
-    return prompt;
+    // Add requirements
+    parts.push('\n' + template.requirementsIntro);
+    template.requirements.forEach(req => {
+      parts.push(`- ${req}`);
+    });
+
+    // Add exercise type instructions that will be shown above each exercise
+    parts.push('\n' + template.exerciseInstructionsHeader);
+    config.exercises.forEach(exerciseType => {
+      const instruction = exerciseTypeInstructions[config.targetLanguage]?.[exerciseType];
+      const translatedType = exerciseTypeTranslations[config.targetLanguage][exerciseType];
+      if (instruction) {
+        parts.push(`\n${translatedType}:\n${instruction}`);
+      }
+    });
+
+    return parts.join('\n');
   }
 }

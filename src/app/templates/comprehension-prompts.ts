@@ -1,17 +1,23 @@
 import { Language } from '../models/preferences.model';
 import { BasePromptTemplate } from './vocabulary-prompts';
 import { ComprehensionExerciseType } from '../models/comprehension.model';
+
 export interface ComprehensionPromptTemplate {
   exercisesIntro: string;
   requirementsIntro: string;
   requirements: string[];
+  formatInstructionsHeader: string;
+  exerciseInstructionsHeader: string;
 }
+
 type ExerciseTypeInstruction = {
   [key in ComprehensionExerciseType]: string;
 };
+
 type ExerciseTypeDescription = {
   [key in ComprehensionExerciseType]: string;
 };
+
 export type ComprehensionPromptTemplates = {
   [key in Language]: ComprehensionPromptTemplate;
 };
@@ -24,8 +30,9 @@ const englishExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Create a table with two columns: one for statements and one for possible matches. Students should match the statements on the left with the correct answers on the right.',
   'gapped-summary':
-    'Write a coherent summary of the text, leaving gaps where key information should be filled in. Make sure the missing words are essential for understanding the text.',
+    'Write a coherent summary of the text, leaving gaps where key information should be filled in. Make sure the missing words are essential for understanding the text. Do not add more than one gap per sentence or more than one gap every five words.',
 };
+
 const frenchExerciseTypeDescription: ExerciseTypeDescription = {
   'true-false':
     'Créez un tableau avec les en-têtes suivants : Énoncé | Vrai | Faux. Proposez des affirmations claires et concises basées sur le texte.',
@@ -34,7 +41,7 @@ const frenchExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Créez un tableau avec deux colonnes : une pour les énoncés et une pour les réponses possibles. Les élèves doivent associer les énoncés de gauche avec les bonnes réponses de droite.',
   'gapped-summary':
-    'Rédigez un résumé cohérent du texte en laissant des espaces vides où des informations clés doivent être ajoutées. Assurez-vous que les mots manquants sont essentiels à la compréhension du texte.',
+    'Rédigez un résumé cohérent du texte en laissant des trous pour les informations clés. Assurez-vous que les mots manquants sont essentiels à la compréhension. N’inclus pas plus de deux trous par phrase ni plus d’un trou tous les cinq mots.',
 };
 
 const spanishExerciseTypeDescription: ExerciseTypeDescription = {
@@ -45,7 +52,7 @@ const spanishExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Crea una tabla con dos columnas: una para los enunciados y otra para las respuestas posibles. Los estudiantes deben relacionar los enunciados de la izquierda con las respuestas correctas de la derecha.',
   'gapped-summary':
-    'Escribe un resumen coherente del texto, dejando espacios en blanco donde debe ir información clave. Asegúrate de que las palabras faltantes sean esenciales para la comprensión del texto.',
+    'Escribe un resumen coherente del texto dejando huecos para la información clave. Asegúrate de que las palabras omitidas sean esenciales para la comprensión. No incluyas más de dos huecos por oración ni más de uno cada cinco palabras.',
 };
 
 const italianExerciseTypeDescription: ExerciseTypeDescription = {
@@ -56,8 +63,19 @@ const italianExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Crea una tabella con due colonne: una per le affermazioni e una per le risposte possibili. Gli studenti devono abbinare le affermazioni a sinistra con le risposte corrette a destra.',
   'gapped-summary':
-    'Scrivi un riassunto coerente del testo, lasciando spazi vuoti dove devono essere inserite informazioni chiave. Assicurati che le parole mancanti siano essenziali per comprendere il testo.',
+    'Scrivi un riassunto coerente del testo lasciando spazi vuoti per le informazioni chiave. Assicurati che le parole mancanti siano essenziali per la comprensione. Non inserire più di due spazi per frase né più di uno ogni cinque parole.',
 };
+
+export const exerciseTypeDescriptions: Record<
+  Language,
+  ExerciseTypeDescription
+> = {
+  English: englishExerciseTypeDescription,
+  français: frenchExerciseTypeDescription,
+  español: spanishExerciseTypeDescription,
+  italiano: italianExerciseTypeDescription,
+};
+
 const englishExerciseTypeInstructions: ExerciseTypeInstruction = {
   'true-false':
     'Read each statement carefully and tick whether it is true or false.',
@@ -70,7 +88,7 @@ const englishExerciseTypeInstructions: ExerciseTypeInstruction = {
 
 const frenchExerciseTypeInstructions: ExerciseTypeInstruction = {
   'true-false':
-    'Lisez attentivement chaque énoncé et cochez s’il est vrai ou faux.',
+    "Lisez attentivement chaque énoncé et cochez s'il est vrai ou faux.",
   'multiple-choice': 'Choisissez la ou les bonnes réponses et cochez la case.',
   matching:
     'Associez les énoncés de gauche avec les bonnes réponses de droite.',
@@ -85,18 +103,56 @@ const spanishExerciseTypeInstructions: ExerciseTypeInstruction = {
   matching:
     'Relaciona los enunciados de la izquierda con las respuestas correctas de la derecha.',
   'gapped-summary':
-    'Rellena los espacios en blanco con las palabras correctas basadas en el texto.',
+    'Rellena los espacios en blanco con las palabras correctas basándote en el texto.',
 };
 
 const italianExerciseTypeInstructions: ExerciseTypeInstruction = {
   'true-false':
     'Leggi attentamente ogni affermazione e indica se è vera o falsa.',
   'multiple-choice':
-    'Scegli l’opzione o le opzioni corrette e spunta la casella.',
+    "Scegli l'opzione o le opzioni corrette e spunta la casella.",
   matching:
     'Abbina le affermazioni a sinistra con le risposte corrette a destra.',
   'gapped-summary':
     'Completa gli spazi vuoti con le parole corrette basandoti sul testo.',
+};
+
+export const exerciseTypeInstructions: Record<
+  Language,
+  ExerciseTypeInstruction
+> = {
+  English: englishExerciseTypeInstructions,
+  français: frenchExerciseTypeInstructions,
+  español: spanishExerciseTypeInstructions,
+  italiano: italianExerciseTypeInstructions,
+};
+
+// Exercise type translations for each language
+export const exerciseTypeTranslations: Record<Language, Record<ComprehensionExerciseType, string>> = {
+  English: {
+    'true-false': 'true-false',
+    'multiple-choice': 'multiple-choice',
+    'matching': 'matching',
+    'gapped-summary': 'gapped-summary'
+  },
+  français: {
+    'true-false': 'vrai-faux',
+    'multiple-choice': 'choix-multiple',
+    'matching': 'appariement',
+    'gapped-summary': 'texte-à-trous'
+  },
+  español: {
+    'true-false': 'verdadero-falso',
+    'multiple-choice': 'opción-múltiple',
+    'matching': 'emparejamiento',
+    'gapped-summary': 'texto-con-huecos'
+  },
+  italiano: {
+    'true-false': 'vero-falso',
+    'multiple-choice': 'scelta-multipla',
+    'matching': 'abbinamento',
+    'gapped-summary': 'testo-con-spazi'
+  }
 };
 
 let englishIntro: string =
@@ -104,7 +160,7 @@ let englishIntro: string =
 englishIntro += 'Your students are German teenagers.\n';
 englishIntro += 'Their CEFR level is [CEFR].\n';
 englishIntro +=
-  'Create a **set of comprehension exercises** covering different aspects of the text.\n';
+  'Create a set of comprehension exercises covering different aspects of the text.\n';
 englishIntro +=
   'The exercises should be of the following types: [COMPREHENSION_TYPES].\n';
 englishIntro +=
@@ -114,7 +170,7 @@ let frenchIntro: string =
 frenchIntro += 'Vos élèves sont des adolescents allemands.\n';
 frenchIntro += 'Leur niveau CECR est [CEFR].\n';
 frenchIntro +=
-  'Créez un **ensemble d’exercices de compréhension** couvrant différents aspects du texte.\n';
+  'Créez un ensemble d’exercices de compréhension couvrant différents aspects du texte.\n';
 frenchIntro +=
   'Les exercices doivent être des types suivants : [COMPREHENSION_TYPES].\n';
 frenchIntro +=
@@ -124,7 +180,7 @@ let spanishIntro: string =
 spanishIntro += 'Tus estudiantes son adolescentes alemanes.\n';
 spanishIntro += 'Su nivel del MCER es [CEFR].\n';
 spanishIntro +=
-  'Crea un **conjunto de ejercicios de comprensión** que abarquen diferentes aspectos del texto.\n';
+  'Crea un conjunto de ejercicios de comprensión que abarquen diferentes aspectos del texto.\n';
 spanishIntro +=
   'Los ejercicios deben ser de los siguientes tipos: [COMPREHENSION_TYPES].\n';
 spanishIntro +=
@@ -134,54 +190,59 @@ let italianIntro: string =
 italianIntro += 'I tuoi studenti sono adolescenti tedeschi.\n';
 italianIntro += 'Il loro livello QCER è [CEFR].\n';
 italianIntro +=
-  'Crea un **insieme di esercizi di comprensione** che coprano diversi aspetti del testo.\n';
+  'Crea un insieme di esercizi di comprensione che coprano diversi aspetti del testo.\n';
 italianIntro +=
   'Gli esercizi devono essere dei seguenti tipi: [COMPREHENSION_TYPES].\n';
 italianIntro +=
   'Fornirò il testo sorgente nel seguente formato: [COMPREHENSION_SOURCE_TYPE].\n';
+
 export const comprehensionPromptTemplates: ComprehensionPromptTemplates = {
   English: {
     exercisesIntro: englishIntro,
     requirementsIntro: 'Additional requirements:',
     requirements: [
-      'The **entire text** must be covered across all exercises, but **each individual exercise should focus on a different part**.',
-      'Ensure that **no question or task repeats the same information** across different exercises.',
-      'Each answer should be required only once across all exercises.',
-      'Avoid redundancy in the tasks and questions.',
-      'Provide a solution for each answer.',
+      'Create exercises that are appropriate for the given CEFR level.',
+      'Make sure the exercises test comprehension, not just memory.',
+      'Provide clear and unambiguous instructions.',
+      'Include an answer key at the end.',
     ],
+    formatInstructionsHeader: 'Exercise Type Formatting Instructions:',
+    exerciseInstructionsHeader: 'Exercise Instructions to Display:',
   },
   français: {
     exercisesIntro: frenchIntro,
     requirementsIntro: 'Exigences supplémentaires :',
     requirements: [
-      'Le **texte entier** doit être couvert par l’ensemble des exercices, mais **chaque exercice individuel doit se concentrer sur une partie différente**.',
-      'Assurez-vous qu’**aucune question ou tâche ne répète la même information** dans plusieurs exercices.',
-      'Chaque réponse ne doit être requise qu’une seule fois dans l’ensemble des exercices.',
-      'Évitez les redondances dans les consignes et les questions.',
-      'Fournissez une solution pour chaque réponse.',
+      'Créez des exercices adaptés au niveau CECR donné.',
+      'Assurez-vous que les exercices testent la compréhension, pas seulement la mémoire.',
+      'Fournissez des instructions claires et sans ambiguïté.',
+      'Incluez un corrigé à la fin.',
     ],
+    formatInstructionsHeader: 'Instructions de formatage par type d\'exercice :',
+    exerciseInstructionsHeader: 'Instructions à afficher pour les exercices :',
   },
   español: {
     exercisesIntro: spanishIntro,
     requirementsIntro: 'Requisitos adicionales:',
     requirements: [
-      'El **texto completo** debe ser cubierto a través de todos los ejercicios, pero **cada ejercicio individual debe centrarse en una parte diferente**.',
-      'Asegúrate de que **ninguna pregunta o tarea repita la misma información** en distintos ejercicios.',
-      'Cada respuesta solo debe ser requerida una vez en toda la serie de ejercicios.',
-      'Evita redundancias en las preguntas y enunciados de las tareas.',
-      'Proporciona una solución para cada respuesta.',
+      'Crea ejercicios apropiados para el nivel MCER dado.',
+      'Asegúrate de que los ejercicios evalúen la comprensión, no solo la memoria.',
+      'Proporciona instrucciones claras y sin ambigüedades.',
+      'Incluye una clave de respuestas al final.',
     ],
+    formatInstructionsHeader: 'Instrucciones de formato por tipo de ejercicio:',
+    exerciseInstructionsHeader: 'Instrucciones para mostrar en los ejercicios:',
   },
   italiano: {
     exercisesIntro: italianIntro,
     requirementsIntro: 'Requisiti aggiuntivi:',
     requirements: [
-      'L’**intero testo** deve essere coperto nell’insieme degli esercizi, ma **ogni esercizio deve concentrarsi su una parte diversa**.',
-      'Assicurati che **nessuna domanda o compito ripeta le stesse informazioni** in più esercizi.',
-      'Ogni risposta deve essere richiesta solo una volta nell’intero insieme di esercizi.',
-      'Evita ridondanze nelle domande e nelle consegne.',
-      'Fornisci una soluzione per ogni risposta.',
+      'Crea esercizi appropriati per il livello QCER specificato.',
+      'Assicurati che gli esercizi verifichino la comprensione, non solo la memoria.',
+      'Fornisci istruzioni chiare e non ambigue.',
+      'Includi una chiave di risposta alla fine.',
     ],
+    formatInstructionsHeader: 'Istruzioni di formattazione per tipo di esercizio:',
+    exerciseInstructionsHeader: 'Istruzioni da mostrare per gli esercizi:',
   },
 };

@@ -9,9 +9,14 @@ import { VersionService } from '../../services/version.service';
   imports: [CommonModule, RouterLink, DatePipe],
   template: `
     <footer class="app-footer">
-      <a routerLink="/changelog" class="version-link">
-        Version {{ versionService.currentVersion()?.versionNumber }} - {{ versionService.currentVersion()?.releaseDate | date : 'dd.MM.yyyy' }}
-      </a>
+      <div class="footer-links">
+        <a href="mailto:a.bentivoglio@akg-schwabach.de?subject=LT-Prompter%20Supportanfrage" class="support-link">
+          Support
+        </a>
+        <a routerLink="/changelog" class="version-link">
+          Version {{ versionService.currentVersion()?.versionNumber }} - {{ versionService.currentVersion()?.releaseDate | date : 'dd.MM.yyyy' }}
+        </a>
+      </div>
     </footer>
   `,
   styles: [`
@@ -30,7 +35,14 @@ import { VersionService } from '../../services/version.service';
       z-index: 1000;
     }
 
-    .version-link {
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .version-link,
+    .support-link {
       color: white;
       text-decoration: none;
       font-size: 0.9rem;
