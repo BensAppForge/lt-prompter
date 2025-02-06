@@ -165,16 +165,8 @@ export class ChangelogComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    this.versionService.getAllVersions().subscribe({
-      next: (versions) => {
-        console.log('Changelog received versions:', versions);
-        this.versions.set(versions);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading versions:', error);
-        this.isLoading.set(false);
-      }
-    });
+    const versions = this.versionService.getAllVersions();
+    this.versions.set(versions);
+    this.isLoading.set(false);
   }
 }

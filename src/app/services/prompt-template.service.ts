@@ -49,8 +49,21 @@ export class PromptTemplateService {
       ''
     );
 
+    // Add context if provided, otherwise use auto context
+    const trimmedContext = config.situationalContext?.trim() ?? '';
+    if (trimmedContext) {
+      parts.push('', template.contextIntro, trimmedContext);
+    } else {
+      parts.push('', template.autoContextIntro);
+    }
+
+    // Add dialog requirement if requested
+    if (config.isDialog && template.dialogRequirement) {
+      parts.push('', template.dialogRequirement);
+    }
+
     // Add requirements
-    parts.push(template.requirementsIntro);
+    parts.push('', template.requirementsIntro);
     template.requirements.forEach((req, index) => {
       parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
     });

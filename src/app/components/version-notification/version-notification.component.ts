@@ -18,33 +18,24 @@ export class VersionNotificationComponent implements OnInit {
   private readonly versionService = inject(VersionService);
 
   ngOnInit() {
-    // Wait for version service to finish loading
-    if (this.versionService.isLoading()) {
-      return;
-    }
-
     // Check for updates and show notification
     if (this.versionService.hasUpdate()) {
       const message = this.versionService.updateMessage();
-      const isFirstRun = this.versionService.isFirstRun();
-
+      
       if (message) {
         const snackBarRef = this.snackBar.open(
           message,
-          isFirstRun ? 'OK' : 'Details',
+          'Details',
           {
-            duration: isFirstRun ? 5000 : undefined,
+            duration: 5000,
             horizontalPosition: 'center',
             verticalPosition: 'bottom',
-            panelClass: isFirstRun ? 'first-run-snackbar' : 'update-snackbar'
           }
         );
 
-        if (!isFirstRun) {
-          snackBarRef.onAction().subscribe(() => {
-            this.router.navigate(['/changelog']);
-          });
-        }
+        snackBarRef.onAction().subscribe(() => {
+          this.router.navigate(['/changelog']);
+        });
       }
     }
   }

@@ -12,4 +12,6 @@ export interface VocabularyPromptConfig {
   numberOfWords: number;
   exerciseType: string;
   wordList: VocabularyWord[];
+  situationalContext?: string;
+  isDialog?: boolean;
 }

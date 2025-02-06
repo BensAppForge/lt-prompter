@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { VersionNotificationComponent } from './components/version-notification/version-notification.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ import { VersionNotificationComponent } from './components/version-notification/
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    VersionNotificationComponent
+    VersionNotificationComponent,
+    FooterComponent
   ],
   template: `
     <mat-toolbar class="app-toolbar">
@@ -31,6 +33,8 @@ import { VersionNotificationComponent } from './components/version-notification/
       <app-version-notification></app-version-notification>
       <router-outlet></router-outlet>
     </main>
+
+    <app-footer></app-footer>
   `,
   styles: [`
     .app-toolbar {
@@ -50,26 +54,23 @@ import { VersionNotificationComponent } from './components/version-notification/
       flex: 1;
     }
 
-    .app-title {
-      font-size: 1.2rem;
-      letter-spacing: 1px;
-      font-weight: 500;
+    .app-content {
+      padding-top: 64px;
+      min-height: calc(100vh - 64px - 40px); /* viewport height minus toolbar and footer */
+      box-sizing: border-box;
     }
 
-    .app-content {
-      margin-top: 64px;
-      min-height: calc(100vh - 64px);
-      background-color: var(--background-color);
-      transition: background-color 0.3s ease;
-      padding: 24px;
+    .app-title {
+      font-size: 1.2rem;
+      font-weight: 500;
     }
-  `]
+  `],
 })
 export class AppComponent {
   isDarkTheme = signal(false);
 
-  toggleTheme(): void {
-    this.isDarkTheme.update(current => !current);
-    document.body.classList.toggle('dark-theme', this.isDarkTheme());
+  toggleTheme() {
+    this.isDarkTheme.update(dark => !dark);
+    document.body.classList.toggle('dark-theme');
   }
 }

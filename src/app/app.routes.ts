@@ -1,13 +1,11 @@
 import { Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { VersionService } from './services/version.service';
-import { firstValueFrom } from 'rxjs';
 
 // Resolver function to ensure version service is initialized
-async function versionResolver() {
+function versionResolver() {
   const versionService = inject(VersionService);
-  // Wait for versions to be loaded
-  const versions = await firstValueFrom(versionService.getAllVersions());
+  const versions = versionService.getAllVersions();
   return versions.length > 0;
 }
 

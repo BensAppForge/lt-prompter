@@ -4,7 +4,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, RouterLink } from '@angular/router';
 import { VersionService } from '../../services/version.service';
-import { DatePipe } from '@angular/common';
 import { environment } from '../../../environments/environment';
 
 interface DashboardCard {
@@ -22,7 +21,6 @@ interface DashboardCard {
     MatCardModule,
     MatIconModule,
     RouterModule,
-    DatePipe,
     RouterLink,
   ],
   template: `
@@ -41,11 +39,6 @@ interface DashboardCard {
         </ng-container>
       </div>
     </div>
-    <footer class="version-footer">
-      <a routerLink="/changelog" class="version-link">
-        Version {{ currentVersion }} - {{ currentDate | date : 'dd.MM.yyyy' }}
-      </a>
-    </footer>
   `,
   styles: [
     `
@@ -122,19 +115,6 @@ interface DashboardCard {
             padding: 0 12px 12px;
           }
         }
-      }
-
-      .version-footer {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        padding: 8px 16px;
-        background: rgba(0, 0, 0, 0.1);
-      }
-      .version-link {
-        color: inherit;
-        text-decoration: none;
-        font-size: 0.9rem;
       }
     `,
   ],

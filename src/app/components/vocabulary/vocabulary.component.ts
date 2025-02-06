@@ -112,6 +112,8 @@ export class VocabularyComponent {
         numberOfWords: formValue.words.length,
         exerciseType: 'vocabulary',
         wordList: formValue.words.map(word => ({ word })),
+        situationalContext: formValue.situationalContext,
+        isDialog: formValue.situationalContextIsDialog,
       };
 
       this.generatedPrompt.set(
