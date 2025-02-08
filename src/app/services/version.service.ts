@@ -73,10 +73,12 @@ export class VersionService {
     this.updateMessage.set(
       `Eine neue Version ist verfügbar: ${latestVersion.versionNumber}`
     );
-    this.snackBar.open(this.updateMessage(), 'OK', {
-      duration: 5000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom',
+    setTimeout(() => {
+      this.snackBar.open(this.updateMessage(), 'OK', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
     });
   }
 
