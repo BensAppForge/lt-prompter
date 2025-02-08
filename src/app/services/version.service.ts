@@ -36,11 +36,12 @@ export class VersionService {
     // {
     //   id: 3,
     //   versionNumber: '0.7.0 - beta',
-    //   releaseDate: new Date('2025-02-09'),
+    //   releaseDate: new Date('2025-02-08'),
     //   shortDescription: 'Fehlerbehebung, Neue Features',
     //   longDescription: `
-    //     • Fehler bei der Rechtschreibprüfung in Eingabefeldern in Safari behoben
-    //     • Datenschutz und Impressum hinzugefügt
+    //     • Fehler bei der Rechtschreibprüfung in Eingabefeldern
+    //     • Informationen zu Datenschutz und Impressum hinzugefügt
+    //     • Verbesserungen der Benutzeroberfläche: Light- und Darkmode Schalter
     //   `.trim(),
     // },
   ];

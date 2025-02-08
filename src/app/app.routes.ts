@@ -53,16 +53,34 @@ export const routes: Routes = [
   },
   {
     path: 'templates',
-    loadComponent: () => import('./components/template-manager/template-manager.component')
-      .then(m => m.TemplateManagerComponent)
+    loadComponent: () =>
+      import('./components/template-manager/template-manager.component').then(
+        (m) => m.TemplateManagerComponent
+      ),
   },
   {
     path: 'settings',
-    loadComponent: () => import('./components/preferences/preferences.component')
-      .then(m => m.PreferencesComponent)
+    loadComponent: () =>
+      import('./components/preferences/preferences.component').then(
+        (m) => m.PreferencesComponent
+      ),
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./components/privacy/privacy.component').then(
+        (m) => m.PrivacyComponent
+      ),
+  },
+  {
+    path: 'about',
+    loadComponent: () =>
+      import('./components/about/about.component').then(
+        (m) => m.AboutComponent
+      ),
   },
   {
     path: '**',
-    redirectTo: 'dashboard'
-  }
+    redirectTo: 'dashboard',
+  },
 ];

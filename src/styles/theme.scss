@@ -1,8 +1,8 @@
 // Import prebuilt theme
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-// Import Material Icons font
-@import 'material-icons/iconfont/material-icons.css';
+// Import local fonts
+@import 'fonts';
 
 // Define CSS custom properties for theming
 :root {

@@ -1,0 +1,26 @@
+.page-container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-button-container {
+  margin-bottom: 16px;
+}
+
+.privacy-container {
+  mat-card-content {
+    padding: 16px;
+
+    h2 {
+      margin-top: 24px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    p {
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+  }
+}

@@ -167,7 +167,7 @@ export class DashboardComponent {
     {
       title: 'Impressum',
       icon: 'info',
-      route: '/imprint',
+      route: '/about',
       description: 'Rechtliche Informationen',
     },
   ];
