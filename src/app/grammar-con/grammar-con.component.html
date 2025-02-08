@@ -44,7 +44,10 @@
             <mat-form-field appearance="outline" class="phenomenon-input">
               <mat-label>Grammatisches Phänomen</mat-label>
               <input matInput #phenomenonInput placeholder="z.B. Präsens Perfekt"
-                     aria-label="Grammatisches Phänomen eingeben">
+                     aria-label="Grammatisches Phänomen eingeben"
+                     [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
+                     [attr.spellcheck]="true"
+                     autocomplete="off">
               <mat-hint>Beschreiben Sie das grammatische Phänomen</mat-hint>
             </mat-form-field>
 

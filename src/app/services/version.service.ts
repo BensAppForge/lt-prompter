@@ -33,6 +33,16 @@ export class VersionService {
         • Verbesserungen der Benutzeroberfläche
       `.trim(),
     },
+    // {
+    //   id: 3,
+    //   versionNumber: '0.7.0 - beta',
+    //   releaseDate: new Date('2025-02-09'),
+    //   shortDescription: 'Fehlerbehebung, Neue Features',
+    //   longDescription: `
+    //     • Fehler bei der Rechtschreibprüfung in Eingabefeldern in Safari behoben
+    //     • Datenschutz und Impressum hinzugefügt
+    //   `.trim(),
+    // },
   ];
 
   constructor(private snackBar: MatSnackBar) {
@@ -44,7 +54,7 @@ export class VersionService {
     this.currentVersion.set(latestVersion);
 
     const storedVersion = localStorage.getItem(this.VERSION_KEY);
-    
+
     if (!storedVersion) {
       // First time user
       this.showUpdateNotification();
@@ -59,7 +69,9 @@ export class VersionService {
   private showUpdateNotification(): void {
     this.hasUpdate.set(true);
     const latestVersion = this.LATEST_VERSIONS[this.LATEST_VERSIONS.length - 1];
-    this.updateMessage.set(`Eine neue Version ist verfügbar: ${latestVersion.versionNumber}`);
+    this.updateMessage.set(
+      `Eine neue Version ist verfügbar: ${latestVersion.versionNumber}`
+    );
     this.snackBar.open(this.updateMessage(), 'OK', {
       duration: 5000,
       horizontalPosition: 'center',
@@ -68,8 +80,9 @@ export class VersionService {
   }
 
   getAllVersions(): Version[] {
-    return [...this.LATEST_VERSIONS].sort((a, b) => 
-      new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+    return [...this.LATEST_VERSIONS].sort(
+      (a, b) =>
+        new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
     );
   }
 }

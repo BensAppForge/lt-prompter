@@ -6,7 +6,7 @@
   </div>
   <mat-card class="vocabulary-container">
     <mat-card-header>
-      <mat-card-title>Lückentextübung erstellen</mat-card-title>
+      <mat-card-title>Vokabelübung als Lückentextübung erstellen</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
@@ -49,8 +49,8 @@
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </mat-chip-row>
-                <input placeholder="Neues Wort..."
-                  [matChipInputFor]="chipGrid"
+                <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"
+                  autocomplete="off" #wordInput placeholder="Neues Wort..." [matChipInputFor]="chipGrid"
                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                   (matChipInputTokenEnd)="addWordFromInput($event)">
               </mat-chip-grid>

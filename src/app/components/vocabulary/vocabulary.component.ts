@@ -61,6 +61,18 @@ export class VocabularyComponent {
   private readonly parent = inject(ElementRef);
   private readonly fb = inject(NonNullableFormBuilder);
 
+  private readonly languageMap: Record<Language, string> = {
+    'English': 'en-EN',
+    'français': 'fr-FR',
+    'español': 'es-ES',
+    'italiano': 'it-IT'
+  } as const;
+
+  getLanguageCode(language: Language | null | undefined): string {
+    if (!language) return 'en-EN';
+    return this.languageMap[language] || 'en-EN';
+  }
+
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
   readonly form = this.fb.group({
     targetLanguage: this.fb.control<Language | null>(null, Validators.required),

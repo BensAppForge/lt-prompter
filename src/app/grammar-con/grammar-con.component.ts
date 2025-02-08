@@ -55,11 +55,23 @@ export class GrammarConComponent {
   private readonly promptService = inject(PromptTemplateService);
   private readonly clipboard = inject(Clipboard);
 
+  private readonly languageMap: Record<Language, string> = {
+    'English': 'en-EN',
+    'français': 'fr-FR',
+    'español': 'es-ES',
+    'italiano': 'it-IT'
+  } as const;
+
+  getLanguageCode(language: Language | null | undefined): string {
+    if (!language) return 'en-EN';
+    return this.languageMap[language] || 'en-EN';
+  }
+
   readonly form: FormGroup;
   readonly languages: Language[] = [
     'English',
-    'español',
     'français',
+    'español',
     'italiano',
   ];
   readonly cefrLevels: CEFRLevel[] = [
