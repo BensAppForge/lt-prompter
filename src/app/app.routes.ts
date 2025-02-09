@@ -32,14 +32,14 @@ export const routes: Routes = [
   {
     path: 'grammar',
     loadComponent: () =>
-      import('./grammar-con/grammar-con.component').then(
+      import('./components/grammar-con/grammar-con.component').then(
         (m) => m.GrammarConComponent
       ),
   },
   {
     path: 'comprehension',
     loadComponent: () =>
-      import('./comprehension/comprehension.component').then(
+      import('./components/comprehension/comprehension.component').then(
         (m) => m.ComprehensionComponent
       ),
   },
@@ -77,6 +77,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/about/about.component').then(
         (m) => m.AboutComponent
+      ),
+  },
+  {
+    path: 'clone',
+    loadComponent: () =>
+      import('./components/clone/clone.component').then(
+        (m) => m.CloneComponent
       ),
   },
   {

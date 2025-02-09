@@ -11,17 +11,16 @@ import {
   FormGroup,
   ReactiveFormsModule,
   Validators,
-  FormArray,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Language, CEFRLevel } from '../models/preferences.model';
+import { Language, CEFRLevel } from '../../models/preferences.model';
 import {
   ComprehensionExerciseType,
   ComprehensionSourceType,
-} from '../models/comprehension.model';
-import { PromptTemplateService } from '../services/prompt-template.service';
-import { ClipboardService } from '../services/clipboard.service';
+} from '../../models/comprehension.model';
+import { PromptTemplateService } from '../../services/prompt-template.service';
+import { ClipboardService } from '../../services/clipboard.service';
 
 @Component({
   selector: 'app-comprehension',

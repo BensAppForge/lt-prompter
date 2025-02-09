@@ -1,23 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Language } from '../models/preferences.model';
-import { VocabularyPromptConfig, VocabularyWord } from '../models/vocabulary.model';
+import { VocabularyPromptConfig } from '../models/vocabulary.model';
 import {
-  BasePromptTemplate,
   VocabularyPromptTemplate,
   vocabularyPromptTemplates,
 } from '../templates/vocabulary-prompts';
-import {
-  GrammarPromptTemplate,
-  grammarPromptTemplates,
-} from '../templates/grammar-con-prompts';
-import { GrammarPromptConfig, GrammarPhenomenon } from '../models/grammar.model';
-import { ComprehensionPromptConfig, ComprehensionExerciseType } from '../models/comprehension.model';
+import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
+import { GrammarPromptConfig } from '../models/grammar.model';
+import { ComprehensionPromptConfig } from '../models/comprehension.model';
 import {
   comprehensionPromptTemplates,
   exerciseTypeDescriptions,
   exerciseTypeInstructions,
   exerciseTypeTranslations,
 } from '../templates/comprehension-prompts';
+import { ClonePromptConfig } from '../models/clone.model';
+import { clonePromptTemplates } from '../templates/clone-prompts';
 
 @Injectable({
   providedIn: 'root',
@@ -43,14 +41,19 @@ export class PromptTemplateService {
     // Add intro
     parts.push(
       template.intro
-        .replace('[TARGET_LANGUAGE]', config.targetLanguage === 'English' ? config.targetLanguage : config.targetLanguage.toLowerCase())
+        .replace(
+          '[TARGET_LANGUAGE]',
+          config.targetLanguage === 'English'
+            ? config.targetLanguage
+            : config.targetLanguage.toLowerCase()
+        )
         .replace('[CEFR]', config.cefr)
     );
 
     // Add word list
     parts.push(
       template.wordListIntro,
-      config.wordList.map(w => w.word).join(', '),
+      config.wordList.map((w) => w.word).join(', '),
       ''
     );
 
@@ -85,18 +88,21 @@ export class PromptTemplateService {
     }
 
     // Convert language to proper casing for template lookup
-    const templateKey = language === 'English' ? 'English' : 
-      language.charAt(0).toUpperCase() + language.slice(1);
-    
+    const templateKey =
+      language === 'English'
+        ? 'English'
+        : language.charAt(0).toUpperCase() + language.slice(1);
+
     const template = grammarPromptTemplates[templateKey];
     if (!template) {
       throw new Error(`No template found for language: ${language}`);
     }
 
     // Format target language based on the UI language
-    const targetLanguage = language === 'English' 
-      ? config.targetLanguage 
-      : config.targetLanguage.toLowerCase();
+    const targetLanguage =
+      language === 'English'
+        ? config.targetLanguage
+        : config.targetLanguage.toLowerCase();
 
     const parts: string[] = [
       template.intro
@@ -142,7 +148,9 @@ export class PromptTemplateService {
   generateComprehensionPrompt(config: ComprehensionPromptConfig): string {
     const template = comprehensionPromptTemplates[config.targetLanguage];
     if (!template) {
-      throw new Error(`No template found for language ${config.targetLanguage}`);
+      throw new Error(
+        `No template found for language ${config.targetLanguage}`
+      );
     }
 
     const parts: string[] = [];
@@ -155,7 +163,7 @@ export class PromptTemplateService {
         .replace(
           '[COMPREHENSION_TYPES]',
           config.exercises
-            .map(ex => exerciseTypeTranslations[config.targetLanguage][ex])
+            .map((ex) => exerciseTypeTranslations[config.targetLanguage][ex])
             .join(', ')
         )
         .replace('[COMPREHENSION_SOURCE_TYPE]', config.sourceType)
@@ -163,9 +171,11 @@ export class PromptTemplateService {
 
     // Add exercise type descriptions for the bot
     parts.push('\n' + template.formatInstructionsHeader);
-    config.exercises.forEach(exerciseType => {
-      const description = exerciseTypeDescriptions[config.targetLanguage]?.[exerciseType];
-      const translatedType = exerciseTypeTranslations[config.targetLanguage][exerciseType];
+    config.exercises.forEach((exerciseType) => {
+      const description =
+        exerciseTypeDescriptions[config.targetLanguage]?.[exerciseType];
+      const translatedType =
+        exerciseTypeTranslations[config.targetLanguage][exerciseType];
       if (description) {
         parts.push(`\n${translatedType}:\n${description}`);
       }
@@ -173,20 +183,43 @@ export class PromptTemplateService {
 
     // Add requirements
     parts.push('\n' + template.requirementsIntro);
-    template.requirements.forEach(req => {
+    template.requirements.forEach((req) => {
       parts.push(`- ${req}`);
     });
 
     // Add exercise type instructions that will be shown above each exercise
     parts.push('\n' + template.exerciseInstructionsHeader);
-    config.exercises.forEach(exerciseType => {
-      const instruction = exerciseTypeInstructions[config.targetLanguage]?.[exerciseType];
-      const translatedType = exerciseTypeTranslations[config.targetLanguage][exerciseType];
+    config.exercises.forEach((exerciseType) => {
+      const instruction =
+        exerciseTypeInstructions[config.targetLanguage]?.[exerciseType];
+      const translatedType =
+        exerciseTypeTranslations[config.targetLanguage][exerciseType];
       if (instruction) {
         parts.push(`\n${translatedType}:\n${instruction}`);
       }
     });
 
     return parts.join('\n');
+  }
+
+  generateClonePrompt(config: ClonePromptConfig & { newContext?: string }): string {
+    const template = clonePromptTemplates[config.targetLanguage];
+    let prompt = template.exercisesIntro
+      .replace('[TARGET_LANGUAGE]', config.targetLanguage)
+      .replace('[CEFR]', config.cefr)
+      .replace('[CLONE_SOURCE_TYPE]', config.sourceType);
+
+    if (config.newContext) {
+      prompt += template.contextIntro + config.newContext + '\n';
+    } else {
+      prompt += template.autoContextIntro + '\n';
+    }
+
+    prompt += template.requirementsIntro + '\n';
+    template.requirements.forEach(req => {
+      prompt += '- ' + req + '\n';
+    });
+
+    return prompt;
   }
 }

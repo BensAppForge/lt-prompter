@@ -33,17 +33,19 @@ export class VersionService {
         • Verbesserungen der Benutzeroberfläche
       `.trim(),
     },
-    // {
-    //   id: 3,
-    //   versionNumber: '0.7.0 - beta',
-    //   releaseDate: new Date('2025-02-08'),
-    //   shortDescription: 'Fehlerbehebung, Neue Features',
-    //   longDescription: `
-    //     • Fehler bei der Rechtschreibprüfung in Eingabefeldern
-    //     • Informationen zu Datenschutz und Impressum hinzugefügt
-    //     • Verbesserungen der Benutzeroberfläche: Light- und Darkmode Schalter
-    //   `.trim(),
-    // },
+    {
+      id: 3,
+      versionNumber: '0.7.0 - beta',
+      releaseDate: new Date('2025-02-09'),
+      shortDescription: 'Fehlerbehebung, Neue Features',
+      longDescription: `
+        • Neuer Editor zum Klonen bestehender Übungen
+        • Fehlerbehebung bei der Rechtschreibprüfung in Eingabefeldern
+        • Informationen zu Datenschutz und Impressum hinzugefügt
+        • App icon hinzugefügt
+        • Verbesserungen der Benutzeroberfläche: Light- und Darkmode Schalter
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {
@@ -55,31 +57,54 @@ export class VersionService {
     this.currentVersion.set(latestVersion);
 
     const storedVersion = localStorage.getItem(this.VERSION_KEY);
+    const storedVersionData = this.LATEST_VERSIONS.find(
+      (v) => v.versionNumber === storedVersion
+    );
 
-    if (!storedVersion) {
-      // First time user
+    if (!storedVersion || !storedVersionData) {
+      // First time user or invalid stored version
       this.showUpdateNotification();
       localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
-    } else if (storedVersion !== latestVersion.versionNumber) {
-      // User has an older version
-      this.showUpdateNotification();
-      localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
+    } else {
+      // Compare version IDs instead of strings
+      if (storedVersionData.id !== latestVersion.id) {
+        // Clear stored version if it's higher than latest (rollback case)
+        if (storedVersionData.id > latestVersion.id) {
+          localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
+        } else {
+          // Normal update case
+          this.showUpdateNotification();
+          localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
+        }
+      }
     }
   }
 
   private showUpdateNotification(): void {
-    this.hasUpdate.set(true);
-    const latestVersion = this.LATEST_VERSIONS[this.LATEST_VERSIONS.length - 1];
-    this.updateMessage.set(
-      `Eine neue Version ist verfügbar: ${latestVersion.versionNumber}`
-    );
-    setTimeout(() => {
-      this.snackBar.open(this.updateMessage(), 'OK', {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
+    try {
+      this.hasUpdate.set(true);
+      const latestVersion =
+        this.LATEST_VERSIONS[this.LATEST_VERSIONS.length - 1];
+      if (!latestVersion) return;
+
+      const message = `Eine neue Version ist verfügbar: ${latestVersion.versionNumber}`;
+      this.updateMessage.set(message);
+
+      // Wrap in try-catch to handle any timing issues
+      setTimeout(() => {
+        try {
+          this.snackBar.open(message, 'OK', {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+          });
+        } catch (error) {
+          console.error('Error showing snackbar:', error);
+        }
       });
-    });
+    } catch (error) {
+      console.error('Error in showUpdateNotification:', error);
+    }
   }
 
   getAllVersions(): Version[] {

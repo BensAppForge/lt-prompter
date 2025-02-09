@@ -16,21 +16,21 @@
   --text-secondary: rgba(0, 0, 0, 0.54);
   --border-color: rgba(0, 0, 0, 0.12);
   --input-background: #ffffff;
+  --card-background: #ffffff;
 }
 
 // Dark theme styles
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: #7986cb;  // Indigo 300
-    --accent-color: #ff4081;   // Pink A200
-    --warn-color: #f44336;     // Red 500
-    --background-color: #303030;
-    --surface-color: #424242;
-    --text-color: rgba(255, 255, 255, 0.87);
-    --text-secondary: rgba(255, 255, 255, 0.54);
-    --border-color: rgba(255, 255, 255, 0.12);
-    --input-background: #424242;
-  }
+body.dark-theme {
+  --primary-color: #7986cb;  // Indigo 300
+  --accent-color: #ff4081;   // Pink A200
+  --warn-color: #f44336;     // Red 500
+  --background-color: #303030;
+  --surface-color: #424242;
+  --text-color: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.54);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --input-background: #424242;
+  --card-background: #424242;
 
   // Override Material form field styles in dark mode
   .mat-mdc-text-field-wrapper {
@@ -65,9 +65,18 @@
   }
 }
 
+// Base styles for both themes
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 // Material Design Component Overrides
 .mat-mdc-card {
-  --mdc-elevated-card-container-color: var(--surface-color);
+  --mdc-elevated-card-container-color: var(--card-background);
+  background-color: var(--card-background) !important;
+  transition: background-color 0.3s ease;
 }
 
 .mat-mdc-card-title {
@@ -140,7 +149,4 @@ html, body {
 body { 
   margin: 0; 
   font-family: Roboto, "Helvetica Neue", sans-serif; 
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease;
 }

@@ -16,10 +16,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Language, CEFRLevel } from '../models/preferences.model';
-import { PromptTemplateService } from '../services/prompt-template.service';
-import { GrammarPhenomenon } from '../models/grammar.model';
-import { AutoAnimateDirective } from '../shared/directives/auto-animate.directive';
+import { Language, CEFRLevel } from '../../models/preferences.model';
+import { PromptTemplateService } from '../../services/prompt-template.service';
+import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
 interface GrammarFormValue {

@@ -1,0 +1,93 @@
+<div class="page-container">
+  <div class="back-button-container">
+    <button mat-icon-button (click)="navigateToDashboard()" aria-label="Zurück zum Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <mat-card class="clone-container">
+    <mat-card-header>
+      <mat-card-title>Übung klonen</mat-card-title>
+      <mat-card-subtitle>Erstellen Sie eine ähnliche Übung basierend auf einer vorhandenen</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" #cloneForm="ngForm">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Zielsprache</mat-label>
+            <mat-select formControlName="targetLanguage" required>
+              <mat-option *ngFor="let lang of languages; trackBy: trackByIndex" [value]="lang">
+                {{ lang }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('targetLanguage')?.hasError('required')">
+              Bitte wählen Sie eine Zielsprache aus
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CEFR-Niveau</mat-label>
+            <mat-select formControlName="cefr" required>
+              <mat-option *ngFor="let level of cefrLevels; trackBy: trackByIndex" [value]="level">
+                {{ level }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('cefr')?.hasError('required')">
+              Bitte wählen Sie ein CEFR-Niveau aus
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Quelle</mat-label>
+            <mat-select formControlName="sourceType" required>
+              <mat-option value="screenshot">Screenshot</mat-option>
+              <mat-option value="docx">Word-Dokument</mat-option>
+              <mat-option value="pdf">PDF</mat-option>
+              <mat-option value="copied-text">Kopierter Text</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('sourceType')?.hasError('required')">
+              Bitte wählen Sie eine Quelle aus
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Neuer Kontext (optional)</mat-label>
+            <textarea matInput
+                     formControlName="newContext"
+                     rows="4"
+                     placeholder="Geben Sie einen neuen Kontext ein, falls gewünscht"
+                     [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
+                     [attr.spellcheck]="true">
+            </textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="button-row">
+          <button mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="!form.valid">
+            Prompt generieren
+          </button>
+        </div>
+      </form>
+
+      <div *ngIf="generatedPrompt()" class="prompt-container" role="region" aria-label="Generierter Prompt">
+        <div class="prompt-content">
+          <pre>{{ generatedPrompt() }}</pre>
+        </div>
+        <button mat-icon-button 
+                (click)="copyToClipboard(generatedPrompt())" 
+                class="copy-button"
+                aria-label="In die Zwischenablage kopieren">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

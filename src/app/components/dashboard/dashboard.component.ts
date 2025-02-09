@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, RouterLink } from '@angular/router';
-import { VersionService } from '../../services/version.service';
 import { environment } from '../../../environments/environment';
 
 interface DashboardCard {
@@ -134,12 +133,12 @@ export class DashboardComponent {
       description:
         'Prompts für Grammatikübungen erstellen, die für einen bestimmten Kontext geeignet sind.',
     },
-    // {
-    //   title: 'Hörverstehen',
-    //   icon: 'headphones',
-    //   route: '/listening',
-    //   description: 'Prompts für Hörverstehen erstellen',
-    // },
+    {
+      title: 'Übung klonen',
+      icon: 'content_copy',
+      route: '/clone',
+      description: 'Prompts, um bestehende Übungen zu klonen.',
+    },
     {
       title: 'Textverstehen',
       icon: 'auto_stories',
