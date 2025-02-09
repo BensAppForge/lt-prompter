@@ -46,6 +46,15 @@ export class VersionService {
         • Verbesserungen der Benutzeroberfläche: Light- und Darkmode Schalter
       `.trim(),
     },
+    {
+      id: 4,
+      versionNumber: '0.7.1 - beta',
+      releaseDate: new Date('2025-02-10'),
+      shortDescription: 'Detailanpassungen',
+      longDescription: `
+        • Verbesserungen der Requirements für Prompts zum Klonen
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {
