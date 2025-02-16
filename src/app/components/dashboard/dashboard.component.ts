@@ -131,13 +131,13 @@ export class DashboardComponent {
       icon: 'rule',
       route: '/grammar',
       description:
-        'Prompts für Grammatikübungen erstellen, die für einen bestimmten Kontext geeignet sind.',
+        'Prompts für Grammatikübungen erstellen, die für einen bestimmten Kontext geeignet sind',
     },
     {
       title: 'Übung klonen',
       icon: 'content_copy',
       route: '/clone',
-      description: 'Prompts, um bestehende Übungen zu klonen.',
+      description: 'Prompts, um bestehende Übungen zu klonen',
     },
     {
       title: 'Textverstehen',

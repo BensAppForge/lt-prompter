@@ -49,7 +49,7 @@ export class VersionService {
     {
       id: 4,
       versionNumber: '0.7.1 - beta',
-      releaseDate: new Date('2025-02-10'),
+      releaseDate: new Date('2025-02-09'),
       shortDescription: 'Detailanpassungen',
       longDescription: `
         • Verbesserungen der Requirements für Prompts zum Klonen
