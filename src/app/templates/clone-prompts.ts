@@ -9,6 +9,7 @@ export interface ClonePromptTemplate {
 export type ClonePromptTemplates = {
   [key in Language]: ClonePromptTemplate;
 };
+
 let englishIntro: string =
   'You are an expert in teaching [TARGET_LANGUAGE] as a foreign language.\n';
 englishIntro += 'Your students are German teenagers.\n';

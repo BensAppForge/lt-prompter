@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,13 +20,20 @@ import { Language, CEFRLevel } from '../../models/preferences.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { ScrollService } from '../../shared/services/scroll.service';
+import { GrammarPromptConfig, GrammarPhenomenon } from '../../models/grammar.model';
 
 interface GrammarFormValue {
   targetLanguage: Language;
   cefr: CEFRLevel;
-  phenomena: { description: string; hint: string }[];
+  phenomena: PhenomenonForm[];
   situationalContext: string;
   situationalContextIsDialog: boolean;
+}
+
+interface PhenomenonForm {
+  description: string;
+  hint: string;
 }
 
 @Component({
@@ -53,6 +60,7 @@ export class GrammarConComponent {
   private readonly router = inject(Router);
   private readonly promptService = inject(PromptTemplateService);
   private readonly clipboard = inject(Clipboard);
+  private readonly scrollService = inject(ScrollService);
 
   private readonly languageMap: Record<Language, string> = {
     'English': 'en-EN',
@@ -91,16 +99,28 @@ export class GrammarConComponent {
   private readonly _copyStatus = signal<'idle' | 'success' | 'error'>('idle');
   readonly copyStatus = computed(() => this._copyStatus());
 
+  @ViewChild('promptContainer') promptContainer?: ElementRef;
+
   constructor() {
     this.form = this.fb.group({
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
-      phenomena: this.fb.array(
-        [],
-        [Validators.required, Validators.minLength(1)]
-      ),
+      phenomena: this.fb.array<PhenomenonForm>([], [
+        Validators.required,
+        Validators.minLength(1),
+      ]),
       situationalContext: [''],
       situationalContextIsDialog: [false],
+    });
+
+    effect(() => {
+      if (this._generatedPrompt()) {
+        setTimeout(() => {
+          if (this.promptContainer?.nativeElement) {
+            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+          }
+        }, 100);
+      }
     });
   }
 
@@ -129,27 +149,22 @@ export class GrammarConComponent {
   }
 
   onSubmit(): void {
-    if (!this.form.valid) return;
-
-    const formValue = this.form.getRawValue() as GrammarFormValue;
-    const targetLanguage = formValue.targetLanguage;
-
-    if (!targetLanguage) return;
-
-    const prompt = this.promptService.generateGrammarPrompt(
-      {
-        targetLanguage,
-        cefr: formValue.cefr,
-        phenomena: formValue.phenomena.map((p: { description: string; hint: string }) => ({
+    if (this.form.valid) {
+      const formValue = this.form.getRawValue() as GrammarFormValue;
+      const config: GrammarPromptConfig = {
+        targetLanguage: formValue.targetLanguage!,
+        cefr: formValue.cefr!,
+        phenomena: formValue.phenomena.map((p: PhenomenonForm) => ({
           description: p.description,
           hint: p.hint || undefined
         })),
         situationalContext: formValue.situationalContext,
-        situationalContextIsDialog: formValue.situationalContextIsDialog
-      },
-      targetLanguage
-    );
-    this._generatedPrompt.set(prompt);
+        situationalContextIsDialog: formValue.situationalContextIsDialog,
+      };
+
+      const prompt = this.promptService.generateGrammarPrompt(config, formValue.targetLanguage);
+      this._generatedPrompt.set(prompt);
+    }
   }
 
   copyToClipboard(text: string): void {

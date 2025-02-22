@@ -109,7 +109,7 @@
         </div>
       </form>
 
-      <div *ngIf="generatedPrompt()" class="prompt-container" role="region" aria-label="Generierter Prompt">
+      <div *ngIf="generatedPrompt()" class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
         <div class="prompt-content">
           <pre>{{ generatedPrompt() }}</pre>
         </div>

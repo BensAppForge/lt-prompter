@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,9 +18,13 @@ import { Language, CEFRLevel } from '../../models/preferences.model';
 import {
   ComprehensionExerciseType,
   ComprehensionSourceType,
+  COMPREHENSION_EXERCISE_TYPES,
+  SOURCE_TYPES,
+  ComprehensionPromptConfig
 } from '../../models/comprehension.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { ClipboardService } from '../../services/clipboard.service';
+import { ScrollService } from '../../shared/services/scroll.service';
 
 @Component({
   selector: 'app-comprehension',
@@ -39,11 +43,12 @@ import { ClipboardService } from '../../services/clipboard.service';
   styleUrls: ['./comprehension.component.scss'],
 })
 export class ComprehensionComponent {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private promptService = inject(PromptTemplateService);
-  private clipboardService = inject(ClipboardService);
-  private snackBar = inject(MatSnackBar);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly promptService = inject(PromptTemplateService);
+  private readonly clipboardService = inject(ClipboardService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly scrollService = inject(ScrollService);
 
   form: FormGroup;
   languages: Language[] = ['English', 'español', 'français', 'italiano'];
@@ -58,28 +63,33 @@ export class ComprehensionComponent {
     'B2+',
     'C1',
   ];
-  exerciseTypes: ComprehensionExerciseType[] = [
-    'true-false',
-    'multiple-choice',
-    'matching',
-    'gapped-summary',
-  ];
-  sourceTypes: ComprehensionSourceType[] = [
-    'screenshot',
-    'docx',
-    'pdf',
-    'copied-text',
-  ];
 
-  generatedPrompt = '';
-  selectedExerciseTypes: string[] = [];
+  readonly exerciseTypes = COMPREHENSION_EXERCISE_TYPES;
+  readonly sourceTypes = SOURCE_TYPES;
+  readonly _generatedPrompt = signal<string>('');
+  readonly generatedPrompt = computed(() => this._generatedPrompt());
+
+  @ViewChild('promptContainer') promptContainer?: ElementRef;
 
   constructor() {
     this.form = this.fb.group({
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
-      exerciseTypes: [[], [Validators.required, Validators.minLength(2)]],
+      exercises: [[], [Validators.required, Validators.minLength(2)]],
       sourceType: ['', Validators.required],
+      situationalContext: [''],
+      situationalContextIsDialog: [false],
+    });
+
+    // Create an effect to handle scrolling when prompt changes
+    effect(() => {
+      if (this._generatedPrompt()) {
+        setTimeout(() => {
+          if (this.promptContainer?.nativeElement) {
+            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+          }
+        }, 100);
+      }
     });
   }
 
@@ -87,32 +97,40 @@ export class ComprehensionComponent {
     this.router.navigate(['/']);
   }
 
-  onExerciseTypeChange(event: any, type: string): void {
-    const exerciseTypes = this.form.get('exerciseTypes')?.value || [];
-    if (event.checked) {
-      exerciseTypes.push(type);
-    } else {
-      const index = exerciseTypes.indexOf(type);
-      if (index > -1) {
-        exerciseTypes.splice(index, 1);
-      }
-    }
-    this.form.patchValue({ exerciseTypes });
+  isExerciseTypeSelected(type: ComprehensionExerciseType): boolean {
+    const exercises = this.form.get('exercises')?.value as ComprehensionExerciseType[];
+    return exercises?.includes(type) ?? false;
   }
 
-  isExerciseTypeSelected(type: string): boolean {
-    return (this.form.get('exerciseTypes')?.value || []).includes(type);
+  onExerciseTypeChange(event: { checked: boolean }, type: ComprehensionExerciseType): void {
+    const exercises = (this.form.get('exercises')?.value as ComprehensionExerciseType[]) || [];
+    
+    if (event.checked && !exercises.includes(type)) {
+      this.form.patchValue({
+        exercises: [...exercises, type]
+      });
+    } else if (!event.checked && exercises.includes(type)) {
+      this.form.patchValue({
+        exercises: exercises.filter(t => t !== type)
+      });
+    }
   }
 
   onSubmit(): void {
     if (this.form.valid) {
-      const prompt = this.promptService.generateComprehensionPrompt({
-        targetLanguage: this.form.value.targetLanguage,
-        cefr: this.form.value.cefr,
-        exercises: this.form.value.exerciseTypes,
-        sourceType: this.form.value.sourceType,
-      });
-      this.generatedPrompt = prompt;
+      const formValue = this.form.getRawValue();
+      const config: ComprehensionPromptConfig = {
+        targetLanguage: formValue.targetLanguage!,
+        cefr: formValue.cefr!,
+        exercises: formValue.exercises!,
+        sourceType: formValue.sourceType!,
+        situationalContext: formValue.situationalContext,
+        isDialog: formValue.situationalContextIsDialog,
+      };
+
+      this._generatedPrompt.set(
+        this.promptService.generateComprehensionPrompt(config)
+      );
     }
   }
 
@@ -128,6 +146,6 @@ export class ComprehensionComponent {
   }
 
   displayLanguage(lang: Language): string {
-    return lang === 'English' ? lang : lang.toLowerCase();
+    return lang === 'English' ? lang : lang.charAt(0).toUpperCase() + lang.slice(1);
   }
 }

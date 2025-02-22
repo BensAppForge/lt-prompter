@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,10 +9,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Language, CEFRLevel } from '../../models/preferences.model';
-import { CloneSourceType } from '../../models/clone.model';
+import { CloneSourceType, ClonePromptConfig } from '../../models/clone.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { LanguageService } from '../../services/language.service';
+import { ScrollService } from '../../shared/services/scroll.service';
 
 @Component({
   selector: 'app-clone',
@@ -31,25 +32,48 @@ import { LanguageService } from '../../services/language.service';
   styleUrls: ['./clone.component.scss']
 })
 export class CloneComponent {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private promptService = inject(PromptTemplateService);
-  private clipboardService = inject(ClipboardService);
-  private languageService = inject(LanguageService);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly promptService = inject(PromptTemplateService);
+  private readonly scrollService = inject(ScrollService);
+  private readonly clipboardService = inject(ClipboardService);
+  private readonly languageService = inject(LanguageService);
 
   form: FormGroup;
-  languages: Language[] = ['English', 'español', 'français', 'italiano'];
-  cefrLevels: CEFRLevel[] = [
+  readonly sourceTypes: CloneSourceType[] = [
+    'screenshot',
+    'docx',
+    'pdf',
+    'copied-text',
+  ];
+  readonly languages: Language[] = ['English', 'español', 'français', 'italiano'];
+  readonly cefrLevels: CEFRLevel[] = [
     'A1', 'A1+', 'A2', 'A2+', 'B1', 'B1+', 'B2', 'B2+', 'C1', 'C1+', 'C2'
   ];
-  generatedPrompt = signal<string>('');
+  readonly _generatedPrompt = signal<string>('');
+  readonly generatedPrompt = computed(() => this._generatedPrompt());
+
+  @ViewChild('promptContainer') promptContainer?: ElementRef;
 
   constructor() {
     this.form = this.fb.group({
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
       sourceType: ['', Validators.required],
-      newContext: ['']
+      newContext: [''],
+      situationalContext: [''],
+      situationalContextIsDialog: [false],
+    });
+
+    // Create an effect to handle scrolling when prompt changes
+    effect(() => {
+      if (this._generatedPrompt()) {
+        setTimeout(() => {
+          if (this.promptContainer?.nativeElement) {
+            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+          }
+        }, 100);
+      }
     });
   }
 
@@ -71,14 +95,18 @@ export class CloneComponent {
 
   onSubmit(): void {
     if (this.form.valid) {
-      const formValue = this.form.value;
-      const prompt = this.promptService.generateClonePrompt({
-        targetLanguage: formValue.targetLanguage as Language,
-        cefr: formValue.cefr as CEFRLevel,
-        sourceType: formValue.sourceType as CloneSourceType,
-        newContext: formValue.newContext
-      });
-      this.generatedPrompt.set(prompt);
+      const formValue = this.form.getRawValue();
+      const config: ClonePromptConfig = {
+        targetLanguage: formValue.targetLanguage!,
+        cefr: formValue.cefr!,
+        sourceType: formValue.sourceType!,
+        situationalContext: formValue.newContext || formValue.situationalContext,
+        isDialog: formValue.situationalContextIsDialog,
+      };
+
+      this._generatedPrompt.set(
+        this.promptService.generateClonePrompt(config)
+      );
     }
   }
 }

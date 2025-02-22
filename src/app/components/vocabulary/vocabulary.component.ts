@@ -1,4 +1,4 @@
-import { Component, inject, ElementRef } from '@angular/core';
+import { Component, inject, ElementRef, ViewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -26,6 +26,7 @@ import { Language, CEFRLevel } from '../../models/preferences.model';
 import { VocabularyPromptConfig } from '../../models/vocabulary.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
+import { ScrollService } from '../../shared/services/scroll.service';
 
 interface VocabularyForm {
   targetLanguage: Language;
@@ -58,6 +59,7 @@ interface VocabularyForm {
 })
 export class VocabularyComponent {
   private readonly promptTemplateService = inject(PromptTemplateService);
+  private readonly scrollService = inject(ScrollService);
   private readonly parent = inject(ElementRef);
   private readonly fb = inject(NonNullableFormBuilder);
 
@@ -99,6 +101,8 @@ export class VocabularyComponent {
   readonly copySuccess = signal(false);
   readonly copyError = signal(false);
 
+  @ViewChild('promptContainer') promptContainer?: ElementRef;
+
   get words(): FormArray<FormControl<string>> {
     return this.form.get('words') as FormArray<FormControl<string>>;
   }
@@ -113,6 +117,21 @@ export class VocabularyComponent {
 
   removeWord(index: number): void {
     this.words.removeAt(index);
+  }
+
+  constructor() {
+    // Create an effect to handle scrolling when prompt changes
+    effect(() => {
+      // Only run the effect when there's a prompt
+      if (this.generatedPrompt()) {
+        // Use setTimeout to ensure DOM is updated
+        setTimeout(() => {
+          if (this.promptContainer?.nativeElement) {
+            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+          }
+        }, 100);
+      }
+    });
   }
 
   onSubmit(): void {

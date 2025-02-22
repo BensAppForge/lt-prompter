@@ -81,7 +81,7 @@
         </div>
       </form>
 
-      <div *ngIf="generatedPrompt()" class="prompt-container">
+      <div *ngIf="generatedPrompt()" class="prompt-container" #promptContainer>
         <div class="prompt-content">
           <pre>{{ generatedPrompt() }}</pre>
         </div>

@@ -43,6 +43,7 @@ interface DashboardCard {
     `
       .dashboard-container {
         padding: 24px;
+        padding-bottom: 64px;
         max-width: 1200px;
         margin: 0 auto;
       }
@@ -98,6 +99,7 @@ interface DashboardCard {
       @media (max-width: 599px) {
         .dashboard-container {
           padding: 16px;
+          padding-bottom: 56px;
         }
 
         .dashboard-grid {

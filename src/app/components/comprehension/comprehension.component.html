@@ -75,12 +75,12 @@
         </div>
       </form>
 
-      <ng-container *ngIf="generatedPrompt">
-        <div class="prompt-container" role="region" aria-label="Generierter Prompt">
+      <ng-container *ngIf="generatedPrompt()">
+        <div class="prompt-container" #promptContainer>
           <div class="prompt-content">
-            <pre>{{ generatedPrompt }}</pre>
+            <pre>{{ generatedPrompt() }}</pre>
           </div>
-          <button mat-icon-button (click)="copyToClipboard(generatedPrompt)" class="copy-button"
+          <button mat-icon-button (click)="copyToClipboard(generatedPrompt())" class="copy-button"
             aria-label="Prompt in die Zwischenablage kopieren">
             <mat-icon>content_copy</mat-icon>
           </button>

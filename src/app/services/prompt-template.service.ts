@@ -7,20 +7,74 @@ import {
 } from '../templates/vocabulary-prompts';
 import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig } from '../models/grammar.model';
-import { ComprehensionPromptConfig } from '../models/comprehension.model';
+import { ComprehensionPromptConfig, ComprehensionSourceType, ComprehensionExerciseType } from '../models/comprehension.model';
 import {
   comprehensionPromptTemplates,
   exerciseTypeDescriptions,
   exerciseTypeInstructions,
   exerciseTypeTranslations,
 } from '../templates/comprehension-prompts';
-import { ClonePromptConfig } from '../models/clone.model';
+import { ClonePromptConfig, CloneSourceType } from '../models/clone.model';
 import { clonePromptTemplates } from '../templates/clone-prompts';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PromptTemplateService {
+  private sourceTypeTranslations: Record<Language, Record<CloneSourceType, string>> = {
+    English: {
+      'docx': 'Word document',
+      'pdf': 'PDF document',
+      'screenshot': 'screenshot',
+      'copied-text': 'copied text'
+    },
+    español: {
+      'docx': 'documento de Word',
+      'pdf': 'documento PDF',
+      'screenshot': 'captura de pantalla',
+      'copied-text': 'texto copiado'
+    },
+    français: {
+      'docx': 'document Word',
+      'pdf': 'document PDF',
+      'screenshot': 'capture d\'écran',
+      'copied-text': 'texte copié'
+    },
+    italiano: {
+      'docx': 'documento Word',
+      'pdf': 'documento PDF',
+      'screenshot': 'screenshot',
+      'copied-text': 'testo copiato'
+    }
+  };
+
+  private comprehensionSourceTypeTranslations: Record<Language, Record<ComprehensionSourceType, string>> = {
+    English: {
+      'docx': 'Word document',
+      'pdf': 'PDF document',
+      'screenshot': 'screenshot',
+      'copied-text': 'copied text'
+    },
+    español: {
+      'docx': 'documento de Word',
+      'pdf': 'documento PDF',
+      'screenshot': 'captura de pantalla',
+      'copied-text': 'texto copiado'
+    },
+    français: {
+      'docx': 'document Word',
+      'pdf': 'document PDF',
+      'screenshot': 'capture d\'écran',
+      'copied-text': 'texte copié'
+    },
+    italiano: {
+      'docx': 'documento Word',
+      'pdf': 'documento PDF',
+      'screenshot': 'screenshot',
+      'copied-text': 'testo copiato'
+    }
+  };
+
   private getVocabularyTemplate(language: Language): VocabularyPromptTemplate {
     const template = vocabularyPromptTemplates[language];
     if (!template) {
@@ -154,6 +208,7 @@ export class PromptTemplateService {
     }
 
     const parts: string[] = [];
+    const localizedSourceType = this.comprehensionSourceTypeTranslations[config.targetLanguage][config.sourceType];
 
     // Add intro
     parts.push(
@@ -163,15 +218,15 @@ export class PromptTemplateService {
         .replace(
           '[COMPREHENSION_TYPES]',
           config.exercises
-            .map((ex) => exerciseTypeTranslations[config.targetLanguage][ex])
+            .map((ex: ComprehensionExerciseType) => exerciseTypeTranslations[config.targetLanguage][ex])
             .join(', ')
         )
-        .replace('[COMPREHENSION_SOURCE_TYPE]', config.sourceType)
+        .replace('[COMPREHENSION_SOURCE_TYPE]', localizedSourceType)
     );
 
     // Add exercise type descriptions for the bot
     parts.push('\n' + template.formatInstructionsHeader);
-    config.exercises.forEach((exerciseType) => {
+    config.exercises.forEach((exerciseType: ComprehensionExerciseType) => {
       const description =
         exerciseTypeDescriptions[config.targetLanguage]?.[exerciseType];
       const translatedType =
@@ -189,7 +244,7 @@ export class PromptTemplateService {
 
     // Add exercise type instructions that will be shown above each exercise
     parts.push('\n' + template.exerciseInstructionsHeader);
-    config.exercises.forEach((exerciseType) => {
+    config.exercises.forEach((exerciseType: ComprehensionExerciseType) => {
       const instruction =
         exerciseTypeInstructions[config.targetLanguage]?.[exerciseType];
       const translatedType =
@@ -202,12 +257,16 @@ export class PromptTemplateService {
     return parts.join('\n');
   }
 
-  generateClonePrompt(config: ClonePromptConfig & { newContext?: string }): string {
+  generateClonePrompt(
+    config: ClonePromptConfig & { newContext?: string }
+  ): string {
     const template = clonePromptTemplates[config.targetLanguage];
+    const localizedSourceType = this.sourceTypeTranslations[config.targetLanguage][config.sourceType];
+    
     let prompt = template.exercisesIntro
       .replace('[TARGET_LANGUAGE]', config.targetLanguage)
       .replace('[CEFR]', config.cefr)
-      .replace('[CLONE_SOURCE_TYPE]', config.sourceType);
+      .replace('[CLONE_SOURCE_TYPE]', localizedSourceType);
 
     if (config.newContext) {
       prompt += template.contextIntro + config.newContext + '\n';
@@ -216,7 +275,7 @@ export class PromptTemplateService {
     }
 
     prompt += template.requirementsIntro + '\n';
-    template.requirements.forEach(req => {
+    template.requirements.forEach((req) => {
       prompt += '- ' + req + '\n';
     });
 
