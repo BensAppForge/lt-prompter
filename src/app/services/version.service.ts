@@ -55,6 +55,16 @@ export class VersionService {
         • Verbesserungen der Requirements für Prompts zum Klonen
       `.trim(),
     },
+    {
+      id: 5,
+      versionNumber: '0.7.2 - beta',
+      releaseDate: new Date('2025-02-22'),
+      shortDescription: 'Fehlerbehebungen bei Prompts und UI',
+      longDescription: `
+        • Angabe der Textquellen wird nun in der Zielsprache angezeigt
+        • Verbesserung der Benutzeroberfläche für mobile Geräte
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {
