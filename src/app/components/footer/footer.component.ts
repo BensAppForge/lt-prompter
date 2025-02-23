@@ -2,18 +2,21 @@ import { Component, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { VersionService } from '../../services/version.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe],
+  imports: [CommonModule, RouterLink, DatePipe, MatIconModule],
   template: `
     <footer class="app-footer">
       <div class="footer-links">
         <a href="mailto:a.bentivoglio@akg-schwabach.de?subject=LT-Prompter%20Supportanfrage" class="support-link">
+          <mat-icon class="footer-icon">support</mat-icon>
           Support
         </a>
         <a routerLink="/changelog" class="version-link">
+          <mat-icon class="footer-icon">update</mat-icon>
           Version {{ versionService.currentVersion()?.versionNumber }} - {{ versionService.currentVersion()?.releaseDate | date : 'dd.MM.yyyy' }}
         </a>
       </div>
@@ -21,8 +24,9 @@ import { VersionService } from '../../services/version.service';
   `,
   styles: [`
     .app-footer {
-      background-color: var(--primary-color);
-      color: white;
+      background-color: var(--surface-color);
+      border-top: 1px solid var(--border-color);
+      color: var(--text-color);
       position: fixed;
       bottom: 0;
       left: 0;
@@ -43,15 +47,24 @@ import { VersionService } from '../../services/version.service';
 
     .version-link,
     .support-link {
-      color: white;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-secondary);
       text-decoration: none;
       font-size: 0.9rem;
-      opacity: 0.9;
-      transition: opacity 0.2s ease;
+      transition: color 0.2s ease;
 
       &:hover {
-        opacity: 1;
+        color: var(--primary-color);
       }
+    }
+
+    .footer-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      opacity: 0.9;
     }
   `]
 })

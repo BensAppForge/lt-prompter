@@ -228,23 +228,11 @@
     .mat-mdc-form-field {
       .mdc-text-field {
         .word-input.mat-mdc-chip-input {
-          background-color: rgba(0, 0, 0, 0.04) !important;
-          border: 1px solid rgba(0, 0, 0, 0.12) !important;
-          border-radius: 4px;
+          width: 100%;
           padding: 8px 12px;
-          margin: 4px 0;
-          width: calc(100% - 24px);
-          transition: all 0.2s ease;
-
-          &::placeholder {
-            color: rgba(0, 0, 0, 0.6);
-          }
-
-          &:focus {
-            background-color: rgba(63, 81, 181, 0.05) !important;
-            border-color: var(--mdc-theme-primary, #3f51b5) !important;
-            outline: none;
-          }
+          border: 1px solid;
+          border-radius: 4px;
+          margin-bottom: 8px;
         }
       }
 
@@ -259,23 +247,6 @@
       // Make hint text more visible
       .mat-mdc-form-field-hint {
         opacity: 0.8;
-      }
-    }
-
-    // Dark theme styles
-    .dark-theme & {
-      .word-input.mat-mdc-chip-input {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        border-color: rgba(255, 255, 255, 0.12) !important;
-
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.6);
-        }
-
-        &:focus {
-          background-color: rgba(255, 255, 255, 0.15) !important;
-          border-color: var(--mdc-theme-primary, #7986cb) !important;
-        }
       }
     }
   }
@@ -352,15 +323,6 @@
             color: rgba(255, 255, 255, 0.87);
           }
         }
-      }
-    }
-
-    .word-input.mat-mdc-chip-input {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.6);
       }
     }
 

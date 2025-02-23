@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 interface DashboardCard {
@@ -10,6 +11,7 @@ interface DashboardCard {
   icon: string;
   route: string;
   description: string;
+  disabled?: boolean;
 }
 
 @Component({
@@ -19,146 +21,101 @@ interface DashboardCard {
     CommonModule,
     MatCardModule,
     MatIconModule,
-    RouterModule,
-    RouterLink,
+    MatButtonModule,
+    RouterModule
   ],
   template: `
     <div class="dashboard-container">
-      <div class="dashboard-grid">
-        <ng-container *ngFor="let card of cards; trackBy: trackCard">
-          <mat-card class="dashboard-card" [routerLink]="card.route">
+      <div class="cards-grid">
+        <ng-container *ngFor="let card of cards">
+          <mat-card [routerLink]="card.disabled ? null : card.route" [class.disabled]="card.disabled">
             <mat-card-header>
               <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
               <mat-card-title>{{ card.title }}</mat-card-title>
+              <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
             </mat-card-header>
-            <mat-card-content>
-              <p>{{ card.description }}</p>
-            </mat-card-content>
           </mat-card>
         </ng-container>
       </div>
+      <div class="footer-space"></div>
     </div>
   `,
-  styles: [
-    `
-      .dashboard-container {
-        padding: 24px;
-        padding-bottom: 64px;
-        max-width: 1200px;
-        margin: 0 auto;
+  styles: [`
+    .dashboard-container {
+      padding: 20px;
+      margin-bottom: 60px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 0 auto;
+      max-width: 1200px;
+    }
+
+    mat-card {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background-color: var(--surface-color);
+
+      &:hover:not(.disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--elevation-z4);
       }
 
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 24px;
+      &.disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
       }
+    }
 
-      .dashboard-card {
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: 1px solid var(--border-color);
-        background-color: var(--card-background);
-        color: var(--text-color);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .footer-space {
+      height: 40px;
+    }
 
-        &:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          border-color: var(--primary-color);
-        }
+    mat-card-header {
+      margin-bottom: 16px;
+    }
 
-        mat-card-header {
-          margin-bottom: 16px;
-          padding: 16px 16px 0;
-
-          mat-card-title {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            color: var(--primary-color);
-          }
-        }
-
-        mat-icon {
-          font-size: 24px;
-          width: 24px;
-          height: 24px;
-          color: var(--primary-color);
-        }
-
-        mat-card-content {
-          padding: 0 16px 16px;
-
-          p {
-            margin: 0;
-            color: var(--text-secondary);
-          }
-        }
-      }
-
-      @media (max-width: 599px) {
-        .dashboard-container {
-          padding: 16px;
-          padding-bottom: 56px;
-        }
-
-        .dashboard-grid {
-          grid-template-columns: 1fr;
-          gap: 16px;
-        }
-
-        .dashboard-card {
-          mat-card-header {
-            padding: 12px 12px 0;
-          }
-
-          mat-card-content {
-            padding: 0 12px 12px;
-          }
-        }
-      }
-    `,
-  ],
+    .mat-mdc-card-avatar {
+      background-color: transparent;
+      color: var(--text-secondary);
+    }
+  `]
 })
 export class DashboardComponent {
   cards: DashboardCard[] = [
     {
-      title: 'Vokabelübungen mit Lückentexten',
-      icon: 'book',
+      title: 'Vokabelübung',
+      icon: 'school',
       route: '/vocabulary',
-      description: 'Prompts für Vokabelübungen als Lückentext erstellen',
+      description: 'Erstellen Sie eine Lückentextübung mit Vokabeln',
     },
     {
-      title: 'Grammatikübungen aus Kontext',
+      title: 'Grammatikübung',
       icon: 'rule',
       route: '/grammar',
-      description:
-        'Prompts für Grammatikübungen erstellen, die für einen bestimmten Kontext geeignet sind',
+      description: 'Erstellen Sie eine Übung zu grammatischen Phänomenen',
+    },
+    {
+      title: 'Textverständnis',
+      icon: 'menu_book',
+      route: '/comprehension',
+      description: 'Erstellen Sie eine Übung zum Textverständnis',
     },
     {
       title: 'Übung klonen',
       icon: 'content_copy',
       route: '/clone',
-      description: 'Prompts, um bestehende Übungen zu klonen',
+      description: 'Bestehende Übungen als Vorlage verwenden',
     },
     {
-      title: 'Textverstehen',
-      icon: 'auto_stories',
-      route: '/comprehension',
-      description: 'Prompts für Lese- Hör- und Hör/Sehverstehen erstellen',
+      title: 'Einstellungen',
+      icon: 'settings',
+      route: '/settings',
+      description: 'Passen Sie das Erscheinungsbild und weitere Optionen an',
     },
-    // {
-    //   title: 'Promptvorlagen',
-    //   icon: 'description',
-    //   route: '/templates',
-    //   description: 'Verwalten Sie Ihre Übungsvorlagen',
-    // },
-    // {
-    //   title: 'Einstellungen',
-    //   icon: 'settings',
-    //   route: '/settings',
-    //   description: 'Passen Sie die Anwendung an Ihre Bedürfnisse an',
-    // },
     {
       title: 'Datenschutz',
       icon: 'security',
@@ -169,14 +126,7 @@ export class DashboardComponent {
       title: 'Impressum',
       icon: 'info',
       route: '/about',
-      description: 'Rechtliche Informationen',
+      description: 'Rechtliche Informationen und Kontakt',
     },
   ];
-
-  currentVersion = environment.version;
-  currentDate = new Date();
-
-  trackCard(index: number, card: DashboardCard): string {
-    return card.title;
-  }
 }

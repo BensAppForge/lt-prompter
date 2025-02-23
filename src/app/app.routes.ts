@@ -61,8 +61,8 @@ export const routes: Routes = [
   {
     path: 'settings',
     loadComponent: () =>
-      import('./components/preferences/preferences.component').then(
-        (m) => m.PreferencesComponent
+      import('./components/settings/settings.component').then(
+        (m) => m.SettingsComponent
       ),
   },
   {

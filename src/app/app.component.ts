@@ -1,4 +1,4 @@
-import { Component, computed, inject, effect } from '@angular/core';
+import { Component, inject, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { VersionNotificationComponent } from './components/version-notification/version-notification.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { PreferencesService } from './services/preferences.service';
+import { SettingsService, ThemePreference } from './services/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -25,8 +25,12 @@ import { PreferencesService } from './services/preferences.service';
       <span class="toolbar-spacer"></span>
       <span class="app-title">LANGUAGE TEACHER - PROMPTER</span>
       <span class="toolbar-spacer"></span>
-      <button mat-icon-button (click)="toggleTheme()">
-        <mat-icon>{{ isDarkTheme() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <button 
+        mat-icon-button 
+        (click)="toggleTheme()" 
+        [attr.aria-label]="isDarkMode() ? 'Zum hellen Design wechseln' : 'Zum dunklen Design wechseln'"
+      >
+        <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
     </mat-toolbar>
 
@@ -68,9 +72,15 @@ import { PreferencesService } from './services/preferences.service';
   `],
 })
 export class AppComponent {
-  private preferencesService = inject(PreferencesService);
+  private settingsService = inject(SettingsService);
   
-  isDarkTheme = computed(() => this.preferencesService.currentPreferences().theme === 'dark');
+  isDarkMode = computed(() => {
+    const settings = this.settingsService.getSettings()();
+    if (settings.themePreference === ThemePreference.System) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return settings.themePreference === ThemePreference.Dark;
+  });
 
   constructor() {
     // Initialize theme on startup
@@ -83,10 +93,14 @@ export class AppComponent {
   }
 
   private updateThemeClass(): void {
-    document.body.classList.toggle('dark-theme', this.isDarkTheme());
+    document.body.classList.toggle('dark-theme', this.isDarkMode());
   }
 
   toggleTheme() {
-    this.preferencesService.toggleTheme().subscribe();
+    const currentSettings = this.settingsService.getSettings()();
+    // When toggling from the toolbar, we'll switch between light and dark,
+    // preserving the system setting if user wants to switch back in settings
+    const newPreference = this.isDarkMode() ? ThemePreference.Light : ThemePreference.Dark;
+    this.settingsService.updateThemePreference(newPreference);
   }
 }

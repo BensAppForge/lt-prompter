@@ -1,27 +1,27 @@
 .page-container {
-  padding: 2rem;
+  padding: var(--spacing-xl);
   max-width: 800px;
   margin: 0 auto;
 }
 
 .back-button-container {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .grammar-container {
   width: 100%;
-  padding: 1.5rem;
+  padding: var(--spacing-lg);
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   color: var(--text-color);
 
   mat-card-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-lg);
 
     mat-card-title {
       font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: var(--spacing-xs);
       color: var(--text-color);
     }
 
@@ -34,8 +34,8 @@
 
   .form-row {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
     align-items: flex-start;
     flex-wrap: wrap;
 
@@ -53,15 +53,15 @@
       flex-direction: column;
 
       .dialog-toggle {
-        margin-top: 1.5rem;
-        padding: 8px 0;
+        margin-top: var(--spacing-lg);
+        padding: var(--spacing-sm) 0;
         font-size: 0.9rem;
         color: var(--text-color);
 
         @media (max-width: 599px) {
-          margin-top: 2rem;
+          margin-top: var(--spacing-xl);
           border-top: 1px solid var(--border-color);
-          padding-top: 1rem;
+          padding-top: var(--spacing-md);
         }
       }
     }
@@ -71,7 +71,7 @@
       
       .phenomena-inputs {
         display: flex;
-        gap: 1rem;
+        gap: var(--spacing-md);
         align-items: flex-start;
 
         .phenomenon-input {
@@ -83,8 +83,8 @@
         }
 
         button {
-          margin-top: 0.75rem;
-          transition: transform 0.2s ease;
+          margin-top: var(--spacing-sm);
+          transition: transform var(--transition-fast);
 
           &:not(:disabled):hover {
             transform: scale(1.1);
@@ -101,18 +101,18 @@
   .phenomena-list {
     list-style: none;
     padding: 0;
-    margin: 1rem 0;
+    margin: var(--spacing-md) 0;
     width: 100%;
 
     .phenomenon-item {
       display: flex;
       align-items: center;
-      padding: 0.75rem 1rem;
-      margin: 0.5rem 0;
+      padding: var(--spacing-sm) var(--spacing-md);
+      margin: var(--spacing-xs) 0;
       background-color: var(--surface-color);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      transition: all 0.2s ease;
+      transition: all var(--transition-fast);
       color: var(--text-color);
 
       &:hover {
@@ -122,20 +122,20 @@
 
       .phenomenon-text {
         flex: 1;
-        margin-right: 0.5rem;
+        margin-right: var(--spacing-xs);
         font-weight: 500;
       }
 
       .phenomenon-hint {
         color: var(--text-secondary);
-        margin-right: 0.5rem;
+        margin-right: var(--spacing-xs);
         font-size: 0.9rem;
         font-style: italic;
       }
 
       button {
         opacity: 0;
-        transition: opacity 0.2s ease, transform 0.2s ease;
+        transition: opacity var(--transition-fast), transform var(--transition-fast);
 
         &:hover {
           transform: scale(1.1);
@@ -155,23 +155,23 @@
   .button-container {
     display: flex;
     justify-content: flex-end;
-    margin-top: 1.5rem;
+    margin-top: var(--spacing-lg);
 
     button {
       min-width: 150px;
       
       mat-icon {
-        margin-right: 0.5rem;
+        margin-right: var(--spacing-xs);
       }
     }
   }
 
   .prompt-container {
-    margin-top: 2rem;
+    margin-top: var(--spacing-xl);
     position: relative;
     background-color: var(--surface-color);
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: var(--spacing-lg);
     border: 1px solid var(--border-color);
 
     .prompt-content {
@@ -191,9 +191,9 @@
 
     .copy-button {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
-      transition: all 0.2s ease;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      transition: all var(--transition-fast);
       color: var(--text-secondary);
 
       &:hover {
@@ -212,7 +212,7 @@
   }
 
   @media (max-width: 600px) {
-    padding: 1rem;
+    padding: var(--spacing-md);
 
     .form-row:not(.context-row) {
       flex-direction: column;

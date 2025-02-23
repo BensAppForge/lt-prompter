@@ -14,9 +14,68 @@
   --surface-color: #ffffff;
   --text-color: rgba(0, 0, 0, 0.87);
   --text-secondary: rgba(0, 0, 0, 0.54);
+  --link-color: #3f51b5;     // Same as primary for light mode
   --border-color: rgba(0, 0, 0, 0.12);
   --input-background: #ffffff;
   --card-background: #ffffff;
+  
+  // Button colors
+  --button-primary-text: #ffffff;
+  --button-accent-text: #ffffff;
+  --button-warn-text: #ffffff;
+  --button-disabled-text: rgba(0, 0, 0, 0.38);
+  --button-disabled-background: rgba(0, 0, 0, 0.12);
+  
+  // Button and toggle backgrounds
+  --button-primary-bg: var(--primary-color);
+  --button-accent-bg: var(--accent-color);
+  --button-warn-bg: var(--warn-color);
+  --toggle-bg: var(--primary-color);
+  --toggle-checked-bg: var(--primary-color);
+  --toggle-thumb-color: #ffffff;
+  
+  // Feedback colors
+  --success-color: #2e7d32;
+  --success-background: rgba(76, 175, 80, 0.1);
+  --error-color: #d32f2f;
+  --error-background: rgba(244, 67, 54, 0.1);
+  
+  // Input states
+  --input-hover-background: rgba(0, 0, 0, 0.04);
+  --input-focus-background: rgba(63, 81, 181, 0.05);
+  --input-placeholder-color: rgba(0, 0, 0, 0.6);
+  --input-disabled-color: rgba(0, 0, 0, 0.38);
+  --caret-color: var(--primary-color);
+  
+  // Form and validation colors
+  --error-text-color: #d32f2f;        // Material Design red 700
+  --placeholder-color: rgba(0, 0, 0, 0.6);
+  --disabled-icon-color: rgba(0, 0, 0, 0.38);
+  
+  // Component specific
+  --prompt-background: #f5f5f5;
+  --selected-item-background: #e0e0ff;
+  --selected-item-hover-background: #d0d0ff;
+  --highlight-border: #673ab7;
+
+  // Design tokens
+  --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.1);
+  
+  --border-radius-small: 4px;
+  --border-radius-medium: 8px;
+  --border-radius-large: 16px;
+  
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
+  --transition-slow: 0.4s ease;
+  
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
 }
 
 // Dark theme styles
@@ -28,11 +87,396 @@ body.dark-theme {
   --surface-color: #424242;
   --text-color: rgba(255, 255, 255, 0.87);
   --text-secondary: rgba(255, 255, 255, 0.54);
+  --link-color: #a5aee0;     // Less saturated link color for dark mode
   --border-color: rgba(255, 255, 255, 0.12);
   --input-background: #424242;
   --card-background: #424242;
+  
+  // Button colors
+  --button-primary-text: #ffffff;  
+  --button-accent-text: #ffffff;   
+  --button-warn-text: #ffffff;     
+  --button-disabled-text: rgba(255, 255, 255, 0.38);
+  --button-disabled-background: rgba(255, 255, 255, 0.12);
+  
+  // Button and toggle backgrounds - darker variants for dark theme
+  --button-primary-bg: #3949ab;  // Darker indigo
+  --button-accent-bg: #c51162;   // Darker pink
+  --button-warn-bg: #c62828;     // Darker red
+  --toggle-bg: #3949ab;          // Darker background for toggles
+  --toggle-checked-bg: #3949ab;  // Darker background for checked state
+  --toggle-thumb-color: #ffffff;
+  
+  // Feedback colors
+  --success-color: #81c784;
+  --success-background: rgba(76, 175, 80, 0.2);
+  --error-color: #e57373;
+  --error-background: rgba(244, 67, 54, 0.2);
+  
+  // Input states
+  --input-hover-background: rgba(255, 255, 255, 0.08);
+  --input-focus-background: rgba(255, 255, 255, 0.15);
+  --input-placeholder-color: rgba(255, 255, 255, 0.5);
+  --input-disabled-color: rgba(255, 255, 255, 0.5);
+  --caret-color: #ffffff;  // White caret for better visibility in dark mode
+  
+  // Form and validation colors
+  --error-text-color: #ef9a9a;        // Material Design red 200 - less saturated for dark mode
+  --placeholder-color: rgba(255, 255, 255, 0.5);
+  --disabled-icon-color: rgba(255, 255, 255, 0.5);
+  
+  // Component specific
+  --prompt-background: #424242;
+  --selected-item-background: rgba(255, 255, 255, 0.1);
+  --selected-item-hover-background: rgba(255, 255, 255, 0.15);
+  --highlight-border: #7986cb;
 
-  // Override Material form field styles in dark mode
+  // Design tokens
+  --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+// Base styles for both themes
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Material Design Component Overrides
+.mat-mdc-card {
+  --mdc-elevated-card-container-color: var(--card-background);
+  background-color: var(--card-background) !important;
+  transition: background-color 0.3s ease;
+}
+
+.mat-mdc-card-title {
+  color: var(--text-color) !important;
+}
+
+.mat-mdc-card-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-card-content {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-slide-toggle .mdc-form-field > label {
+  color: var(--text-color);
+}
+
+.mat-mdc-button {
+  &.mat-primary {
+    color: var(--primary-color);
+  }
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  &.mat-primary {
+    --mdc-filled-button-container-color: var(--button-primary-bg);
+    --mdc-protected-button-container-color: var(--button-primary-bg);
+    --mdc-filled-button-label-text-color: var(--button-primary-text);
+    --mdc-protected-button-label-text-color: var(--button-primary-text);
+    background-color: var(--button-primary-bg) !important;
+    
+    color: var(--button-primary-text) !important;
+
+    .mat-icon {
+      color: var(--button-primary-text);
+    }
+  }
+
+  &.mat-accent {
+    --mdc-filled-button-container-color: var(--button-accent-bg);
+    --mdc-protected-button-container-color: var(--button-accent-bg);
+    --mdc-filled-button-label-text-color: var(--button-accent-text);
+    --mdc-protected-button-label-text-color: var(--button-accent-text);
+    background-color: var(--button-accent-bg) !important;
+    
+    color: var(--button-accent-text) !important;
+
+    .mat-icon {
+      color: var(--button-accent-text);
+    }
+  }
+
+  &.mat-warn {
+    --mdc-filled-button-container-color: var(--button-warn-bg);
+    --mdc-protected-button-container-color: var(--button-warn-bg);
+    --mdc-filled-button-label-text-color: var(--button-warn-text);
+    --mdc-protected-button-label-text-color: var(--button-warn-text);
+    background-color: var(--button-warn-bg) !important;
+    
+    color: var(--button-warn-text) !important;
+
+    .mat-icon {
+      color: var(--button-warn-text);
+    }
+  }
+
+  &.mat-mdc-button-disabled {
+    --mdc-filled-button-disabled-container-color: var(--button-disabled-background);
+    --mdc-filled-button-disabled-label-text-color: var(--button-disabled-text);
+    --mdc-protected-button-disabled-label-text-color: var(--button-disabled-text);
+    --mdc-outlined-button-disabled-label-text-color: var(--button-disabled-text);
+    
+    color: var(--button-disabled-text) !important;
+    background-color: var(--button-disabled-background) !important;
+
+    .mat-icon {
+      color: var(--button-disabled-text);
+    }
+  }
+}
+
+// Icon button inside raised buttons
+.mat-mdc-raised-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  .mat-icon {
+    color: inherit;
+  }
+}
+
+.mat-mdc-checkbox {
+  --mdc-checkbox-selected-focus-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-hover-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-pressed-icon-color: var(--primary-color);
+}
+
+.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+  
+  // Placeholder styling
+  .mat-mdc-input-element::placeholder,
+  .mat-mdc-textarea-element::placeholder {
+    color: var(--placeholder-color);
+  }
+  
+  // Error message styling
+  .mat-mdc-error,
+  mat-error {
+    color: var(--error-text-color) !important;
+  }
+}
+
+// Override select panel background
+.mat-mdc-select-panel {
+  background: var(--surface-color) !important;
+}
+
+// Add Material Design 3 elevation
+.mat-mdc-card {
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.3),
+    0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 
+      0 1px 2px 0 rgba(0, 0, 0, 0.3),
+      0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Toggle styles (Material Slide Toggle)
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: var(--toggle-checked-bg);
+  --mdc-switch-unselected-track-color: var(--toggle-bg);
+  --mdc-switch-selected-handle-color: var(--toggle-thumb-color);
+  --mdc-switch-unselected-handle-color: var(--toggle-thumb-color);
+  --mdc-switch-selected-hover-track-color: var(--toggle-checked-bg);
+  --mdc-switch-unselected-hover-track-color: var(--toggle-bg);
+  --mdc-switch-selected-pressed-track-color: var(--toggle-checked-bg);
+  --mdc-switch-unselected-pressed-track-color: var(--toggle-bg);
+  
+  &.mat-primary {
+    --mdc-switch-selected-focus-track-color: var(--toggle-checked-bg);
+    --mdc-switch-unselected-focus-track-color: var(--toggle-bg);
+  }
+}
+
+// Icon button styles
+.mat-mdc-icon-button {
+  &.mat-mdc-button-disabled {
+    color: var(--disabled-icon-color) !important;
+    
+    .mat-icon {
+      color: var(--disabled-icon-color) !important;
+    }
+  }
+}
+
+// Input placeholder styles
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder-color) !important;
+}
+
+// Error styles outside form fields
+mat-error {
+  color: var(--error-text-color) !important;
+}
+
+// Component-specific styles
+.word-input.mat-mdc-chip-input {
+  background-color: var(--input-background);
+  border-color: var(--border-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  &::placeholder {
+    color: var(--input-placeholder-color);
+  }
+
+  &:hover {
+    background-color: var(--input-hover-background);
+  }
+
+  &:focus {
+    background-color: var(--input-focus-background);
+    border-color: var(--primary-color);
+    outline: none;
+  }
+}
+
+input,
+textarea,
+.mat-mdc-input-element {
+  caret-color: var(--caret-color) !important;
+}
+
+.mat-mdc-form-field {
+  .mat-mdc-input-element {
+    caret-color: var(--caret-color) !important;
+  }
+  
+  textarea.mat-mdc-input-element {
+    caret-color: var(--caret-color) !important;
+  }
+}
+
+.about-section,
+.grammar-container,
+.phenomenon-item {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-medium);
+  box-shadow: var(--shadow-small);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    box-shadow: var(--shadow-medium);
+  }
+}
+
+.prompt-container {
+  background-color: var(--prompt-background);
+  border-radius: var(--border-radius-medium);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  position: relative;
+  border: 1px solid var(--border-color);
+
+  .prompt-content {
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 0;
+      padding-right: var(--spacing-xl);
+      font-family: 'Roboto Mono', monospace;
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+  }
+
+  .copy-button {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+
+    &:hover {
+      transform: scale(1.1);
+      color: var(--text-color);
+    }
+  }
+}
+
+.selected-item {
+  background-color: var(--selected-item-background) !important;
+  
+  &:hover {
+    background-color: var(--selected-item-hover-background) !important;
+  }
+}
+
+.highlight-border {
+  border-color: var(--highlight-border) !important;
+}
+
+.error-message {
+  color: var(--error-color);
+  background-color: var(--error-background);
+  font-size: 0.75rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+
+  &::before {
+    content: "⚠";
+    margin-right: 0.5rem;
+  }
+}
+
+.copy-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.success {
+    background-color: var(--success-background);
+    color: var(--success-color);
+  }
+
+  &.error {
+    background-color: var(--error-background);
+    color: var(--error-color);
+  }
+}
+
+.dialog-toggle {
+  display: block;
+  margin: 0.5rem 0 1.5rem;
+  opacity: var(--text-opacity, 0.87);
+}
+
+// Override Material form field styles in dark mode
+body.dark-theme {
   .mat-mdc-text-field-wrapper {
     background-color: var(--input-background) !important;
   }
@@ -65,79 +509,38 @@ body.dark-theme {
   }
 }
 
-// Base styles for both themes
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-// Material Design Component Overrides
-.mat-mdc-card {
-  --mdc-elevated-card-container-color: var(--card-background);
-  background-color: var(--card-background) !important;
-  transition: background-color 0.3s ease;
-}
-
-.mat-mdc-card-title {
+// Global text styles
+h1, h2, h3, h4, h5, h6 {
   color: var(--text-color) !important;
+  margin-bottom: 0.5em;
 }
 
-.mat-mdc-card-content {
-  color: var(--text-secondary) !important;
+p {
+  color: var(--text-color) !important;
+  margin-bottom: 1em;
 }
 
-.mat-mdc-slide-toggle .mdc-form-field > label {
-  color: var(--text-color);
-}
-
-.mat-mdc-button {
-  color: var(--text-color);
+a {
+  color: var(--link-color) !important;
+  text-decoration: none;
   
-  &.mat-primary {
-    color: var(--primary-color);
-  }
-}
-
-.mat-mdc-raised-button {
-  &.mat-primary {
-    --mdc-protected-button-container-color: var(--primary-color);
-    --mdc-protected-button-label-text-color: white;
-  }
-}
-
-.mat-mdc-checkbox {
-  --mdc-checkbox-selected-focus-icon-color: var(--primary-color);
-  --mdc-checkbox-selected-hover-icon-color: var(--primary-color);
-  --mdc-checkbox-selected-icon-color: var(--primary-color);
-  --mdc-checkbox-selected-pressed-icon-color: var(--primary-color);
-}
-
-.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
-  border-color: var(--primary-color);
-  background-color: var(--primary-color);
-}
-
-.mat-mdc-form-field {
-  width: 100%;
-}
-
-// Override select panel background
-.mat-mdc-select-panel {
-  background: var(--surface-color) !important;
-}
-
-// Add Material Design 3 elevation
-.mat-mdc-card {
-  box-shadow: 
-    0 1px 2px 0 rgba(0, 0, 0, 0.3),
-    0 1px 3px 1px rgba(0, 0, 0, 0.15);
-  transition: box-shadow 0.3s ease;
-
   &:hover {
-    box-shadow: 
-      0 1px 2px 0 rgba(0, 0, 0, 0.3),
-      0 2px 6px 2px rgba(0, 0, 0, 0.15);
+    text-decoration: underline;
+  }
+}
+
+// About component specific styles
+.about-container {
+  h1, h2, h3, p {
+    color: var(--text-color) !important;
+  }
+  
+  .mat-icon {
+    color: var(--text-color) !important;
+  }
+  
+  a {
+    color: var(--link-color) !important;
   }
 }
 

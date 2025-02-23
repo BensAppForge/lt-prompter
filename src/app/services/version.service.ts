@@ -36,7 +36,7 @@ export class VersionService {
     {
       id: 3,
       versionNumber: '0.7.0 - beta',
-      releaseDate: new Date('2025-02-09'),
+      releaseDate: new Date('2025-02-08'),
       shortDescription: 'Fehlerbehebung, Neue Features',
       longDescription: `
         • Neuer Editor zum Klonen bestehender Übungen
@@ -63,6 +63,16 @@ export class VersionService {
       longDescription: `
         • Angabe der Textquellen wird nun in der Zielsprache angezeigt
         • Verbesserung der Benutzeroberfläche für mobile Geräte
+      `.trim(),
+    },
+    {
+      id: 6,
+      versionNumber: '0.8 - beta',
+      releaseDate: new Date('2025-02-23'),
+      shortDescription: 'Bildschrim für Einstellungen und UI Verbesserungen',
+      longDescription: `
+        •Bildschirm für Einstellungen hinzugefügt
+        • Verbesserung der Benutzeroberfläche für hell und dunkel Modus
       `.trim(),
     },
   ];
