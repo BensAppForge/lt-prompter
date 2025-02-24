@@ -59,7 +59,7 @@ export const clonePromptTemplates: ClonePromptTemplates = {
   français: {
     exercisesIntro: frenchIntro,
     contextIntro: 'Contexte:\n',
-    autoContextIntro: 'Conservez le contexte utilisé dans la source\n',
+    autoContextIntro: 'Conservez le contexte utilisé dans la source.\n',
     requirementsIntro: 'Exigences supplémentaires:',
     requirements: [
       'Gardez la même longueur que la source.',

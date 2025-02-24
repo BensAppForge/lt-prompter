@@ -46,7 +46,7 @@
                         [checked]="isExerciseTypeSelected(type)"
                         (change)="onExerciseTypeChange($event, type)"
                         color="primary">
-              {{ type }}
+              {{ getExerciseTypeTranslation(type) }}
             </mat-checkbox>
           </div>
           <mat-error *ngIf="form.get('exerciseTypes')?.hasError('required') || form.get('exerciseTypes')?.hasError('minLength')" class="exercise-type-error">
@@ -59,7 +59,7 @@
             <mat-label>Quellentyp</mat-label>
             <mat-select formControlName="sourceType" required>
               <mat-option *ngFor="let type of sourceTypes; trackBy: trackByIndex" [value]="type">
-                {{ type }}
+                {{ getSourceTypeTranslation(type) }}
               </mat-option>
             </mat-select>
             <mat-error *ngIf="form.get('sourceType')?.hasError('required')">

@@ -22,13 +22,16 @@ interface DashboardCard {
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    RouterModule
+    RouterModule,
   ],
   template: `
     <div class="dashboard-container">
       <div class="cards-grid">
         <ng-container *ngFor="let card of cards">
-          <mat-card [routerLink]="card.disabled ? null : card.route" [class.disabled]="card.disabled">
+          <mat-card
+            [routerLink]="card.disabled ? null : card.route"
+            [class.disabled]="card.disabled"
+          >
             <mat-card-header>
               <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
               <mat-card-title>{{ card.title }}</mat-card-title>
@@ -40,49 +43,51 @@ interface DashboardCard {
       <div class="footer-space"></div>
     </div>
   `,
-  styles: [`
-    .dashboard-container {
-      padding: 20px;
-      margin-bottom: 60px;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      margin: 0 auto;
-      max-width: 1200px;
-    }
-
-    mat-card {
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      background-color: var(--surface-color);
-
-      &:hover:not(.disabled) {
-        transform: translateY(-2px);
-        box-shadow: var(--elevation-z4);
+  styles: [
+    `
+      .dashboard-container {
+        padding: 20px;
+        margin-bottom: 60px;
       }
 
-      &.disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 0 auto;
+        max-width: 1200px;
       }
-    }
 
-    .footer-space {
-      height: 40px;
-    }
+      mat-card {
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background-color: var(--surface-color);
 
-    mat-card-header {
-      margin-bottom: 16px;
-    }
+        &:hover:not(.disabled) {
+          transform: translateY(-2px);
+          box-shadow: var(--elevation-z4);
+        }
 
-    .mat-mdc-card-avatar {
-      background-color: transparent;
-      color: var(--text-secondary);
-    }
-  `]
+        &.disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+      }
+
+      .footer-space {
+        height: 40px;
+      }
+
+      mat-card-header {
+        margin-bottom: 16px;
+      }
+
+      .mat-mdc-card-avatar {
+        background-color: transparent;
+        color: var(--text-secondary);
+      }
+    `,
+  ],
 })
 export class DashboardComponent {
   cards: DashboardCard[] = [
@@ -109,6 +114,13 @@ export class DashboardComponent {
       icon: 'content_copy',
       route: '/clone',
       description: 'Bestehende Übungen als Vorlage verwenden',
+    },
+    {
+      title: 'Wortfelder',
+      icon: 'format_list_bulleted',
+      route: '/wordfield',
+      description:
+        'Erstellen Sie thematische Wortfelder basierend auf Bildern und Texten',
     },
     {
       title: 'Einstellungen',

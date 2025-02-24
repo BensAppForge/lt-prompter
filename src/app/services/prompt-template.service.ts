@@ -7,7 +7,11 @@ import {
 } from '../templates/vocabulary-prompts';
 import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig } from '../models/grammar.model';
-import { ComprehensionPromptConfig, ComprehensionSourceType, ComprehensionExerciseType } from '../models/comprehension.model';
+import {
+  ComprehensionPromptConfig,
+  ComprehensionSourceType,
+  ComprehensionExerciseType,
+} from '../models/comprehension.model';
 import {
   comprehensionPromptTemplates,
   exerciseTypeDescriptions,
@@ -16,63 +20,129 @@ import {
 } from '../templates/comprehension-prompts';
 import { ClonePromptConfig, CloneSourceType } from '../models/clone.model';
 import { clonePromptTemplates } from '../templates/clone-prompts';
+import {
+  WordfieldPromptConfig,
+  WordfieldSourceType,
+  WORDFIELD_SOURCE_TYPES,
+  WordfieldOutputType,
+  WORDFIELD_OUTPUT_TYPES,
+} from '../models/wordfield.model';
+import {
+  WordfieldPromptTemplate,
+  wordfieldPromptTemplates,
+} from '../templates/wordfield-prompts';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PromptTemplateService {
-  private sourceTypeTranslations: Record<Language, Record<CloneSourceType, string>> = {
+  private sourceTypeTranslations: Record<
+    Language,
+    Record<CloneSourceType, string>
+  > = {
     English: {
-      'docx': 'Word document',
-      'pdf': 'PDF document',
-      'screenshot': 'screenshot',
-      'copied-text': 'copied text'
+      docx: 'Word document',
+      pdf: 'PDF document',
+      screenshot: 'screenshot',
+      'copied-text': 'copied text',
     },
     español: {
-      'docx': 'documento de Word',
-      'pdf': 'documento PDF',
-      'screenshot': 'captura de pantalla',
-      'copied-text': 'texto copiado'
+      docx: 'documento de Word',
+      pdf: 'documento PDF',
+      screenshot: 'captura de pantalla',
+      'copied-text': 'texto copiado',
     },
     français: {
-      'docx': 'document Word',
-      'pdf': 'document PDF',
-      'screenshot': 'capture d\'écran',
-      'copied-text': 'texte copié'
+      docx: 'document Word',
+      pdf: 'document PDF',
+      screenshot: "capture d'écran",
+      'copied-text': 'texte copié',
     },
     italiano: {
-      'docx': 'documento Word',
-      'pdf': 'documento PDF',
-      'screenshot': 'screenshot',
-      'copied-text': 'testo copiato'
-    }
+      docx: 'documento Word',
+      pdf: 'documento PDF',
+      screenshot: 'screenshot',
+      'copied-text': 'testo copiato',
+    },
   };
-
-  private comprehensionSourceTypeTranslations: Record<Language, Record<ComprehensionSourceType, string>> = {
+  private wordfieldSourceTypeTranslations: Record<
+    Language,
+    Record<WordfieldSourceType, string>
+  > = {
     English: {
-      'docx': 'Word document',
-      'pdf': 'PDF document',
-      'screenshot': 'screenshot',
-      'copied-text': 'copied text'
+      image: 'image',
+      docx: 'Word document',
+      pdf: 'PDF document',
+      'copied-text': 'copied text',
     },
     español: {
-      'docx': 'documento de Word',
-      'pdf': 'documento PDF',
-      'screenshot': 'captura de pantalla',
-      'copied-text': 'texto copiado'
+      image: 'imagen',
+      docx: 'documento de Word',
+      pdf: 'documento PDF',
+      'copied-text': 'texto copiado',
     },
     français: {
-      'docx': 'document Word',
-      'pdf': 'document PDF',
-      'screenshot': 'capture d\'écran',
-      'copied-text': 'texte copié'
+      image: 'image',
+      docx: 'document Word',
+      pdf: 'document PDF',
+      'copied-text': 'texte copié',
     },
     italiano: {
-      'docx': 'documento Word',
-      'pdf': 'documento PDF',
-      'screenshot': 'screenshot',
-      'copied-text': 'testo copiato'
-    }
+      image: 'immagine',
+      docx: 'documento Word',
+      pdf: 'documento PDF',
+      'copied-text': 'testo copiato',
+    },
+  };
+  private wordfieldOutputTypeTranslations: Record<
+    Language,
+    Record<WordfieldOutputType, string>
+  > = {
+    English: {
+      table: 'table',
+      markdown: 'markdown for mind mapping apps',
+    },
+    español: {
+      table: 'tabla',
+      markdown: 'markdown para aplicaciones de mapas mentales',
+    },
+    français: {
+      table: 'tableau',
+      markdown: 'markdown pour applications de cartographie',
+    },
+    italiano: {
+      table: 'tabella',
+      markdown: 'markdown per applicazioni di mappatura',
+    },
+  };
+  private comprehensionSourceTypeTranslations: Record<
+    Language,
+    Record<ComprehensionSourceType, string>
+  > = {
+    English: {
+      docx: 'Word document',
+      pdf: 'PDF document',
+      screenshot: 'screenshot',
+      'copied-text': 'copied text',
+    },
+    español: {
+      docx: 'documento de Word',
+      pdf: 'documento PDF',
+      screenshot: 'captura de pantalla',
+      'copied-text': 'texto copiado',
+    },
+    français: {
+      docx: 'document Word',
+      pdf: 'document PDF',
+      screenshot: "capture d'écran",
+      'copied-text': 'texte copié',
+    },
+    italiano: {
+      docx: 'documento Word',
+      pdf: 'documento PDF',
+      screenshot: 'screenshot',
+      'copied-text': 'testo copiato',
+    },
   };
 
   private getVocabularyTemplate(language: Language): VocabularyPromptTemplate {
@@ -208,7 +278,10 @@ export class PromptTemplateService {
     }
 
     const parts: string[] = [];
-    const localizedSourceType = this.comprehensionSourceTypeTranslations[config.targetLanguage][config.sourceType];
+    const localizedSourceType =
+      this.comprehensionSourceTypeTranslations[config.targetLanguage][
+        config.sourceType
+      ];
 
     // Add intro
     parts.push(
@@ -218,7 +291,10 @@ export class PromptTemplateService {
         .replace(
           '[COMPREHENSION_TYPES]',
           config.exercises
-            .map((ex: ComprehensionExerciseType) => exerciseTypeTranslations[config.targetLanguage][ex])
+            .map(
+              (ex: ComprehensionExerciseType) =>
+                exerciseTypeTranslations[config.targetLanguage][ex]
+            )
             .join(', ')
         )
         .replace('[COMPREHENSION_SOURCE_TYPE]', localizedSourceType)
@@ -261,8 +337,9 @@ export class PromptTemplateService {
     config: ClonePromptConfig & { newContext?: string }
   ): string {
     const template = clonePromptTemplates[config.targetLanguage];
-    const localizedSourceType = this.sourceTypeTranslations[config.targetLanguage][config.sourceType];
-    
+    const localizedSourceType =
+      this.sourceTypeTranslations[config.targetLanguage][config.sourceType];
+
     let prompt = template.exercisesIntro
       .replace('[TARGET_LANGUAGE]', config.targetLanguage)
       .replace('[CEFR]', config.cefr)
@@ -280,5 +357,43 @@ export class PromptTemplateService {
     });
 
     return prompt;
+  }
+
+  generateWordfieldPrompt(config: WordfieldPromptConfig): string {
+    try {
+      const template = wordfieldPromptTemplates[config.targetLanguage];
+      if (!template) {
+        throw new Error(`No template found for language: ${config.targetLanguage}`);
+      }
+
+      const localizedSourceType = this.wordfieldSourceTypeTranslations[config.targetLanguage][config.sourceType];
+      const localizedOutputType = this.wordfieldOutputTypeTranslations[config.targetLanguage][config.outputType];
+
+      if (!localizedSourceType) {
+        throw new Error(`No translation found for source type: ${config.sourceType}`);
+      }
+      if (!localizedOutputType) {
+        throw new Error(`No translation found for output type: ${config.outputType}`);
+      }
+
+      let prompt = template.intro
+        .replace('[TARGET_LANGUAGE]', config.targetLanguage)
+        .replace('[CEFR]', config.cefr)
+        .replace('[WORDFIELD_SOURCE_TYPE]', localizedSourceType)
+        .replace('[WORDFIELD_OUTPUT_TYPE]', localizedOutputType);
+
+      // Add requirements if they exist in the template
+      if (template.requirements?.length) {
+        prompt += '\n\n' + template.requirementsIntro;
+        template.requirements.forEach((req) => {
+          prompt += '\n- ' + req;
+        });
+      }
+
+      return prompt;
+    } catch (error) {
+      console.error('Error generating wordfield prompt:', error);
+      return `Error generating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
   }
 }

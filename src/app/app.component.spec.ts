@@ -27,9 +27,9 @@ describe('AppComponent', () => {
   });
 
   it('should toggle theme', () => {
-    expect(component.isDarkTheme()).toBeFalse();
+    expect(component.isDarkMode()).toBeFalse();
     component.toggleTheme();
-    expect(component.isDarkTheme()).toBeTrue();
+    expect(component.isDarkMode()).toBeTrue();
     expect(document.body.classList.contains('dark-theme')).toBeTrue();
   });
 });

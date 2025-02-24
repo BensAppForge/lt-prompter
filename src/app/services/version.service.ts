@@ -69,10 +69,20 @@ export class VersionService {
       id: 6,
       versionNumber: '0.8 - beta',
       releaseDate: new Date('2025-02-23'),
-      shortDescription: 'Bildschrim für Einstellungen und UI Verbesserungen',
+      shortDescription: 'Bildschirm für Einstellungen und UI Verbesserungen',
       longDescription: `
         •Bildschirm für Einstellungen hinzugefügt
         • Verbesserung der Benutzeroberfläche für hell und dunkel Modus
+      `.trim(),
+    },
+    {
+      id: 7,
+      versionNumber: '0.9 - beta',
+      releaseDate: new Date('2025-02-24'),
+      shortDescription: 'Wortfelder und Verbesserungen',
+      longDescription: `
+        • Neuer Promptgenerator für Wortfelder
+        • Diverse Verbesserungen der Benutzeroberfläche
       `.trim(),
     },
   ];

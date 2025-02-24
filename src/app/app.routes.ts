@@ -87,6 +87,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'wordfield',
+    loadComponent: () =>
+      import('./components/wordfield/wordfield.component').then(
+        (m) => m.WordfieldComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

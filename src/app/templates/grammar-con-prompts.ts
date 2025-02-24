@@ -14,8 +14,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
     contextIntro: 'The exercise should be based on the following context:',
     autoContextIntro:
       'Create an appropriate context that naturally incorporates the required grammar.',
-    dialogRequirement:
-      'Present the exercise in the form of a dialog between two or more people.',
+    dialogRequirement: 'Present the exercise in the form of a dialogue.',
     requirementsIntro: 'Additional requirements:',
     requirements: [
       'When provided, always place hints in brackets behind the gaps, not in front of them.',
@@ -34,8 +33,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
     contextIntro: "L'exercice doit être basé sur le contexte suivant :",
     autoContextIntro:
       'Créez un contexte approprié qui incorpore naturellement la grammaire requise.',
-    dialogRequirement:
-      "Présentez l'exercice sous forme de dialogue entre deux personnes ou plus.",
+    dialogRequirement: "Présentez l'exercice sous forme de dialogue.",
     requirementsIntro: 'Exigences supplémentaires :',
     requirements: [
       'Lorsque des indications sont fournies, placez-les toujours entre parenthèses après les trous, et non avant.',
@@ -55,8 +53,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
     contextIntro: 'El ejercicio debe basarse en el siguiente contexto:',
     autoContextIntro:
       'Crea un contexto apropiado que incorpore naturalmente la gramática requerida.',
-    dialogRequirement:
-      'Presenta el ejercicio en forma de diálogo entre dos o más personas.',
+    dialogRequirement: 'Presenta el ejercicio en forma de diálogo.',
     requirementsIntro: 'Requisitos adicionales:',
     requirements: [
       'Cuando se proporcionen, coloca siempre las pistas entre paréntesis después de los espacios, no antes.',
@@ -76,8 +73,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
     contextIntro: "L'esercizio deve essere basato sul seguente contesto:",
     autoContextIntro:
       'Crea un contesto appropriato che incorpori naturalmente la grammatica richiesta.',
-    dialogRequirement:
-      "Presenta l'esercizio sotto forma di dialogo tra due o più persone.",
+    dialogRequirement: "Presenta l'esercizio sotto forma di dialogo.",
     requirementsIntro: 'Requisiti aggiuntivi:',
     requirements: [
       'Quando presenti, inserisci sempre le indicazioni tra parentesi dietro gli spazi, mai davanti.',

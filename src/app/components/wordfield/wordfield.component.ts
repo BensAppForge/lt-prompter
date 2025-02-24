@@ -1,4 +1,12 @@
-import { Component, inject, ViewChild, ElementRef, effect, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  ViewChild,
+  ElementRef,
+  effect,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,18 +24,18 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Language, CEFRLevel } from '../../models/preferences.model';
 import {
-  ComprehensionExerciseType,
-  ComprehensionSourceType,
-  COMPREHENSION_EXERCISE_TYPES,
-  SOURCE_TYPES,
-  ComprehensionPromptConfig
-} from '../../models/comprehension.model';
+  WordfieldPromptConfig,
+  WordfieldSourceType,
+  WORDFIELD_SOURCE_TYPES,
+  WordfieldOutputType,
+  WORDFIELD_OUTPUT_TYPES,
+} from '../../models/wordfield.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { ScrollService } from '../../shared/services/scroll.service';
 
 @Component({
-  selector: 'app-comprehension',
+  selector: 'app-wordfield',
   standalone: true,
   imports: [
     CommonModule,
@@ -39,10 +47,10 @@ import { ScrollService } from '../../shared/services/scroll.service';
     MatCheckboxModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './comprehension.component.html',
-  styleUrls: ['./comprehension.component.scss'],
+  templateUrl: './wordfield.component.html',
+  styleUrls: ['./wordfield.component.scss'],
 })
-export class ComprehensionComponent {
+export class WordfieldComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly promptService = inject(PromptTemplateService);
@@ -64,26 +72,26 @@ export class ComprehensionComponent {
     'C1',
   ];
 
-  readonly exerciseTypes = COMPREHENSION_EXERCISE_TYPES;
-  readonly sourceTypes = SOURCE_TYPES;
+  readonly sourceTypes = WORDFIELD_SOURCE_TYPES;
+  readonly outputTypes = WORDFIELD_OUTPUT_TYPES;
   readonly _generatedPrompt = signal<string>('');
   readonly generatedPrompt = computed(() => this._generatedPrompt());
 
-  // German translations for exercise types
-  private readonly exerciseTypeTranslations: Record<ComprehensionExerciseType, string> = {
-    'true-false': 'Richtig-Falsch-Aufgaben',
-    'multiple-choice': 'Multiple-Choice-Fragen',
-    'matching': 'Zuordnungsaufgaben',
-    'gapped-summary': 'Lückentext-Zusammenfassung'
-  };
-
   // German translations for source types
-  private readonly sourceTypeTranslations: Record<ComprehensionSourceType, string> = {
-    'docx': 'Word-Dokument',
-    'pdf': 'PDF-Dokument',
-    'screenshot': 'Screenshot',
-    'copied-text': 'Kopierter Text'
-  };
+  private readonly sourceTypeTranslations: Record<WordfieldSourceType, string> =
+    {
+      image: 'Bild',
+      docx: 'Word-Dokument',
+      pdf: 'PDF-Dokument',
+      'copied-text': 'Kopierter Text',
+    };
+
+  // German translations for output types
+  private readonly outputTypeTranslations: Record<WordfieldOutputType, string> =
+    {
+      table: 'Tabelle',
+      markdown: 'Markdown für Mind-Mapping',
+    };
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
 
@@ -91,10 +99,8 @@ export class ComprehensionComponent {
     this.form = this.fb.group({
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
-      exercises: [[], [Validators.required, Validators.minLength(2)]],
       sourceType: ['', Validators.required],
-      situationalContext: [''],
-      situationalContextIsDialog: [false],
+      outputType: ['', Validators.required],
     });
 
     // Create an effect to handle scrolling when prompt changes
@@ -102,7 +108,10 @@ export class ComprehensionComponent {
       if (this._generatedPrompt()) {
         setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
-            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+            this.scrollService.scrollToBottom(
+              this.promptContainer.nativeElement,
+              20
+            );
           }
         }, 100);
       }
@@ -113,39 +122,18 @@ export class ComprehensionComponent {
     this.router.navigate(['/']);
   }
 
-  isExerciseTypeSelected(type: ComprehensionExerciseType): boolean {
-    const exercises = this.form.get('exercises')?.value as ComprehensionExerciseType[];
-    return exercises?.includes(type) ?? false;
-  }
-
-  onExerciseTypeChange(event: { checked: boolean }, type: ComprehensionExerciseType): void {
-    const exercises = (this.form.get('exercises')?.value as ComprehensionExerciseType[]) || [];
-    
-    if (event.checked && !exercises.includes(type)) {
-      this.form.patchValue({
-        exercises: [...exercises, type]
-      });
-    } else if (!event.checked && exercises.includes(type)) {
-      this.form.patchValue({
-        exercises: exercises.filter(t => t !== type)
-      });
-    }
-  }
-
   onSubmit(): void {
     if (this.form.valid) {
       const formValue = this.form.getRawValue();
-      const config: ComprehensionPromptConfig = {
+      const config: WordfieldPromptConfig = {
         targetLanguage: formValue.targetLanguage!,
         cefr: formValue.cefr!,
-        exercises: formValue.exercises!,
         sourceType: formValue.sourceType!,
-        situationalContext: formValue.situationalContext,
-        isDialog: formValue.situationalContextIsDialog,
+        outputType: formValue.outputType!,
       };
 
       this._generatedPrompt.set(
-        this.promptService.generateComprehensionPrompt(config)
+        this.promptService.generateWordfieldPrompt(config)
       );
     }
   }
@@ -162,14 +150,16 @@ export class ComprehensionComponent {
   }
 
   displayLanguage(lang: Language): string {
-    return lang === 'English' ? lang : lang.charAt(0).toUpperCase() + lang.slice(1);
+    return lang === 'English'
+      ? lang
+      : lang.charAt(0).toUpperCase() + lang.slice(1);
   }
 
-  getSourceTypeTranslation(type: ComprehensionSourceType): string {
+  getSourceTypeTranslation(type: WordfieldSourceType): string {
     return this.sourceTypeTranslations[type] || type;
   }
 
-  getExerciseTypeTranslation(type: ComprehensionExerciseType): string {
-    return this.exerciseTypeTranslations[type] || type;
+  getOutputTypeTranslation(type: WordfieldOutputType): string {
+    return this.outputTypeTranslations[type] || type;
   }
 }
