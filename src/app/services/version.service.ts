@@ -85,6 +85,18 @@ export class VersionService {
         • Diverse Verbesserungen der Benutzeroberfläche
       `.trim(),
     },
+    {
+      id: 8,
+      versionNumber: '1.0.0',
+      releaseDate: new Date('2025-03-10'),
+      shortDescription:
+        'Fehlerbehebungen und Verbesserungen in der Nutzeroberfläche',
+      longDescription: `
+        • Erster Release
+        • Fehlerbehebungen bei Hell- und Dunkelmodus
+        • Kleinere Fehler bei der Prompterzeugung behoben
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

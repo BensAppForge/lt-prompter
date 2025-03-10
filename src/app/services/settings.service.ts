@@ -53,7 +53,16 @@ export class SettingsService {
   private setupSystemThemeListener(): void {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      document.body.classList.toggle('dark-theme', e.matches);
+      // Ensure we remove any existing theme class first
+      document.body.classList.remove('dark-theme');
+      document.body.classList.remove('light-theme');
+      
+      // Then apply the appropriate theme class
+      if (e.matches) {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.add('light-theme');
+      }
     };
 
     mediaQuery.addEventListener('change', handleChange);
@@ -80,9 +89,13 @@ export class SettingsService {
     // Apply theme based on preference
     switch (preference) {
       case ThemePreference.Light:
+        // Ensure we remove dark theme and add light theme
         document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
         break;
       case ThemePreference.Dark:
+        // Ensure we remove light theme and add dark theme
+        document.body.classList.remove('light-theme');
         document.body.classList.add('dark-theme');
         break;
       case ThemePreference.System:

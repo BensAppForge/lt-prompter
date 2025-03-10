@@ -113,20 +113,23 @@
   .prompt-container {
     margin-top: 2rem;
     position: relative;
-    background-color: #f5f5f5;
+    background-color: var(--prompt-background);
     border-radius: 4px;
     padding: 1rem;
+    border: 1px solid var(--border-color);
 
     .prompt-content {
       max-height: 400px;
       overflow-y: auto;
       padding-right: 2.5rem;
+      border: none;
 
       pre {
         white-space: pre-wrap;
         word-wrap: break-word;
         margin: 0;
         font-family: "Roboto Mono", monospace;
+        color: var(--text-color);
       }
     }
 

@@ -58,11 +58,12 @@
               <mat-hint>Fügen Sie einen hilfreichen Hinweis hinzu</mat-hint>
             </mat-form-field>
 
-            <button mat-icon-button type="button" color="primary"
+            <button mat-raised-button type="button" color="primary" class="add-phenomenon-button"
                     [attr.aria-label]="'Phänomen ' + phenomenonInput.value + ' hinzufügen'"
                     (click)="addPhenomenon(phenomenonInput.value, hintInput.value); phenomenonInput.value = ''; hintInput.value = '';"
                     [disabled]="!phenomenonInput.value">
               <mat-icon>add_circle</mat-icon>
+              <span>Hinzufügen</span>
             </button>
           </div>
 

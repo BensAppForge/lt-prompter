@@ -353,7 +353,7 @@ export class PromptTemplateService {
 
     prompt += template.requirementsIntro + '\n';
     template.requirements.forEach((req) => {
-      prompt += '- ' + req + '\n';
+      prompt += '- ' + req.replace('[CEFR]', config.cefr) + '\n';
     });
 
     return prompt;
@@ -363,17 +363,29 @@ export class PromptTemplateService {
     try {
       const template = wordfieldPromptTemplates[config.targetLanguage];
       if (!template) {
-        throw new Error(`No template found for language: ${config.targetLanguage}`);
+        throw new Error(
+          `No template found for language: ${config.targetLanguage}`
+        );
       }
 
-      const localizedSourceType = this.wordfieldSourceTypeTranslations[config.targetLanguage][config.sourceType];
-      const localizedOutputType = this.wordfieldOutputTypeTranslations[config.targetLanguage][config.outputType];
+      const localizedSourceType =
+        this.wordfieldSourceTypeTranslations[config.targetLanguage][
+          config.sourceType
+        ];
+      const localizedOutputType =
+        this.wordfieldOutputTypeTranslations[config.targetLanguage][
+          config.outputType
+        ];
 
       if (!localizedSourceType) {
-        throw new Error(`No translation found for source type: ${config.sourceType}`);
+        throw new Error(
+          `No translation found for source type: ${config.sourceType}`
+        );
       }
       if (!localizedOutputType) {
-        throw new Error(`No translation found for output type: ${config.outputType}`);
+        throw new Error(
+          `No translation found for output type: ${config.outputType}`
+        );
       }
 
       let prompt = template.intro
@@ -386,14 +398,16 @@ export class PromptTemplateService {
       if (template.requirements?.length) {
         prompt += '\n\n' + template.requirementsIntro;
         template.requirements.forEach((req) => {
-          prompt += '\n- ' + req;
+          prompt += '\n- ' + req.replace('[CEFR]', config.cefr);
         });
       }
 
       return prompt;
     } catch (error) {
       console.error('Error generating wordfield prompt:', error);
-      return `Error generating prompt: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      return `Error generating prompt: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`;
     }
   }
 }

@@ -94,6 +94,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'help',
+    loadComponent: () =>
+      import('./components/help/help.component').then(
+        (m) => m.HelpComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

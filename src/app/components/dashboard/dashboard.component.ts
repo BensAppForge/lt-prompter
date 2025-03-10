@@ -129,6 +129,12 @@ export class DashboardComponent {
       description: 'Passen Sie das Erscheinungsbild und weitere Optionen an',
     },
     {
+      title: 'Hilfe',
+      icon: 'help',
+      route: '/help',
+      description: 'Informationen zur Nutzung der App',
+    },
+    {
       title: 'Datenschutz',
       icon: 'security',
       route: '/privacy',
