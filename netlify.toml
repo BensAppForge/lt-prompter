@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/lt-prompter"
+  publish = "dist/lt-prompter/browser"
   command = "ng build"
 
 [[redirects]]
