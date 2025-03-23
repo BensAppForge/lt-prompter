@@ -1,5 +1,9 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection,
+  isDevMode,
+} from '@angular/core';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { NgxIndexedDBService, DBConfig } from 'ngx-indexed-db';
 import { PLATFORM_ID } from '@angular/core';
@@ -21,7 +25,7 @@ const dbConfig: DBConfig = {
         { name: 'language', keypath: 'language', options: { unique: false } },
         { name: 'level', keypath: 'level', options: { unique: false } },
         { name: 'theme', keypath: 'theme', options: { unique: false } },
-      ]
+      ],
     },
     {
       store: 'templates',
@@ -29,24 +33,44 @@ const dbConfig: DBConfig = {
       storeSchema: [
         { name: 'name', keypath: 'name', options: { unique: false } },
         { name: 'content', keypath: 'content', options: { unique: false } },
-        { name: 'exerciseType', keypath: 'exerciseType', options: { unique: false } },
+        {
+          name: 'exerciseType',
+          keypath: 'exerciseType',
+          options: { unique: false },
+        },
         { name: 'language', keypath: 'language', options: { unique: false } },
         { name: 'cefrLevel', keypath: 'cefrLevel', options: { unique: false } },
         { name: 'createdAt', keypath: 'createdAt', options: { unique: false } },
         { name: 'updatedAt', keypath: 'updatedAt', options: { unique: false } },
-        { name: 'isDefault', keypath: 'isDefault', options: { unique: false } }
-      ]
+        { name: 'isDefault', keypath: 'isDefault', options: { unique: false } },
+      ],
     },
     {
       store: 'versions',
       storeConfig: { keyPath: 'id', autoIncrement: true },
       storeSchema: [
-        { name: 'versionNumber', keypath: 'versionNumber', options: { unique: true } },
-        { name: 'releaseDate', keypath: 'releaseDate', options: { unique: false } },
-        { name: 'shortDescription', keypath: 'shortDescription', options: { unique: false } },
-        { name: 'longDescription', keypath: 'longDescription', options: { unique: false } }
-      ]
-    }
+        {
+          name: 'versionNumber',
+          keypath: 'versionNumber',
+          options: { unique: true },
+        },
+        {
+          name: 'releaseDate',
+          keypath: 'releaseDate',
+          options: { unique: false },
+        },
+        {
+          name: 'shortDescription',
+          keypath: 'shortDescription',
+          options: { unique: false },
+        },
+        {
+          name: 'longDescription',
+          keypath: 'longDescription',
+          options: { unique: false },
+        },
+      ],
+    },
   ],
   migrationFactory: () => {
     return {
@@ -65,27 +89,30 @@ const dbConfig: DBConfig = {
       4: (db, transaction) => {
         const versionsStore = transaction.objectStore('versions');
         versionsStore.clear();
-      }
+      },
     };
-  }
+  },
 };
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), 
-    provideRouter(routes),
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'top' })
+    ),
     provideAnimations(),
-    { 
-      provide: NgxIndexedDBService, 
+    {
+      provide: NgxIndexedDBService,
       useFactory: (platformId: Object) => {
         const config = { [DB_NAME]: dbConfig };
         return new NgxIndexedDBService(config, platformId);
       },
-      deps: [PLATFORM_ID]
+      deps: [PLATFORM_ID],
     },
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
-    })
-  ]
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+  ],
 };

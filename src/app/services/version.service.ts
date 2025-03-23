@@ -97,6 +97,18 @@ export class VersionService {
         • Kleinere Fehler bei der Prompterzeugung behoben
       `.trim(),
     },
+    {
+      id: 9,
+      versionNumber: '1.0.1',
+      releaseDate: new Date('2025-03-14'),
+      shortDescription: 'Fehlerbehebungen in der Nutzeroberfläche',
+      longDescription: `
+        • Darstellung der Icons korrigiert
+        • Fehlerbehebungen bei Hell- und Dunkelmodus
+        • Kleinere Fehler bei der Prompterzeugung behoben
+        • Bessere Anzeige des Prompts auf mobilen Geräten
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

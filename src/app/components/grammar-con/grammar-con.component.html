@@ -44,43 +44,43 @@
             <mat-form-field appearance="outline" class="phenomenon-input">
               <mat-label>Grammatisches Phänomen</mat-label>
               <input matInput #phenomenonInput placeholder="z.B. Präsens Perfekt"
-                     aria-label="Grammatisches Phänomen eingeben"
-                     [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
-                     [attr.spellcheck]="true"
-                     autocomplete="off">
+                aria-label="Grammatisches Phänomen eingeben"
+                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"
+                autocomplete="off">
               <mat-hint>Beschreiben Sie das grammatische Phänomen</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="hint-input">
               <mat-label>Hinweis (Optional)</mat-label>
               <input matInput #hintInput placeholder="z.B. mit 'haben' oder 'sein'"
-                     aria-label="Optionaler Hinweis zum grammatischen Phänomen">
+                aria-label="Optionaler Hinweis zum grammatischen Phänomen">
               <mat-hint>Fügen Sie einen hilfreichen Hinweis hinzu</mat-hint>
             </mat-form-field>
 
             <button mat-raised-button type="button" color="primary" class="add-phenomenon-button"
-                    [attr.aria-label]="'Phänomen ' + phenomenonInput.value + ' hinzufügen'"
-                    (click)="addPhenomenon(phenomenonInput.value, hintInput.value); phenomenonInput.value = ''; hintInput.value = '';"
-                    [disabled]="!phenomenonInput.value">
+              [attr.aria-label]="'Phänomen ' + phenomenonInput.value + ' hinzufügen'"
+              (click)="addPhenomenon(phenomenonInput.value, hintInput.value); phenomenonInput.value = ''; hintInput.value = '';"
+              [disabled]="!phenomenonInput.value">
               <mat-icon>add_circle</mat-icon>
               <span>Hinzufügen</span>
             </button>
           </div>
 
-          <mat-error *ngIf="form.get('phenomena')?.hasError('required') || form.get('phenomena')?.hasError('minLength')">
+          <mat-error
+            *ngIf="form.get('phenomena')?.hasError('required') || form.get('phenomena')?.hasError('minLength')">
             Bitte fügen Sie mindestens ein grammatisches Phänomen hinzu
           </mat-error>
 
           <ul class="phenomena-list" auto-animate role="list" aria-label="Liste der grammatischen Phänomene">
-            <li *ngFor="let phenomenon of phenomena.controls; let i = index; trackBy: trackByIndex" 
-                class="phenomenon-item" role="listitem">
+            <li *ngFor="let phenomenon of phenomena.controls; let i = index; trackBy: trackByIndex"
+              class="phenomenon-item" role="listitem">
               <span class="phenomenon-text">{{ phenomenon.get('description')?.value }}</span>
               <span class="phenomenon-hint" *ngIf="phenomenon.get('hint')?.value">
                 ({{ phenomenon.get('hint')?.value }})
               </span>
-              <button mat-icon-button color="warn" type="button" 
-                      [attr.aria-label]="'Phänomen ' + phenomenon.get('description')?.value + ' entfernen'"
-                      (click)="removePhenomenon(i)">
+              <button mat-icon-button color="warn" type="button"
+                [attr.aria-label]="'Phänomen ' + phenomenon.get('description')?.value + ' entfernen'"
+                (click)="removePhenomenon(i)">
                 <mat-icon>remove_circle</mat-icon>
               </button>
             </li>
@@ -91,8 +91,8 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Kontext (Optional)</mat-label>
             <textarea matInput formControlName="situationalContext" rows="3"
-                      placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."
-                      aria-label="Optionaler Kontext für die Grammatikübung"></textarea>
+              placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."
+              aria-label="Optionaler Kontext für die Grammatikübung"></textarea>
             <mat-hint>Falls nicht angegeben, wird automatisch ein passender Kontext generiert</mat-hint>
           </mat-form-field>
 
@@ -102,29 +102,45 @@
         </div>
 
         <div class="button-container">
-          <button mat-raised-button color="primary" type="submit" 
-                  [disabled]="!form.valid || phenomena.length === 0">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid || phenomena.length === 0">
             <mat-icon>auto_stories</mat-icon>
             Prompt generieren
           </button>
         </div>
       </form>
 
-      <div *ngIf="generatedPrompt()" class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
-        <div class="prompt-content">
-          <pre>{{ generatedPrompt() }}</pre>
+      <ng-container *ngIf="generatedPrompt()">
+        <div class="prompt-controls">
+          <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
+            [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+            <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+            <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+          </button>
+          <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
+            [class.success]="copyStatus() === 'success'" [class.error]="copyStatus() === 'error'"
+            [attr.aria-label]="'Prompt in die Zwischenablage kopieren'">
+            <mat-icon>
+              <ng-container *ngIf="copyStatus() === 'success'">check</ng-container>
+              <ng-container *ngIf="copyStatus() === 'error'">error</ng-container>
+              <ng-container *ngIf="copyStatus() !== 'success' && copyStatus() !== 'error'">content_copy</ng-container>
+            </mat-icon>
+            <span>Kopieren</span>
+          </button>
         </div>
-        <button mat-icon-button (click)="copyToClipboard(generatedPrompt())" class="copy-button"
-                [class.success]="copyStatus() === 'success'"
-                [class.error]="copyStatus() === 'error'"
-                [attr.aria-label]="'Prompt in die Zwischenablage kopieren'">
-          <mat-icon>
-            <ng-container *ngIf="copyStatus() === 'success'">check</ng-container>
-            <ng-container *ngIf="copyStatus() === 'error'">error</ng-container>
-            <ng-container *ngIf="copyStatus() !== 'success' && copyStatus() !== 'error'">content_copy</ng-container>
-          </mat-icon>
-        </button>
-      </div>
+
+        <div class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
+          <div class="prompt-content">
+            <ng-container *ngIf="!isEditMode()">
+              <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
+            </ng-container>
+            <ng-container *ngIf="isEditMode()">
+              <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
+                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
+              </textarea>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
     </mat-card-content>
   </mat-card>
 </div>

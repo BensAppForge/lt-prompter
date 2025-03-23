@@ -1,4 +1,12 @@
-import { Component, inject, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -6,7 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Language, CEFRLevel } from '../../models/preferences.model';
 import { CloneSourceType, ClonePromptConfig } from '../../models/clone.model';
@@ -26,10 +40,11 @@ import { ScrollService } from '../../shared/services/scroll.service';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './clone.component.html',
-  styleUrls: ['./clone.component.scss']
+  styleUrls: ['./clone.component.scss'],
 })
 export class CloneComponent {
   private readonly fb = inject(FormBuilder);
@@ -46,12 +61,35 @@ export class CloneComponent {
     'pdf',
     'copied-text',
   ];
-  readonly languages: Language[] = ['English', 'español', 'français', 'italiano'];
+  readonly languages: Language[] = [
+    'English',
+    'español',
+    'français',
+    'italiano',
+  ];
   readonly cefrLevels: CEFRLevel[] = [
-    'A1', 'A1+', 'A2', 'A2+', 'B1', 'B1+', 'B2', 'B2+', 'C1', 'C1+', 'C2'
+    'A1',
+    'A1+',
+    'A2',
+    'A2+',
+    'B1',
+    'B1+',
+    'B2',
+    'B2+',
+    'C1',
+    'C1+',
+    'C2',
   ];
   readonly _generatedPrompt = signal<string>('');
   readonly generatedPrompt = computed(() => this._generatedPrompt());
+
+  readonly _isEditMode = signal(false);
+  readonly isEditMode = computed(() => this._isEditMode());
+
+  readonly _editedPrompt = signal<string | null>(null);
+  readonly editedPrompt = computed(() => this._editedPrompt());
+
+  editablePrompt: string = '';
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
 
@@ -70,7 +108,10 @@ export class CloneComponent {
       if (this._generatedPrompt()) {
         setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
-            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+            this.scrollService.scrollToBottom(
+              this.promptContainer.nativeElement,
+              20
+            );
           }
         }, 100);
       }
@@ -93,6 +134,19 @@ export class CloneComponent {
     this.clipboardService.copyToClipboard(text);
   }
 
+  toggleEditMode(): void {
+    const currentEditMode = this._isEditMode();
+    this._isEditMode.set(!currentEditMode);
+
+    if (!currentEditMode) {
+      // Entering edit mode - initialize the editable content
+      this.editablePrompt = this._editedPrompt() || this._generatedPrompt();
+    } else {
+      // Exiting edit mode - save the edited content
+      this._editedPrompt.set(this.editablePrompt);
+    }
+  }
+
   onSubmit(): void {
     if (this.form.valid) {
       const formValue = this.form.getRawValue();
@@ -100,13 +154,12 @@ export class CloneComponent {
         targetLanguage: formValue.targetLanguage!,
         cefr: formValue.cefr!,
         sourceType: formValue.sourceType!,
-        situationalContext: formValue.newContext || formValue.situationalContext,
+        situationalContext:
+          formValue.newContext || formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
       };
 
-      this._generatedPrompt.set(
-        this.promptService.generateClonePrompt(config)
-      );
+      this._generatedPrompt.set(this.promptService.generateClonePrompt(config));
     }
   }
 }

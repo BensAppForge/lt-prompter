@@ -59,8 +59,7 @@
                     <mat-form-field appearance="fill" color="primary">
                         <mat-label>Ausgabeformat</mat-label>
                         <mat-select formControlName="outputType" required>
-                            <mat-option *ngFor="let type of outputTypes; trackBy: trackByIndex"
-                                [value]="type">
+                            <mat-option *ngFor="let type of outputTypes; trackBy: trackByIndex" [value]="type">
                                 {{ getOutputTypeTranslation(type) }}
                             </mat-option>
                         </mat-select>
@@ -77,14 +76,32 @@
             </form>
 
             <ng-container *ngIf="generatedPrompt()">
+                <div class="prompt-controls">
+                    <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
+                        [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+                        <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+                        <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+                    </button>
+                    <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())"
+                        class="copy-button" aria-label="Prompt in die Zwischenablage kopieren">
+                        <mat-icon>content_copy</mat-icon>
+                        <span>Kopieren</span>
+                    </button>
+                </div>
+
                 <div class="prompt-container" #promptContainer>
                     <div class="prompt-content">
-                        <pre>{{ generatedPrompt() }}</pre>
+                        <ng-container *ngIf="!isEditMode()">
+                            <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
+                        </ng-container>
+                        <ng-container *ngIf="isEditMode()">
+                            <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10"
+                                [placeholder]="generatedPrompt()"
+                                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
+                                [attr.spellcheck]="true">
+                            </textarea>
+                        </ng-container>
                     </div>
-                    <button mat-icon-button (click)="copyToClipboard(generatedPrompt())" class="copy-button"
-                        aria-label="Prompt in die Zwischenablage kopieren">
-                        <mat-icon>content_copy</mat-icon>
-                    </button>
                 </div>
             </ng-container>
         </mat-card-content>

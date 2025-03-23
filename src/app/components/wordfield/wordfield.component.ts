@@ -20,6 +20,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Language, CEFRLevel } from '../../models/preferences.model';
@@ -46,6 +47,7 @@ import { ScrollService } from '../../shared/services/scroll.service';
     MatIconModule,
     MatCheckboxModule,
     ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './wordfield.component.html',
   styleUrls: ['./wordfield.component.scss'],
@@ -76,6 +78,26 @@ export class WordfieldComponent {
   readonly outputTypes = WORDFIELD_OUTPUT_TYPES;
   readonly _generatedPrompt = signal<string>('');
   readonly generatedPrompt = computed(() => this._generatedPrompt());
+
+  readonly _isEditMode = signal(false);
+  readonly isEditMode = computed(() => this._isEditMode());
+
+  readonly _editedPrompt = signal<string | null>(null);
+  readonly editedPrompt = computed(() => this._editedPrompt());
+
+  editablePrompt: string = '';
+
+  private readonly languageMap: Record<Language, string> = {
+    English: 'en-EN',
+    français: 'fr-FR',
+    español: 'es-ES',
+    italiano: 'it-IT',
+  } as const;
+
+  getLanguageCode(language: Language | null | undefined): string {
+    if (!language) return 'en-EN';
+    return this.languageMap[language] || 'en-EN';
+  }
 
   // German translations for source types
   private readonly sourceTypeTranslations: Record<WordfieldSourceType, string> =
@@ -161,5 +183,18 @@ export class WordfieldComponent {
 
   getOutputTypeTranslation(type: WordfieldOutputType): string {
     return this.outputTypeTranslations[type] || type;
+  }
+
+  toggleEditMode(): void {
+    const currentEditMode = this._isEditMode();
+    this._isEditMode.set(!currentEditMode);
+
+    if (!currentEditMode) {
+      // Entering edit mode - initialize the editable content
+      this.editablePrompt = this._editedPrompt() || this._generatedPrompt();
+    } else {
+      // Exiting edit mode - save the edited content
+      this._editedPrompt.set(this.editablePrompt);
+    }
   }
 }

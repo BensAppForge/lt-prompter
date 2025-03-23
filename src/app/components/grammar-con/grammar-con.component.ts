@@ -1,4 +1,12 @@
-import { Component, computed, inject, signal, ViewChild, ElementRef, effect } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  ViewChild,
+  ElementRef,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,12 +24,16 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Language, CEFRLevel } from '../../models/preferences.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ScrollService } from '../../shared/services/scroll.service';
-import { GrammarPromptConfig, GrammarPhenomenon } from '../../models/grammar.model';
+import {
+  GrammarPromptConfig,
+  GrammarPhenomenon,
+} from '../../models/grammar.model';
 
 interface GrammarFormValue {
   targetLanguage: Language;
@@ -42,6 +54,7 @@ interface PhenomenonForm {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -63,10 +76,10 @@ export class GrammarConComponent {
   private readonly scrollService = inject(ScrollService);
 
   private readonly languageMap: Record<Language, string> = {
-    'English': 'en-EN',
-    'français': 'fr-FR',
-    'español': 'es-ES',
-    'italiano': 'it-IT'
+    English: 'en-EN',
+    français: 'fr-FR',
+    español: 'es-ES',
+    italiano: 'it-IT',
   } as const;
 
   getLanguageCode(language: Language | null | undefined): string {
@@ -99,16 +112,24 @@ export class GrammarConComponent {
   private readonly _copyStatus = signal<'idle' | 'success' | 'error'>('idle');
   readonly copyStatus = computed(() => this._copyStatus());
 
+  private readonly _isEditMode = signal(false);
+  readonly isEditMode = computed(() => this._isEditMode());
+
+  private readonly _editedPrompt = signal<string | null>(null);
+  readonly editedPrompt = computed(() => this._editedPrompt());
+
+  editablePrompt: string = '';
+
   @ViewChild('promptContainer') promptContainer?: ElementRef;
 
   constructor() {
     this.form = this.fb.group({
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
-      phenomena: this.fb.array<PhenomenonForm>([], [
-        Validators.required,
-        Validators.minLength(1),
-      ]),
+      phenomena: this.fb.array<PhenomenonForm>(
+        [],
+        [Validators.required, Validators.minLength(1)]
+      ),
       situationalContext: [''],
       situationalContextIsDialog: [false],
     });
@@ -117,7 +138,10 @@ export class GrammarConComponent {
       if (this._generatedPrompt()) {
         setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
-            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+            this.scrollService.scrollToBottom(
+              this.promptContainer.nativeElement,
+              20
+            );
           }
         }, 100);
       }
@@ -156,13 +180,16 @@ export class GrammarConComponent {
         cefr: formValue.cefr!,
         phenomena: formValue.phenomena.map((p: PhenomenonForm) => ({
           description: p.description,
-          hint: p.hint || undefined
+          hint: p.hint || undefined,
         })),
         situationalContext: formValue.situationalContext,
         situationalContextIsDialog: formValue.situationalContextIsDialog,
       };
 
-      const prompt = this.promptService.generateGrammarPrompt(config, formValue.targetLanguage);
+      const prompt = this.promptService.generateGrammarPrompt(
+        config,
+        formValue.targetLanguage
+      );
       this._generatedPrompt.set(prompt);
     }
   }
@@ -175,6 +202,19 @@ export class GrammarConComponent {
     } catch (error) {
       this._copyStatus.set('error');
       setTimeout(() => this._copyStatus.set('idle'), 2000);
+    }
+  }
+
+  toggleEditMode(): void {
+    const currentEditMode = this._isEditMode();
+    this._isEditMode.set(!currentEditMode);
+
+    if (!currentEditMode) {
+      // Entering edit mode - initialize the editable content
+      this.editablePrompt = this._editedPrompt() || this._generatedPrompt();
+    } else {
+      // Exiting edit mode - save the edited content
+      this._editedPrompt.set(this.editablePrompt);
     }
   }
 

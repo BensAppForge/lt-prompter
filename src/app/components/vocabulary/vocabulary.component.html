@@ -7,7 +7,8 @@
   <mat-card class="vocabulary-container">
     <mat-card-header>
       <mat-card-title>Vokabelübung als Lückentextübung erstellen</mat-card-title>
-      <mat-card-subtitle>Erstellen Sie eine Übung, bei der Schüler die richtigen Vokabeln in die Lücken einsetzen müssen</mat-card-subtitle>
+      <mat-card-subtitle>Erstellen Sie eine Übung, bei der Schüler die richtigen Vokabeln in die Lücken einsetzen
+        müssen</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -50,9 +51,9 @@
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </mat-chip-row>
-                <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"
-                  autocomplete="off" #wordInput placeholder="Neues Wort..." [matChipInputFor]="chipGrid"
-                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
+                  [attr.spellcheck]="true" autocomplete="off" #wordInput placeholder="Neues Wort..."
+                  [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                   (matChipInputTokenEnd)="addWordFromInput($event)">
               </mat-chip-grid>
             </div>
@@ -82,16 +83,34 @@
         </div>
       </form>
 
-      <div *ngIf="generatedPrompt()" class="prompt-container" #promptContainer>
-        <div class="prompt-content">
-          <pre>{{ generatedPrompt() }}</pre>
+      <ng-container *ngIf="generatedPrompt()">
+        <div class="prompt-controls">
+          <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
+            [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+            <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+            <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+          </button>
+          <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
+            [class.success]="copySuccess()" [class.error]="copyError()"
+            [attr.aria-label]="'In die Zwischenablage kopieren'">
+            <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>
+            <span>Kopieren</span>
+          </button>
         </div>
-        <button mat-icon-button (click)="copyToClipboard(generatedPrompt())" class="copy-button"
-          [class.success]="copySuccess()" [class.error]="copyError()"
-          [attr.aria-label]="'In die Zwischenablage kopieren'">
-          <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>
-        </button>
-      </div>
+
+        <div class="prompt-container" #promptContainer>
+          <div class="prompt-content">
+            <ng-container *ngIf="!isEditMode()">
+              <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
+            </ng-container>
+            <ng-container *ngIf="isEditMode()">
+              <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
+                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
+              </textarea>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
     </mat-card-content>
   </mat-card>
 </div>

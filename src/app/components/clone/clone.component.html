@@ -57,37 +57,47 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Neuer Kontext (optional)</mat-label>
-            <textarea matInput
-                     formControlName="newContext"
-                     rows="4"
-                     placeholder="Geben Sie einen neuen Kontext ein, falls gewünscht"
-                     [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
-                     [attr.spellcheck]="true">
+            <textarea matInput formControlName="newContext" rows="4"
+              placeholder="Geben Sie einen neuen Kontext ein, falls gewünscht"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
             </textarea>
           </mat-form-field>
         </div>
 
         <div class="button-row">
-          <button mat-raised-button
-                  color="primary"
-                  type="submit"
-                  [disabled]="!form.valid">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
             Prompt generieren
           </button>
         </div>
       </form>
 
-      <div *ngIf="generatedPrompt()" class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
-        <div class="prompt-content">
-          <pre>{{ generatedPrompt() }}</pre>
+      <ng-container *ngIf="generatedPrompt()">
+        <div class="prompt-controls">
+          <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
+            [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+            <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+            <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+          </button>
+          <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
+            aria-label="In die Zwischenablage kopieren">
+            <mat-icon>content_copy</mat-icon>
+            <span>Kopieren</span>
+          </button>
         </div>
-        <button mat-icon-button 
-                (click)="copyToClipboard(generatedPrompt())" 
-                class="copy-button"
-                aria-label="In die Zwischenablage kopieren">
-          <mat-icon>content_copy</mat-icon>
-        </button>
-      </div>
+
+        <div class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
+          <div class="prompt-content">
+            <ng-container *ngIf="!isEditMode()">
+              <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
+            </ng-container>
+            <ng-container *ngIf="isEditMode()">
+              <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
+                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
+              </textarea>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
     </mat-card-content>
   </mat-card>
 </div>

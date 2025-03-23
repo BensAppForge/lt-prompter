@@ -1,4 +1,12 @@
-import { Component, inject, ViewChild, ElementRef, effect, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  ViewChild,
+  ElementRef,
+  effect,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +20,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Language, CEFRLevel } from '../../models/preferences.model';
@@ -20,7 +29,7 @@ import {
   ComprehensionSourceType,
   COMPREHENSION_EXERCISE_TYPES,
   SOURCE_TYPES,
-  ComprehensionPromptConfig
+  ComprehensionPromptConfig,
 } from '../../models/comprehension.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { ClipboardService } from '../../services/clipboard.service';
@@ -38,6 +47,7 @@ import { ScrollService } from '../../shared/services/scroll.service';
     MatIconModule,
     MatCheckboxModule,
     ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './comprehension.component.html',
   styleUrls: ['./comprehension.component.scss'],
@@ -69,20 +79,46 @@ export class ComprehensionComponent {
   readonly _generatedPrompt = signal<string>('');
   readonly generatedPrompt = computed(() => this._generatedPrompt());
 
+  readonly _isEditMode = signal(false);
+  readonly isEditMode = computed(() => this._isEditMode());
+
+  readonly _editedPrompt = signal<string | null>(null);
+  readonly editedPrompt = computed(() => this._editedPrompt());
+
+  editablePrompt: string = '';
+
+  private readonly languageMap: Record<Language, string> = {
+    English: 'en-EN',
+    français: 'fr-FR',
+    español: 'es-ES',
+    italiano: 'it-IT',
+  } as const;
+
+  getLanguageCode(language: Language | null | undefined): string {
+    if (!language) return 'en-EN';
+    return this.languageMap[language] || 'en-EN';
+  }
+
   // German translations for exercise types
-  private readonly exerciseTypeTranslations: Record<ComprehensionExerciseType, string> = {
+  private readonly exerciseTypeTranslations: Record<
+    ComprehensionExerciseType,
+    string
+  > = {
     'true-false': 'Richtig-Falsch-Aufgaben',
     'multiple-choice': 'Multiple-Choice-Fragen',
-    'matching': 'Zuordnungsaufgaben',
-    'gapped-summary': 'Lückentext-Zusammenfassung'
+    matching: 'Zuordnungsaufgaben',
+    'gapped-summary': 'Lückentext-Zusammenfassung',
   };
 
   // German translations for source types
-  private readonly sourceTypeTranslations: Record<ComprehensionSourceType, string> = {
-    'docx': 'Word-Dokument',
-    'pdf': 'PDF-Dokument',
-    'screenshot': 'Screenshot',
-    'copied-text': 'Kopierter Text'
+  private readonly sourceTypeTranslations: Record<
+    ComprehensionSourceType,
+    string
+  > = {
+    docx: 'Word-Dokument',
+    pdf: 'PDF-Dokument',
+    screenshot: 'Screenshot',
+    'copied-text': 'Kopierter Text',
   };
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
@@ -102,7 +138,10 @@ export class ComprehensionComponent {
       if (this._generatedPrompt()) {
         setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
-            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+            this.scrollService.scrollToBottom(
+              this.promptContainer.nativeElement,
+              20
+            );
           }
         }, 100);
       }
@@ -114,20 +153,25 @@ export class ComprehensionComponent {
   }
 
   isExerciseTypeSelected(type: ComprehensionExerciseType): boolean {
-    const exercises = this.form.get('exercises')?.value as ComprehensionExerciseType[];
+    const exercises = this.form.get('exercises')
+      ?.value as ComprehensionExerciseType[];
     return exercises?.includes(type) ?? false;
   }
 
-  onExerciseTypeChange(event: { checked: boolean }, type: ComprehensionExerciseType): void {
-    const exercises = (this.form.get('exercises')?.value as ComprehensionExerciseType[]) || [];
-    
+  onExerciseTypeChange(
+    event: { checked: boolean },
+    type: ComprehensionExerciseType
+  ): void {
+    const exercises =
+      (this.form.get('exercises')?.value as ComprehensionExerciseType[]) || [];
+
     if (event.checked && !exercises.includes(type)) {
       this.form.patchValue({
-        exercises: [...exercises, type]
+        exercises: [...exercises, type],
       });
     } else if (!event.checked && exercises.includes(type)) {
       this.form.patchValue({
-        exercises: exercises.filter(t => t !== type)
+        exercises: exercises.filter((t) => t !== type),
       });
     }
   }
@@ -157,12 +201,27 @@ export class ComprehensionComponent {
     });
   }
 
+  toggleEditMode(): void {
+    const currentEditMode = this._isEditMode();
+    this._isEditMode.set(!currentEditMode);
+
+    if (!currentEditMode) {
+      // Entering edit mode - initialize the editable content
+      this.editablePrompt = this._editedPrompt() || this._generatedPrompt();
+    } else {
+      // Exiting edit mode - save the edited content
+      this._editedPrompt.set(this.editablePrompt);
+    }
+  }
+
   trackByIndex(index: number): number {
     return index;
   }
 
   displayLanguage(lang: Language): string {
-    return lang === 'English' ? lang : lang.charAt(0).toUpperCase() + lang.slice(1);
+    return lang === 'English'
+      ? lang
+      : lang.charAt(0).toUpperCase() + lang.slice(1);
   }
 
   getSourceTypeTranslation(type: ComprehensionSourceType): string {

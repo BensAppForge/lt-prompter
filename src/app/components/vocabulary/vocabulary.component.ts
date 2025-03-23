@@ -1,4 +1,10 @@
-import { Component, inject, ElementRef, ViewChild, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  ElementRef,
+  ViewChild,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -9,6 +15,7 @@ import {
   Validators,
   NonNullableFormBuilder,
 } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -42,6 +49,7 @@ interface VocabularyForm {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -64,10 +72,10 @@ export class VocabularyComponent {
   private readonly fb = inject(NonNullableFormBuilder);
 
   private readonly languageMap: Record<Language, string> = {
-    'English': 'en-EN',
-    'français': 'fr-FR',
-    'español': 'es-ES',
-    'italiano': 'it-IT'
+    English: 'en-EN',
+    français: 'fr-FR',
+    español: 'es-ES',
+    italiano: 'it-IT',
   } as const;
 
   getLanguageCode(language: Language | null | undefined): string {
@@ -79,12 +87,20 @@ export class VocabularyComponent {
   readonly form = this.fb.group({
     targetLanguage: this.fb.control<Language | null>(null, Validators.required),
     cefr: this.fb.control<CEFRLevel | null>(null, Validators.required),
-    words: this.fb.array<string>([], [Validators.required, Validators.minLength(1)]),
+    words: this.fb.array<string>(
+      [],
+      [Validators.required, Validators.minLength(1)]
+    ),
     situationalContext: this.fb.control(''),
     situationalContextIsDialog: this.fb.control(false),
   });
 
-  readonly languages: Language[] = ['English', 'español', 'français', 'italiano'];
+  readonly languages: Language[] = [
+    'English',
+    'español',
+    'français',
+    'italiano',
+  ];
   readonly cefrLevels: CEFRLevel[] = [
     'A1',
     'A1+',
@@ -100,6 +116,9 @@ export class VocabularyComponent {
   readonly generatedPrompt = signal<string>('');
   readonly copySuccess = signal(false);
   readonly copyError = signal(false);
+  readonly isEditMode = signal(false);
+  readonly editedPrompt = signal<string | null>(null);
+  editablePrompt: string = '';
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
 
@@ -127,7 +146,10 @@ export class VocabularyComponent {
         // Use setTimeout to ensure DOM is updated
         setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
-            this.scrollService.scrollToBottom(this.promptContainer.nativeElement, 20);
+            this.scrollService.scrollToBottom(
+              this.promptContainer.nativeElement,
+              20
+            );
           }
         }, 100);
       }
@@ -142,7 +164,7 @@ export class VocabularyComponent {
         cefr: formValue.cefr!,
         numberOfWords: formValue.words.length,
         exerciseType: 'vocabulary',
-        wordList: formValue.words.map(word => ({ word })),
+        wordList: formValue.words.map((word) => ({ word })),
         situationalContext: formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
       };
@@ -169,6 +191,18 @@ export class VocabularyComponent {
     } catch (err) {
       console.error('Failed to copy text: ', err);
       this.showCopyFeedback(false);
+    }
+  }
+
+  toggleEditMode(): void {
+    this.isEditMode.update((current) => !current);
+
+    if (this.isEditMode()) {
+      // Initialize editablePrompt with content when entering edit mode
+      this.editablePrompt = this.editedPrompt() || this.generatedPrompt();
+    } else {
+      // Save the edited content when exiting edit mode
+      this.editedPrompt.set(this.editablePrompt);
     }
   }
 

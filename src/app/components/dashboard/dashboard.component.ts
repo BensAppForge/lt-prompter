@@ -33,7 +33,7 @@ interface DashboardCard {
             [class.disabled]="card.disabled"
           >
             <mat-card-header>
-              <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
+              <mat-icon mat-card-avatar class="card-icon">{{ card.icon }}</mat-icon>
               <mat-card-title>{{ card.title }}</mat-card-title>
               <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
             </mat-card-header>
@@ -82,9 +82,16 @@ interface DashboardCard {
         margin-bottom: 16px;
       }
 
-      .mat-mdc-card-avatar {
+      .card-icon.mat-mdc-card-avatar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         background-color: transparent;
         color: var(--text-secondary);
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+        overflow: visible;
       }
     `,
   ],

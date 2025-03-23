@@ -43,13 +43,13 @@
           <h3>Übungstypen (mindestens 2 auswählen)</h3>
           <div class="exercise-types-grid">
             <mat-checkbox *ngFor="let type of exerciseTypes; trackBy: trackByIndex"
-                        [checked]="isExerciseTypeSelected(type)"
-                        (change)="onExerciseTypeChange($event, type)"
-                        color="primary">
+              [checked]="isExerciseTypeSelected(type)" (change)="onExerciseTypeChange($event, type)" color="primary">
               {{ getExerciseTypeTranslation(type) }}
             </mat-checkbox>
           </div>
-          <mat-error *ngIf="form.get('exerciseTypes')?.hasError('required') || form.get('exerciseTypes')?.hasError('minLength')" class="exercise-type-error">
+          <mat-error
+            *ngIf="form.get('exerciseTypes')?.hasError('required') || form.get('exerciseTypes')?.hasError('minLength')"
+            class="exercise-type-error">
             Bitte wählen Sie mindestens 2 Übungstypen aus
           </mat-error>
         </div>
@@ -76,14 +76,30 @@
       </form>
 
       <ng-container *ngIf="generatedPrompt()">
-        <div class="prompt-container" #promptContainer>
-          <div class="prompt-content">
-            <pre>{{ generatedPrompt() }}</pre>
-          </div>
-          <button mat-icon-button (click)="copyToClipboard(generatedPrompt())" class="copy-button"
+        <div class="prompt-controls">
+          <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
+            [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+            <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+            <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+          </button>
+          <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
             aria-label="Prompt in die Zwischenablage kopieren">
             <mat-icon>content_copy</mat-icon>
+            <span>Kopieren</span>
           </button>
+        </div>
+
+        <div class="prompt-container" #promptContainer>
+          <div class="prompt-content">
+            <ng-container *ngIf="!isEditMode()">
+              <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
+            </ng-container>
+            <ng-container *ngIf="isEditMode()">
+              <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
+                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
+              </textarea>
+            </ng-container>
+          </div>
         </div>
       </ng-container>
     </mat-card-content>
