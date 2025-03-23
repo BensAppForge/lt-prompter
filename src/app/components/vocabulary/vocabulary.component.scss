@@ -134,6 +134,10 @@
         margin-left: 4px;
       }
 
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+
       &.active {
         color: var(--primary-color);
         border-color: var(--primary-color);
@@ -148,6 +152,13 @@
         &.error {
           color: #f44336;
           border-color: #f44336;
+        }
+      }
+
+      &.save-button {
+        &:hover {
+          color: var(--primary-color);
+          border-color: var(--primary-color);
         }
       }
 

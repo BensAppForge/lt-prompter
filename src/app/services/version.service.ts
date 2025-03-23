@@ -116,7 +116,7 @@ export class VersionService {
       shortDescription: 'Neue Features und Verbesserungen',
       longDescription: `
         • Erzeugte Prompts können nun direkt im Editor bearbeitet werden
-        • Prompt können in einer Bibliothek gespeichert und wiederverwendet werden
+        • Prompts können in einer Bibliothek gespeichert und wiederverwendet werden
       `.trim(),
     },
   ];

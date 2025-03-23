@@ -1,0 +1,127 @@
+<div class="page-container">
+    <div class="back-button-container">
+        <button mat-icon-button (click)="navigateToDashboard()" aria-label="Zurück zum Dashboard">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+    </div>
+
+    <mat-card class="library-container">
+        <mat-card-header>
+            <mat-card-title>Bibliothek</mat-card-title>
+            <mat-card-subtitle>Verwalten Sie Ihre gespeicherten Prompts</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+                <div class="search-fields">
+                    <mat-form-field>
+                        <mat-label>Kategorie</mat-label>
+                        <mat-select formControlName="category">
+                            <mat-option [value]="null">Alle Kategorien</mat-option>
+                            <mat-option *ngFor="let category of categories" [value]="category">
+                                {{ getCategoryLabel(category) }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <mat-label>Zielsprache</mat-label>
+                        <mat-select formControlName="targetLanguage">
+                            <mat-option [value]="null">Alle Sprachen</mat-option>
+                            <mat-option *ngFor="let lang of languages" [value]="lang">
+                                {{ lang }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <mat-label>CEFR-Niveau</mat-label>
+                        <mat-select formControlName="cefr">
+                            <mat-option [value]="null">Alle Niveaus</mat-option>
+                            <mat-option *ngFor="let level of cefrLevels" [value]="level">
+                                {{ level }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="search-field">
+                        <mat-label>Suche</mat-label>
+                        <input matInput formControlName="searchTerm"
+                            placeholder="Nach Name, Beschreibung oder Tags suchen...">
+                        <mat-icon matSuffix>search</mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <div class="search-actions">
+                    <button mat-button type="button" (click)="resetSearch()">Zurücksetzen</button>
+                    <button mat-raised-button color="primary" type="submit">Suchen</button>
+                </div>
+            </form>
+
+            <ng-container *ngIf="prompts.length > 0; else emptyState">
+                <div class="prompts-grid" auto-animate>
+                    <div class="prompt-card" *ngFor="let prompt of filteredPrompts()">
+                        <div class="prompt-header">
+                            <h3>{{ prompt.name }}</h3>
+                            <div class="prompt-meta">
+                                <span class="category">{{ getCategoryLabel(prompt.category) }}</span>
+                                <span class="language">{{ prompt.targetLanguage }}</span>
+                                <span class="cefr">{{ prompt.cefr }}</span>
+                            </div>
+                        </div>
+                        <p class="description">{{ prompt.description }}</p>
+                        <div class="prompt-actions">
+                            <button mat-icon-button (click)="viewPrompt(prompt)" matTooltip="Anzeigen">
+                                <mat-icon>visibility</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="deletePrompt(prompt)" matTooltip="Löschen">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-template #emptyState>
+                <div class="empty-state">
+                    <mat-icon>library_books</mat-icon>
+                    <h2>Keine Prompts gefunden</h2>
+                    <p>Erstellen Sie einen neuen Prompt oder passen Sie Ihre Suchkriterien an</p>
+                </div>
+            </ng-template>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Prompt Container -->
+    <mat-card class="prompt-container" *ngIf="selectedPrompt()">
+        <div class="button-group">
+            <button mat-button (click)="toggleEditMode()" [class.active]="isEditMode()"
+                [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+                <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+                <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+            </button>
+            <button mat-button (click)="copyToClipboard(editedPrompt() || selectedPrompt()?.content || '')"
+                [class.success]="copySuccess()" [class.error]="copyError()"
+                [attr.aria-label]="'In die Zwischenablage kopieren'">
+                <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>
+                <span class="button-text">Kopieren</span>
+            </button>
+            <button mat-icon-button (click)="closePrompt()" aria-label="Schließen">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <mat-card-content>
+            <div class="prompt-text">
+                <ng-container *ngIf="!isEditMode()">
+                    <pre>{{ editedPrompt() || selectedPrompt()?.content }}</pre>
+                </ng-container>
+                <ng-container *ngIf="isEditMode()">
+                    <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10"
+                        [placeholder]="selectedPrompt()?.content"
+                        [attr.lang]="getLanguageCode(selectedPrompt()?.targetLanguage)" [attr.spellcheck]="true">
+                    </textarea>
+                </ng-container>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

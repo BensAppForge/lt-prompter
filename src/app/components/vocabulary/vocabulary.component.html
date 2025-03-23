@@ -96,6 +96,11 @@
             <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>
             <span>Kopieren</span>
           </button>
+          <button mat-button (click)="saveToLibrary()" class="save-button"
+            [disabled]="isSavedToLibrary() && !isEditMode()" [attr.aria-label]="'In Bibliothek speichern'">
+            <mat-icon>library_add</mat-icon>
+            <span>In Bibliothek speichern</span>
+          </button>
         </div>
 
         <div class="prompt-container" #promptContainer>

@@ -1,0 +1,251 @@
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.back-button-container {
+  margin-bottom: 8px;
+}
+
+.library-container {
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  mat-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  mat-card-content {
+    padding: 24px;
+
+    form {
+      margin-bottom: 32px;
+    }
+
+    .search-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+
+      .search-field {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .search-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .prompts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+  }
+}
+
+.prompt-card {
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .prompt-header {
+    margin-bottom: 12px;
+
+    h3 {
+      margin: 0 0 8px 0;
+      color: var(--text-color);
+      font-size: 1.1em;
+      font-weight: 500;
+    }
+  }
+
+  .prompt-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    span {
+      padding: 4px 8px;
+      border-radius: 4px;
+      background-color: var(--surface-color-hover);
+      color: var(--text-color);
+      font-size: 0.9em;
+    }
+  }
+
+  .description {
+    color: var(--text-color-secondary);
+    font-size: 0.9em;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .prompt-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+}
+
+.prompt-container {
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .button-group {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 8px;
+
+    button {
+      height: 32px;
+      line-height: 32px;
+      min-width: 0;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+      }
+
+      &[mat-icon-button] {
+        width: 32px;
+        padding: 0;
+        margin-left: 4px;
+        justify-content: center;
+
+        mat-icon {
+          margin-right: 0;
+        }
+      }
+
+      &.active {
+        color: var(--primary-color);
+      }
+
+      &.success {
+        color: var(--success-color);
+      }
+
+      &.error {
+        color: var(--error-color);
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 0;
+
+    .prompt-text {
+      padding: 24px;
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: var(--text-color);
+        font-family: inherit;
+        line-height: 1.5;
+      }
+
+      .prompt-editor {
+        width: 100%;
+        min-height: 200px;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--surface-color);
+        color: var(--text-color);
+        font-family: inherit;
+        line-height: 1.5;
+        resize: vertical;
+
+        &:focus {
+          outline: none;
+          border-color: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-color-secondary);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.2em;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 599px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .library-container,
+  .prompt-container {
+    mat-card-content {
+      padding: 16px;
+    }
+  }
+
+  .prompt-container .button-group {
+    button:not([mat-icon-button]) {
+      width: 32px;
+      padding: 0;
+      justify-content: center;
+
+      .button-text {
+        display: none;
+      }
+
+      mat-icon {
+        margin: 0;
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@ import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 
 const DB_NAME = 'LT_Prompter_DB';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 const dbConfig: DBConfig = {
   name: DB_NAME,
@@ -71,6 +71,30 @@ const dbConfig: DBConfig = {
         },
       ],
     },
+    {
+      store: 'library',
+      storeConfig: { keyPath: 'id', autoIncrement: true },
+      storeSchema: [
+        { name: 'name', keypath: 'name', options: { unique: false } },
+        {
+          name: 'description',
+          keypath: 'description',
+          options: { unique: false },
+        },
+        { name: 'category', keypath: 'category', options: { unique: false } },
+        {
+          name: 'targetLanguage',
+          keypath: 'targetLanguage',
+          options: { unique: false },
+        },
+        { name: 'cefr', keypath: 'cefr', options: { unique: false } },
+        { name: 'content', keypath: 'content', options: { unique: false } },
+        { name: 'createdAt', keypath: 'createdAt', options: { unique: false } },
+        { name: 'updatedAt', keypath: 'updatedAt', options: { unique: false } },
+        { name: 'lastUsed', keypath: 'lastUsed', options: { unique: false } },
+        { name: 'tags', keypath: 'tags', options: { unique: false } },
+      ],
+    },
   ],
   migrationFactory: () => {
     return {
@@ -87,6 +111,10 @@ const dbConfig: DBConfig = {
         versionsStore.clear();
       },
       4: (db, transaction) => {
+        const versionsStore = transaction.objectStore('versions');
+        versionsStore.clear();
+      },
+      5: (db, transaction) => {
         const versionsStore = transaction.objectStore('versions');
         versionsStore.clear();
       },

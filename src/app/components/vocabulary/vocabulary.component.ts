@@ -4,6 +4,7 @@ import {
   ElementRef,
   ViewChild,
   effect,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -23,7 +24,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -34,6 +35,12 @@ import { VocabularyPromptConfig } from '../../models/vocabulary.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { ScrollService } from '../../shared/services/scroll.service';
+import { LibraryService } from '../../services/library.service';
+import { SaveToLibraryDialogComponent } from '../shared/save-to-library-dialog/save-to-library-dialog.component';
+import { PromptCategory } from '../../models/library.model';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { LibraryPrompt } from '../../models/library.model';
 
 interface VocabularyForm {
   targetLanguage: Language;
@@ -59,17 +66,22 @@ interface VocabularyForm {
     MatChipsModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    MatDialogModule,
     RouterModule,
     AutoAnimateDirective,
   ],
   templateUrl: './vocabulary.component.html',
   styleUrls: ['./vocabulary.component.scss'],
 })
-export class VocabularyComponent {
+export class VocabularyComponent implements OnInit {
   private readonly promptTemplateService = inject(PromptTemplateService);
   private readonly scrollService = inject(ScrollService);
   private readonly parent = inject(ElementRef);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly libraryService = inject(LibraryService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly clipboard = inject(Clipboard);
 
   private readonly languageMap: Record<Language, string> = {
     English: 'en-EN',
@@ -118,6 +130,7 @@ export class VocabularyComponent {
   readonly copyError = signal(false);
   readonly isEditMode = signal(false);
   readonly editedPrompt = signal<string | null>(null);
+  readonly isSavedToLibrary = signal(false);
   editablePrompt: string = '';
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
@@ -154,6 +167,10 @@ export class VocabularyComponent {
         }, 100);
       }
     });
+  }
+
+  ngOnInit(): void {
+    // Remove the form value changes subscription
   }
 
   onSubmit(): void {
@@ -198,11 +215,10 @@ export class VocabularyComponent {
     this.isEditMode.update((current) => !current);
 
     if (this.isEditMode()) {
-      // Initialize editablePrompt with content when entering edit mode
-      this.editablePrompt = this.editedPrompt() || this.generatedPrompt();
+      this.editablePrompt = this.editedPrompt() || this.generatedPrompt() || '';
     } else {
-      // Save the edited content when exiting edit mode
       this.editedPrompt.set(this.editablePrompt);
+      this.resetSavedState();
     }
   }
 
@@ -234,5 +250,98 @@ export class VocabularyComponent {
       this.copyError.set(true);
       setTimeout(() => this.copyError.set(false), 2000);
     }
+  }
+
+  generatePrompt(): void {
+    const {
+      targetLanguage,
+      cefr,
+      words,
+      situationalContext,
+      situationalContextIsDialog,
+    } = this.form.value;
+    if (!words || !Array.isArray(words)) {
+      return;
+    }
+    const config: VocabularyPromptConfig = {
+      targetLanguage: targetLanguage!,
+      cefr: cefr!,
+      numberOfWords: words.length,
+      exerciseType: 'vocabulary',
+      wordList: words.map((word) => ({ word })),
+      situationalContext: situationalContext,
+      isDialog: situationalContextIsDialog,
+    };
+
+    this.generatedPrompt.set(
+      this.promptTemplateService.generateVocabularyPrompt(config)
+    );
+  }
+
+  saveToLibrary(): void {
+    const formValue = this.form.getRawValue();
+    const dialogRef = this.dialog.open(SaveToLibraryDialogComponent, {
+      width: '600px',
+      data: {
+        category: 'vocabulary' as PromptCategory,
+        targetLanguage: formValue.targetLanguage,
+        cefr: formValue.cefr,
+        content: this.editedPrompt() || this.generatedPrompt(),
+        name: `Vokabelübung - ${formValue.words.join(', ')}`,
+        description: `Vokabelübung für ${formValue.targetLanguage} (${
+          formValue.cefr
+        }) mit den Wörtern: ${formValue.words.join(', ')}`,
+        tags: formValue.words,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe({
+      next: (result) => {
+        if (result) {
+          // Ensure all required fields are set
+          const prompt: Omit<
+            LibraryPrompt,
+            'id' | 'createdAt' | 'updatedAt' | 'lastUsed'
+          > = {
+            category: 'vocabulary',
+            targetLanguage: formValue.targetLanguage!,
+            cefr: formValue.cefr!,
+            content: this.editedPrompt() || this.generatedPrompt(),
+            name: result.name || `Vokabelübung - ${formValue.words.join(', ')}`,
+            description:
+              result.description ||
+              `Vokabelübung für ${formValue.targetLanguage} (${
+                formValue.cefr
+              }) mit den Wörtern: ${formValue.words.join(', ')}`,
+            tags: result.tags || formValue.words,
+          };
+
+          this.libraryService.addPrompt(prompt).subscribe({
+            next: () => {
+              this.isSavedToLibrary.set(true);
+              this.snackBar.open(
+                'Prompt in Bibliothek gespeichert',
+                'Schließen',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+            error: (error: Error) => {
+              console.error('Error saving prompt:', error);
+              this.snackBar.open(
+                'Fehler beim Speichern des Prompts',
+                'Schließen',
+                { duration: 3000 }
+              );
+            },
+          });
+        }
+      },
+    });
+  }
+
+  private resetSavedState(): void {
+    this.isSavedToLibrary.set(false);
   }
 }

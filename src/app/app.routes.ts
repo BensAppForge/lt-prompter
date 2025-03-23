@@ -96,8 +96,13 @@ export const routes: Routes = [
   {
     path: 'help',
     loadComponent: () =>
-      import('./components/help/help.component').then(
-        (m) => m.HelpComponent
+      import('./components/help/help.component').then((m) => m.HelpComponent),
+  },
+  {
+    path: 'library',
+    loadComponent: () =>
+      import('./components/library/library.component').then(
+        (m) => m.LibraryComponent
       ),
   },
   {

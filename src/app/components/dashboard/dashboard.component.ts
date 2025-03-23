@@ -33,7 +33,9 @@ interface DashboardCard {
             [class.disabled]="card.disabled"
           >
             <mat-card-header>
-              <mat-icon mat-card-avatar class="card-icon">{{ card.icon }}</mat-icon>
+              <mat-icon mat-card-avatar class="card-icon">{{
+                card.icon
+              }}</mat-icon>
               <mat-card-title>{{ card.title }}</mat-card-title>
               <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
             </mat-card-header>
@@ -128,6 +130,12 @@ export class DashboardComponent {
       route: '/wordfield',
       description:
         'Erstellen Sie thematische Wortfelder basierend auf Bildern und Texten',
+    },
+    {
+      title: 'Bibliothek',
+      icon: 'library_books',
+      route: '/library',
+      description: 'Verwalten Sie Ihre gespeicherten Prompts',
     },
     {
       title: 'Einstellungen',
