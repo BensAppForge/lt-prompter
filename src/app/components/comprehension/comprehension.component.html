@@ -80,12 +80,17 @@
           <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
             [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
             <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
-            <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+            <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
           </button>
           <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
             aria-label="Prompt in die Zwischenablage kopieren">
             <mat-icon>content_copy</mat-icon>
-            <span>Kopieren</span>
+            <span class="button-text">Kopieren</span>
+          </button>
+          <button mat-button (click)="saveToLibrary()" class="save-button"
+            [disabled]="isSavedToLibrary() && !isEditMode()" [attr.aria-label]="'In Bibliothek speichern'">
+            <mat-icon>library_add</mat-icon>
+            <span class="button-text">In Bibliothek speichern</span>
           </button>
         </div>
 

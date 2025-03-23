@@ -114,7 +114,7 @@
           <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
             [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
             <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
-            <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+            <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
           </button>
           <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
             [class.success]="copyStatus() === 'success'" [class.error]="copyStatus() === 'error'"
@@ -125,6 +125,11 @@
               <ng-container *ngIf="copyStatus() !== 'success' && copyStatus() !== 'error'">content_copy</ng-container>
             </mat-icon>
             <span>Kopieren</span>
+          </button>
+          <button mat-button (click)="saveToLibrary()" class="save-button"
+            [disabled]="isSavedToLibrary() && !isEditMode()" [attr.aria-label]="'In Bibliothek speichern'">
+            <mat-icon>library_add</mat-icon>
+            <span class="button-text">In Bibliothek speichern</span>
           </button>
         </div>
 

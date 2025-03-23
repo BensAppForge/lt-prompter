@@ -15,6 +15,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
@@ -34,6 +36,9 @@ import {
   GrammarPromptConfig,
   GrammarPhenomenon,
 } from '../../models/grammar.model';
+import { LibraryService } from '../../services/library.service';
+import { SaveToLibraryDialogComponent } from '../shared/save-to-library-dialog/save-to-library-dialog.component';
+import { PromptCategory, LibraryPrompt } from '../../models/library.model';
 
 interface GrammarFormValue {
   targetLanguage: Language;
@@ -64,6 +69,8 @@ interface PhenomenonForm {
     MatSlideToggleModule,
     ClipboardModule,
     AutoAnimateDirective,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './grammar-con.component.html',
   styleUrls: ['./grammar-con.component.scss'],
@@ -74,6 +81,9 @@ export class GrammarConComponent {
   private readonly promptService = inject(PromptTemplateService);
   private readonly clipboard = inject(Clipboard);
   private readonly scrollService = inject(ScrollService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly libraryService = inject(LibraryService);
 
   private readonly languageMap: Record<Language, string> = {
     English: 'en-EN',
@@ -121,6 +131,9 @@ export class GrammarConComponent {
   editablePrompt: string = '';
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
+
+  private readonly _isSavedToLibrary = signal(false);
+  readonly isSavedToLibrary = computed(() => this._isSavedToLibrary());
 
   constructor() {
     this.form = this.fb.group({
@@ -191,6 +204,7 @@ export class GrammarConComponent {
         formValue.targetLanguage
       );
       this._generatedPrompt.set(prompt);
+      this._isSavedToLibrary.set(false);
     }
   }
 
@@ -220,5 +234,74 @@ export class GrammarConComponent {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  saveToLibrary(): void {
+    const formValue = this.form.getRawValue() as GrammarFormValue;
+    const phenomena = formValue.phenomena.map((p) => p.description).join(', ');
+
+    const dialogRef = this.dialog.open(SaveToLibraryDialogComponent, {
+      width: '600px',
+      data: {
+        category: 'grammar' as PromptCategory,
+        targetLanguage: formValue.targetLanguage,
+        cefr: formValue.cefr,
+        content: this.editedPrompt() || this.generatedPrompt(),
+        name: `Grammatik - ${phenomena}`,
+        description: `Grammatikübung für ${formValue.targetLanguage} (${
+          formValue.cefr
+        }) mit Fokus auf: ${phenomena}${
+          formValue.situationalContext
+            ? `. Kontext: ${formValue.situationalContext}`
+            : ''
+        }`,
+        tags: [
+          'grammar',
+          ...formValue.phenomena.map((p) => p.description.toLowerCase()),
+        ],
+      },
+    });
+
+    dialogRef.afterClosed().subscribe({
+      next: (result) => {
+        if (result) {
+          const prompt: Omit<
+            LibraryPrompt,
+            'id' | 'createdAt' | 'updatedAt' | 'lastUsed'
+          > = {
+            category: 'grammar',
+            targetLanguage: formValue.targetLanguage!,
+            cefr: formValue.cefr!,
+            content: this.editedPrompt() || this.generatedPrompt(),
+            name: result.name,
+            description: result.description,
+            tags: result.tags || [],
+          };
+
+          this.libraryService.addPrompt(prompt).subscribe({
+            next: () => {
+              this._isSavedToLibrary.set(true);
+              this.snackBar.open(
+                'Prompt in Bibliothek gespeichert',
+                'Schließen',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+            error: (error) => {
+              console.error('Error saving prompt:', error);
+              this.snackBar.open(
+                'Fehler beim Speichern des Prompts',
+                'Schließen',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+          });
+        }
+      },
+    });
   }
 }

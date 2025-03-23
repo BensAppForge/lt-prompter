@@ -14,6 +14,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   FormBuilder,
   FormGroup,
@@ -28,6 +30,9 @@ import { PromptTemplateService } from '../../services/prompt-template.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { LanguageService } from '../../services/language.service';
 import { ScrollService } from '../../shared/services/scroll.service';
+import { LibraryService } from '../../services/library.service';
+import { SaveToLibraryDialogComponent } from '../shared/save-to-library-dialog/save-to-library-dialog.component';
+import { PromptCategory, LibraryPrompt } from '../../models/library.model';
 
 @Component({
   selector: 'app-clone',
@@ -40,6 +45,8 @@ import { ScrollService } from '../../shared/services/scroll.service';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatSnackBarModule,
+    MatDialogModule,
     ReactiveFormsModule,
     FormsModule,
   ],
@@ -53,6 +60,9 @@ export class CloneComponent {
   private readonly scrollService = inject(ScrollService);
   private readonly clipboardService = inject(ClipboardService);
   private readonly languageService = inject(LanguageService);
+  private readonly dialog = inject(MatDialog);
+  private readonly libraryService = inject(LibraryService);
+  private readonly snackBar = inject(MatSnackBar);
 
   form: FormGroup;
   readonly sourceTypes: CloneSourceType[] = [
@@ -88,6 +98,9 @@ export class CloneComponent {
 
   readonly _editedPrompt = signal<string | null>(null);
   readonly editedPrompt = computed(() => this._editedPrompt());
+
+  readonly _isSavedToLibrary = signal(false);
+  readonly isSavedToLibrary = computed(() => this._isSavedToLibrary());
 
   editablePrompt: string = '';
 
@@ -160,6 +173,69 @@ export class CloneComponent {
       };
 
       this._generatedPrompt.set(this.promptService.generateClonePrompt(config));
+      this._isSavedToLibrary.set(false);
     }
+  }
+
+  saveToLibrary(): void {
+    const formValue = this.form.getRawValue();
+    const dialogRef = this.dialog.open(SaveToLibraryDialogComponent, {
+      width: '600px',
+      data: {
+        category: 'clone' as PromptCategory,
+        targetLanguage: formValue.targetLanguage,
+        cefr: formValue.cefr,
+        content: this.editedPrompt() || this.generatedPrompt(),
+        name: `Klonübung - ${formValue.sourceType}`,
+        description: `Klonübung für ${formValue.targetLanguage} (${
+          formValue.cefr
+        }) basierend auf ${formValue.sourceType}${
+          formValue.newContext ? ' mit neuem Kontext' : ''
+        }`,
+        tags: ['clone', formValue.sourceType],
+      },
+    });
+
+    dialogRef.afterClosed().subscribe({
+      next: (result) => {
+        if (result) {
+          const prompt: Omit<
+            LibraryPrompt,
+            'id' | 'createdAt' | 'updatedAt' | 'lastUsed'
+          > = {
+            category: 'clone',
+            targetLanguage: formValue.targetLanguage!,
+            cefr: formValue.cefr!,
+            content: this.editedPrompt() || this.generatedPrompt(),
+            name: result.name,
+            description: result.description,
+            tags: result.tags || [],
+          };
+
+          this.libraryService.addPrompt(prompt).subscribe({
+            next: () => {
+              this._isSavedToLibrary.set(true);
+              this.snackBar.open(
+                'Prompt in Bibliothek gespeichert',
+                'Schließen',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+            error: (error) => {
+              console.error('Error saving prompt:', error);
+              this.snackBar.open(
+                'Fehler beim Speichern des Prompts',
+                'Schließen',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+          });
+        }
+      },
+    });
   }
 }

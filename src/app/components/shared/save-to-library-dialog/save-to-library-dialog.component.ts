@@ -121,8 +121,9 @@ export interface SaveToLibraryDialogData {
           color="primary"
           type="submit"
           [disabled]="!form.valid"
+          class="save-button"
         >
-          {{ data.name ? 'Aktualisieren' : 'Speichern' }}
+          Speichern
         </button>
       </mat-dialog-actions>
     </form>
@@ -179,7 +180,12 @@ export interface SaveToLibraryDialogData {
       }
 
       mat-dialog-actions {
-        padding: 16px 0;
+        padding: 16px 24px;
+        margin: 0;
+
+        .save-button {
+          margin-left: 8px;
+        }
       }
     `,
   ],
