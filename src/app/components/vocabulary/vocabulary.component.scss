@@ -178,6 +178,11 @@
       max-height: 400px;
       overflow-y: auto;
       border: none;
+      padding-right: 2rem;
+
+      @media (max-width: 599px) {
+        padding-right: 0.5rem;
+      }
 
       pre {
         white-space: pre-wrap;
@@ -185,6 +190,10 @@
         margin: 0;
         font-family: "Roboto Mono", monospace;
         color: var(--text-color);
+
+        @media (max-width: 599px) {
+          padding-right: 0.5rem;
+        }
       }
 
       .prompt-editor {

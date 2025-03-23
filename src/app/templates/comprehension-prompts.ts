@@ -209,8 +209,8 @@ export const comprehensionPromptTemplates: ComprehensionPromptTemplates = {
       'Provide clear and unambiguous instructions.',
       'Include an answer key at the end.',
     ],
-    formatInstructionsHeader: 'Exercise Type Formatting Instructions:',
-    exerciseInstructionsHeader: 'Exercise Instructions to Display:',
+    formatInstructionsHeader: 'Exercise type formatting instructions:',
+    exerciseInstructionsHeader: 'Exercise instructions to display:',
   },
   français: {
     exercisesIntro: frenchIntro,

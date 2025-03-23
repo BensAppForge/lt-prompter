@@ -109,6 +109,16 @@ export class VersionService {
         • Bessere Anzeige des Prompts auf mobilen Geräten
       `.trim(),
     },
+    {
+      id: 10,
+      versionNumber: '1.1.0',
+      releaseDate: new Date('2025-03-24'),
+      shortDescription: 'Neue Features und Verbesserungen',
+      longDescription: `
+        • Erzeugte Prompts können nun direkt im Editor bearbeitet werden
+        • Prompt können in einer Bibliothek gespeichert und wiederverwendet werden
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

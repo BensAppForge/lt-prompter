@@ -150,13 +150,13 @@ export class CloneComponent {
   onSubmit(): void {
     if (this.form.valid) {
       const formValue = this.form.getRawValue();
-      const config: ClonePromptConfig = {
+      const config: ClonePromptConfig & { newContext?: string } = {
         targetLanguage: formValue.targetLanguage!,
         cefr: formValue.cefr!,
         sourceType: formValue.sourceType!,
-        situationalContext:
-          formValue.newContext || formValue.situationalContext,
+        situationalContext: formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
+        newContext: formValue.newContext,
       };
 
       this._generatedPrompt.set(this.promptService.generateClonePrompt(config));

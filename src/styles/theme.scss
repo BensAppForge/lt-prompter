@@ -1,31 +1,31 @@
 // Import prebuilt theme
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
 
 // Import local fonts
-@import 'fonts';
+@import "fonts";
 
 // Define CSS custom properties for theming
 :root {
   // Light theme colors
-  --primary-color: #3f51b5;  // Indigo 500
-  --accent-color: #ff4081;   // Pink A200
-  --warn-color: #f44336;     // Red 500
+  --primary-color: #3f51b5; // Indigo 500
+  --accent-color: #ff4081; // Pink A200
+  --warn-color: #f44336; // Red 500
   --background-color: #fafafa;
   --surface-color: #ffffff;
   --text-color: rgba(0, 0, 0, 0.87);
   --text-secondary: rgba(0, 0, 0, 0.54);
-  --link-color: #3f51b5;     // Same as primary for light mode
+  --link-color: #3f51b5; // Same as primary for light mode
   --border-color: rgba(0, 0, 0, 0.12);
   --input-background: #ffffff;
   --card-background: #ffffff;
-  
+
   // Button colors
   --button-primary-text: #ffffff;
   --button-accent-text: #ffffff;
   --button-warn-text: #ffffff;
   --button-disabled-text: rgba(0, 0, 0, 0.38);
   --button-disabled-background: rgba(0, 0, 0, 0.12);
-  
+
   // Button and toggle backgrounds
   --button-primary-bg: var(--primary-color);
   --button-accent-bg: var(--accent-color);
@@ -33,25 +33,25 @@
   --toggle-bg: var(--primary-color);
   --toggle-checked-bg: var(--primary-color);
   --toggle-thumb-color: #ffffff;
-  
+
   // Feedback colors
   --success-color: #2e7d32;
   --success-background: rgba(76, 175, 80, 0.1);
   --error-color: #d32f2f;
   --error-background: rgba(244, 67, 54, 0.1);
-  
+
   // Input states
   --input-hover-background: rgba(0, 0, 0, 0.04);
   --input-focus-background: rgba(63, 81, 181, 0.05);
   --input-placeholder-color: rgba(0, 0, 0, 0.6);
   --input-disabled-color: rgba(0, 0, 0, 0.38);
   --caret-color: var(--primary-color);
-  
+
   // Form and validation colors
-  --error-text-color: #d32f2f;        // Material Design red 700
+  --error-text-color: #d32f2f; // Material Design red 700
   --placeholder-color: rgba(0, 0, 0, 0.6);
   --disabled-icon-color: rgba(0, 0, 0, 0.38);
-  
+
   // Component specific
   --prompt-background: #f5f5f5;
   --selected-item-background: #e0e0ff;
@@ -62,15 +62,15 @@
   --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.1);
-  
+
   --border-radius-small: 4px;
   --border-radius-medium: 8px;
   --border-radius-large: 16px;
-  
+
   --transition-fast: 0.2s ease;
   --transition-medium: 0.3s ease;
   --transition-slow: 0.4s ease;
-  
+
   --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
@@ -80,51 +80,51 @@
 
 // Dark theme styles
 body.dark-theme {
-  --primary-color: #7986cb;  // Indigo 300
-  --accent-color: #ff4081;   // Pink A200
-  --warn-color: #f44336;     // Red 500
+  --primary-color: #7986cb; // Indigo 300
+  --accent-color: #ff4081; // Pink A200
+  --warn-color: #f44336; // Red 500
   --background-color: #303030;
   --surface-color: #424242;
   --text-color: rgba(255, 255, 255, 0.87);
   --text-secondary: rgba(255, 255, 255, 0.54);
-  --link-color: #a5aee0;     // Less saturated link color for dark mode
+  --link-color: #a5aee0; // Less saturated link color for dark mode
   --border-color: rgba(255, 255, 255, 0.12);
   --input-background: #424242;
   --card-background: #424242;
-  
+
   // Button colors
-  --button-primary-text: #ffffff;  
-  --button-accent-text: #ffffff;   
-  --button-warn-text: #ffffff;     
+  --button-primary-text: #ffffff;
+  --button-accent-text: #ffffff;
+  --button-warn-text: #ffffff;
   --button-disabled-text: rgba(255, 255, 255, 0.38);
   --button-disabled-background: rgba(255, 255, 255, 0.12);
-  
+
   // Button and toggle backgrounds - darker variants for dark theme
-  --button-primary-bg: #3949ab;  // Darker indigo
-  --button-accent-bg: #c51162;   // Darker pink
-  --button-warn-bg: #c62828;     // Darker red
-  --toggle-bg: #3949ab;          // Darker background for toggles
-  --toggle-checked-bg: #3949ab;  // Darker background for checked state
+  --button-primary-bg: #3949ab; // Darker indigo
+  --button-accent-bg: #c51162; // Darker pink
+  --button-warn-bg: #c62828; // Darker red
+  --toggle-bg: #3949ab; // Darker background for toggles
+  --toggle-checked-bg: #3949ab; // Darker background for checked state
   --toggle-thumb-color: #ffffff;
-  
+
   // Feedback colors
   --success-color: #81c784;
   --success-background: rgba(76, 175, 80, 0.2);
   --error-color: #e57373;
   --error-background: rgba(244, 67, 54, 0.2);
-  
+
   // Input states
   --input-hover-background: rgba(255, 255, 255, 0.08);
   --input-focus-background: rgba(255, 255, 255, 0.15);
   --input-placeholder-color: rgba(255, 255, 255, 0.5);
   --input-disabled-color: rgba(255, 255, 255, 0.5);
-  --caret-color: #ffffff;  // White caret for better visibility in dark mode
-  
+  --caret-color: #ffffff; // White caret for better visibility in dark mode
+
   // Form and validation colors
-  --error-text-color: #ef9a9a;        // Material Design red 200 - less saturated for dark mode
+  --error-text-color: #ef9a9a; // Material Design red 200 - less saturated for dark mode
   --placeholder-color: rgba(255, 255, 255, 0.5);
   --disabled-icon-color: rgba(255, 255, 255, 0.5);
-  
+
   // Component specific
   --prompt-background: #424242;
   --selected-item-background: rgba(255, 255, 255, 0.1);
@@ -140,14 +140,14 @@ body.dark-theme {
 // Light theme styles (explicit class for consistency)
 body.light-theme {
   // Light theme uses root variables by default, but we'll define it explicitly for clarity
-  --primary-color: #3f51b5;  // Indigo 500
-  --accent-color: #ff4081;   // Pink A200
-  --warn-color: #f44336;     // Red 500
+  --primary-color: #3f51b5; // Indigo 500
+  --accent-color: #ff4081; // Pink A200
+  --warn-color: #f44336; // Red 500
   --background-color: #fafafa;
   --surface-color: #ffffff;
   --text-color: rgba(0, 0, 0, 0.87);
   --text-secondary: rgba(0, 0, 0, 0.54);
-  --link-color: #3f51b5;     // Same as primary for light mode
+  --link-color: #3f51b5; // Same as primary for light mode
   --border-color: rgba(0, 0, 0, 0.12);
   --input-background: #ffffff;
   --card-background: #ffffff;
@@ -158,7 +158,8 @@ body.light-theme {
 body {
   background-color: var(--background-color);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 // Material Design Component Overrides
@@ -199,7 +200,7 @@ body {
     --mdc-filled-button-label-text-color: var(--button-primary-text);
     --mdc-protected-button-label-text-color: var(--button-primary-text);
     background-color: var(--button-primary-bg) !important;
-    
+
     color: var(--button-primary-text) !important;
 
     .mat-icon {
@@ -213,7 +214,7 @@ body {
     --mdc-filled-button-label-text-color: var(--button-accent-text);
     --mdc-protected-button-label-text-color: var(--button-accent-text);
     background-color: var(--button-accent-bg) !important;
-    
+
     color: var(--button-accent-text) !important;
 
     .mat-icon {
@@ -227,7 +228,7 @@ body {
     --mdc-filled-button-label-text-color: var(--button-warn-text);
     --mdc-protected-button-label-text-color: var(--button-warn-text);
     background-color: var(--button-warn-bg) !important;
-    
+
     color: var(--button-warn-text) !important;
 
     .mat-icon {
@@ -236,11 +237,17 @@ body {
   }
 
   &.mat-mdc-button-disabled {
-    --mdc-filled-button-disabled-container-color: var(--button-disabled-background);
+    --mdc-filled-button-disabled-container-color: var(
+      --button-disabled-background
+    );
     --mdc-filled-button-disabled-label-text-color: var(--button-disabled-text);
-    --mdc-protected-button-disabled-label-text-color: var(--button-disabled-text);
-    --mdc-outlined-button-disabled-label-text-color: var(--button-disabled-text);
-    
+    --mdc-protected-button-disabled-label-text-color: var(
+      --button-disabled-text
+    );
+    --mdc-outlined-button-disabled-label-text-color: var(
+      --button-disabled-text
+    );
+
     color: var(--button-disabled-text) !important;
     background-color: var(--button-disabled-background) !important;
 
@@ -266,20 +273,23 @@ body {
   --mdc-checkbox-selected-pressed-icon-color: var(--primary-color);
 }
 
-.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
+.mat-mdc-checkbox
+  .mdc-checkbox
+  .mdc-checkbox__native-control:enabled:checked
+  ~ .mdc-checkbox__background {
   border-color: var(--primary-color);
   background-color: var(--primary-color);
 }
 
 .mat-mdc-form-field {
   width: 100%;
-  
+
   // Placeholder styling
   .mat-mdc-input-element::placeholder,
   .mat-mdc-textarea-element::placeholder {
     color: var(--placeholder-color);
   }
-  
+
   // Error message styling
   .mat-mdc-error,
   mat-error {
@@ -294,14 +304,11 @@ body {
 
 // Add Material Design 3 elevation
 .mat-mdc-card {
-  box-shadow: 
-    0 1px 2px 0 rgba(0, 0, 0, 0.3),
-    0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
   transition: box-shadow 0.3s ease;
 
   &:hover {
-    box-shadow: 
-      0 1px 2px 0 rgba(0, 0, 0, 0.3),
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3),
       0 2px 6px 2px rgba(0, 0, 0, 0.15);
   }
 }
@@ -316,7 +323,7 @@ body {
   --mdc-switch-unselected-hover-track-color: var(--toggle-bg);
   --mdc-switch-selected-pressed-track-color: var(--toggle-checked-bg);
   --mdc-switch-unselected-pressed-track-color: var(--toggle-bg);
-  
+
   &.mat-primary {
     --mdc-switch-selected-focus-track-color: var(--toggle-checked-bg);
     --mdc-switch-unselected-focus-track-color: var(--toggle-bg);
@@ -327,7 +334,7 @@ body {
 .mat-mdc-icon-button {
   &.mat-mdc-button-disabled {
     color: var(--disabled-icon-color) !important;
-    
+
     .mat-icon {
       color: var(--disabled-icon-color) !important;
     }
@@ -377,7 +384,7 @@ textarea,
   .mat-mdc-input-element {
     caret-color: var(--caret-color) !important;
   }
-  
+
   textarea.mat-mdc-input-element {
     caret-color: var(--caret-color) !important;
   }
@@ -411,9 +418,13 @@ textarea,
       word-wrap: break-word;
       margin: 0;
       padding-right: var(--spacing-xl);
-      font-family: 'Roboto Mono', monospace;
+      font-family: "Roboto Mono", monospace;
       color: var(--text-color);
       line-height: 1.5;
+
+      @media (max-width: 599px) {
+        padding-right: var(--spacing-xs);
+      }
     }
   }
 
@@ -433,7 +444,7 @@ textarea,
 
 .selected-item {
   background-color: var(--selected-item-background) !important;
-  
+
   &:hover {
     background-color: var(--selected-item-hover-background) !important;
   }
@@ -515,7 +526,7 @@ body.dark-theme {
 
   .mat-mdc-option {
     color: var(--text-color) !important;
-    
+
     &:hover:not(.mat-mdc-option-disabled) {
       background: rgba(255, 255, 255, 0.04) !important;
     }
@@ -527,7 +538,12 @@ body.dark-theme {
 }
 
 // Global text styles
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-color) !important;
   margin-bottom: 0.5em;
 }
@@ -540,7 +556,7 @@ p {
 a {
   color: var(--link-color) !important;
   text-decoration: none;
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -548,25 +564,29 @@ a {
 
 // About component specific styles
 .about-container {
-  h1, h2, h3, p {
+  h1,
+  h2,
+  h3,
+  p {
     color: var(--text-color) !important;
   }
-  
+
   .mat-icon {
     color: var(--text-color) !important;
   }
-  
+
   a {
     color: var(--link-color) !important;
   }
 }
 
 /* Global styles */
-html, body { 
-  height: 100%; 
+html,
+body {
+  height: 100%;
 }
 
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }

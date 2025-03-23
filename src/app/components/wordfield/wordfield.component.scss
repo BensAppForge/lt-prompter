@@ -135,6 +135,10 @@
       overflow-y: auto;
       padding-right: 2.5rem;
 
+      @media (max-width: 599px) {
+        padding-right: 0.5rem;
+      }
+
       pre {
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -142,6 +146,10 @@
         font-family: "Roboto Mono", monospace;
         color: var(--text-color);
         transition: color 0.3s ease;
+
+        @media (max-width: 599px) {
+          padding-right: 0.5rem;
+        }
       }
 
       .prompt-editor {
