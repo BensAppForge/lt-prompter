@@ -119,6 +119,20 @@ export class VersionService {
         • Prompts können in einer Bibliothek gespeichert und wiederverwendet werden
       `.trim(),
     },
+    {
+      id: 11,
+      versionNumber: '1.2.0',
+      releaseDate: new Date('2025-12-09'),
+      shortDescription: 'Neuer Korrektur-Promptgenerator',
+      longDescription: `
+        • Neuer Promptgenerator für Textkorrektur mit Gemini Canvas
+        • Visualisierung von Sprachfehlern (rot = Streichung, grün = Korrektur)
+        • Kategorisierung nach Fehlertyp (Rechtschreibung, Grammatik, Vokabular, Zeichensetzung)
+        • Anpassbare Korrekturstrenge basierend auf CEFR-Niveau
+        • Druckoptimierte Ausgabe mit A4-Layout
+        • Umschaltbare Ansicht: inline oder nebeneinander
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

@@ -132,6 +132,13 @@ export class DashboardComponent {
         'Erstellen Sie thematische Wortfelder basierend auf Bildern und Texten',
     },
     {
+      title: 'Korrektur',
+      icon: 'spellcheck',
+      route: '/korrektur',
+      description:
+        'Visualisieren Sie Sprachfehler in Schülertexten',
+    },
+    {
       title: 'Bibliothek',
       icon: 'library_books',
       route: '/library',

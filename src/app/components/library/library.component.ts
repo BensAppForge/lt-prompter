@@ -332,6 +332,7 @@ export class LibraryComponent implements OnInit {
       comprehension: 'Textverständnis',
       clone: 'Klon',
       wordfield: 'Wortfeld',
+      korrektur: 'Korrektur',
     };
     return labels[category];
   }

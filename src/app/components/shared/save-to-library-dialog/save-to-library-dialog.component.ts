@@ -246,6 +246,7 @@ export class SaveToLibraryDialogComponent {
       comprehension: 'Textverständnis',
       clone: 'Klon',
       wordfield: 'Wortfeld',
+      korrektur: 'Korrektur',
     };
     return labels[category] || category;
   }

@@ -94,6 +94,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'korrektur',
+    loadComponent: () =>
+      import('./components/korrektur/korrektur.component').then(
+        (m) => m.KorrekturComponent
+      ),
+  },
+  {
     path: 'help',
     loadComponent: () =>
       import('./components/help/help.component').then((m) => m.HelpComponent),

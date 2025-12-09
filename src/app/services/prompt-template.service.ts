@@ -31,6 +31,11 @@ import {
   WordfieldPromptTemplate,
   wordfieldPromptTemplates,
 } from '../templates/wordfield-prompts';
+import {
+  KorrekturPromptConfig,
+  KorrekturSourceType,
+} from '../models/korrektur.model';
+import { korrekturPromptTemplates } from '../templates/korrektur-prompts';
 
 @Injectable({
   providedIn: 'root',
@@ -139,6 +144,31 @@ export class PromptTemplateService {
     },
     italiano: {
       docx: 'documento Word',
+      pdf: 'documento PDF',
+      screenshot: 'screenshot',
+      'copied-text': 'testo copiato',
+    },
+  };
+  private korrekturSourceTypeTranslations: Record<
+    Language,
+    Record<KorrekturSourceType, string>
+  > = {
+    English: {
+      pdf: 'PDF document',
+      screenshot: 'screenshot',
+      'copied-text': 'copied text',
+    },
+    español: {
+      pdf: 'documento PDF',
+      screenshot: 'captura de pantalla',
+      'copied-text': 'texto copiado',
+    },
+    français: {
+      pdf: 'document PDF',
+      screenshot: "capture d'écran",
+      'copied-text': 'texte copié',
+    },
+    italiano: {
       pdf: 'documento PDF',
       screenshot: 'screenshot',
       'copied-text': 'testo copiato',
@@ -409,5 +439,23 @@ export class PromptTemplateService {
         error instanceof Error ? error.message : 'Unknown error'
       }`;
     }
+  }
+
+  generateKorrekturPrompt(config: KorrekturPromptConfig): string {
+    const template = korrekturPromptTemplates[config.targetLanguage];
+    if (!template) {
+      throw new Error(
+        `No template found for language: ${config.targetLanguage}`
+      );
+    }
+
+    const localizedSourceType =
+      this.korrekturSourceTypeTranslations[config.targetLanguage][
+        config.sourceType
+      ];
+
+    return template.intro
+      .replace('[KORREKTUR_SOURCE_TYPE]', localizedSourceType)
+      .replace('[CEFR]', config.cefr);
   }
 }

@@ -5,7 +5,8 @@ export type PromptCategory =
   | 'grammar'
   | 'comprehension'
   | 'clone'
-  | 'wordfield';
+  | 'wordfield'
+  | 'korrektur';
 
 export interface LibraryPrompt {
   id: string;
