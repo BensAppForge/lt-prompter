@@ -31,7 +31,11 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { signal } from '@angular/core';
 import { Language, CEFRLevel } from '../../models/preferences.model';
-import { VocabularyPromptConfig } from '../../models/vocabulary.model';
+import {
+  VocabularyPromptConfig,
+  VocabularyExerciseType,
+  VOCABULARY_EXERCISE_TYPES,
+} from '../../models/vocabulary.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { ScrollService } from '../../shared/services/scroll.service';
@@ -45,6 +49,7 @@ import { LibraryPrompt } from '../../models/library.model';
 interface VocabularyForm {
   targetLanguage: Language;
   cefr: CEFRLevel;
+  exerciseType: VocabularyExerciseType;
   words: string[];
   situationalContext: string;
   situationalContextIsDialog: boolean;
@@ -99,6 +104,7 @@ export class VocabularyComponent implements OnInit {
   readonly form = this.fb.group({
     targetLanguage: this.fb.control<Language | null>(null, Validators.required),
     cefr: this.fb.control<CEFRLevel | null>(null, Validators.required),
+    exerciseType: this.fb.control<VocabularyExerciseType>('gap-filling', Validators.required),
     words: this.fb.array<string>(
       [],
       [Validators.required, Validators.minLength(1)]
@@ -106,6 +112,13 @@ export class VocabularyComponent implements OnInit {
     situationalContext: this.fb.control(''),
     situationalContextIsDialog: this.fb.control(false),
   });
+
+  readonly exerciseTypes = VOCABULARY_EXERCISE_TYPES;
+
+  get selectedExerciseType() {
+    const type = this.form.get('exerciseType')?.value;
+    return this.exerciseTypes.find(t => t.value === type);
+  }
 
   readonly languages: Language[] = [
     'English',
@@ -180,7 +193,7 @@ export class VocabularyComponent implements OnInit {
         targetLanguage: formValue.targetLanguage!,
         cefr: formValue.cefr!,
         numberOfWords: formValue.words.length,
-        exerciseType: 'vocabulary',
+        exerciseType: formValue.exerciseType,
         wordList: formValue.words.map((word) => ({ word })),
         situationalContext: formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
@@ -256,6 +269,7 @@ export class VocabularyComponent implements OnInit {
     const {
       targetLanguage,
       cefr,
+      exerciseType,
       words,
       situationalContext,
       situationalContextIsDialog,
@@ -267,7 +281,7 @@ export class VocabularyComponent implements OnInit {
       targetLanguage: targetLanguage!,
       cefr: cefr!,
       numberOfWords: words.length,
-      exerciseType: 'vocabulary',
+      exerciseType: exerciseType || 'gap-filling',
       wordList: words.map((word) => ({ word })),
       situationalContext: situationalContext,
       isDialog: situationalContextIsDialog,

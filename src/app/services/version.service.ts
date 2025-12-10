@@ -133,6 +133,18 @@ export class VersionService {
         • Umschaltbare Ansicht: inline oder nebeneinander
       `.trim(),
     },
+    {
+      id: 12,
+      versionNumber: '1.3.0',
+      releaseDate: new Date('2025-12-10'),
+      shortDescription: 'Verschiedene Vokabelübungstypen',
+      longDescription: `
+        • Neue Übungstypen für Vokabelübungen: Lückentext, Zuordnung, Multiple Choice, Wortbildung, Kategorisierung, Welches Wort passt nicht?
+        • Kontextfeld wird nur bei passenden Übungstypen angezeigt
+        • Dialogoption nur für Lückentext-Übungen verfügbar
+        • Verbesserte Benutzerführung durch dynamische Beschreibungen
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

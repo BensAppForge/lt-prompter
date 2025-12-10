@@ -33,13 +33,17 @@ const englishIntro = `Create a static website in your canvas environment where y
    - Breakdown by error type (spelling, grammar, vocabulary, punctuation)
 
 **Interactive elements:**
-- A print button that triggers window.print()
+- An "Export as PDF" button that uses html2pdf.js library to export the document
 - A toggle button to switch between "inline corrections" view and "side-by-side" view (original | corrected)
 
-**CSS requirements:**
-- Optimized for A4 printing using @media print
-- Hide interactive buttons when printing
-- Clean, readable typography
+**CSS requirements for A4 PDF export:**
+- Page dimensions: 210mm × 297mm (A4 format)
+- Margins: 20mm on all sides
+- Use CSS page-break properties (page-break-before, page-break-after, page-break-inside: avoid) for proper pagination
+- Ensure content flows properly across multiple pages if needed
+- Hide interactive buttons during PDF export
+- Clean, readable typography with appropriate font sizes for print (body: 12pt, headings: 14-18pt)
+- Set a max-width container that fits within A4 printable area
 
 **Correction leniency:**
 Your strictness in correction depends on the author's CEFR level ([CEFR]):
@@ -72,13 +76,17 @@ const frenchIntro = `Créez un site web statique dans votre environnement canvas
    - Répartition par type d'erreur (orthographe, grammaire, vocabulaire, ponctuation)
 
 **Éléments interactifs :**
-- Un bouton d'impression qui déclenche window.print()
+- Un bouton « Exporter en PDF » utilisant la bibliothèque html2pdf.js pour exporter le document
 - Un bouton de basculement pour passer de la vue « corrections intégrées » à la vue « côte à côte » (original | corrigé)
 
-**Exigences CSS :**
-- Optimisé pour l'impression A4 avec @media print
-- Masquer les boutons interactifs lors de l'impression
-- Typographie propre et lisible
+**Exigences CSS pour l'export PDF A4 :**
+- Dimensions de page : 210mm × 297mm (format A4)
+- Marges : 20mm sur tous les côtés
+- Utiliser les propriétés CSS de saut de page (page-break-before, page-break-after, page-break-inside: avoid) pour une pagination correcte
+- Assurer que le contenu s'écoule correctement sur plusieurs pages si nécessaire
+- Masquer les boutons interactifs lors de l'export PDF
+- Typographie propre et lisible avec des tailles de police appropriées pour l'impression (corps : 12pt, titres : 14-18pt)
+- Définir un conteneur max-width qui s'adapte à la zone imprimable A4
 
 **Indulgence de correction :**
 Votre rigueur dans la correction dépend du niveau CECR de l'auteur ([CEFR]) :
@@ -111,13 +119,17 @@ const spanishIntro = `Crea un sitio web estático en tu entorno canvas donde vis
    - Desglose por tipo de error (ortografía, gramática, vocabulario, puntuación)
 
 **Elementos interactivos:**
-- Un botón de impresión que active window.print()
+- Un botón "Exportar como PDF" que utiliza la biblioteca html2pdf.js para exportar el documento
 - Un botón de alternancia para cambiar entre vista de "correcciones en línea" y vista "lado a lado" (original | corregido)
 
-**Requisitos de CSS:**
-- Optimizado para impresión A4 usando @media print
-- Ocultar botones interactivos al imprimir
-- Tipografía limpia y legible
+**Requisitos de CSS para exportación PDF A4:**
+- Dimensiones de página: 210mm × 297mm (formato A4)
+- Márgenes: 20mm en todos los lados
+- Usar propiedades CSS de salto de página (page-break-before, page-break-after, page-break-inside: avoid) para una paginación correcta
+- Asegurar que el contenido fluya correctamente en múltiples páginas si es necesario
+- Ocultar botones interactivos durante la exportación PDF
+- Tipografía limpia y legible con tamaños de fuente apropiados para impresión (cuerpo: 12pt, títulos: 14-18pt)
+- Establecer un contenedor max-width que se ajuste al área imprimible A4
 
 **Indulgencia en la corrección:**
 Tu rigurosidad en la corrección depende del nivel MCER del autor ([CEFR]):
@@ -150,13 +162,17 @@ const italianIntro = `Crea un sito web statico nel tuo ambiente canvas dove visu
    - Suddivisione per tipo di errore (ortografia, grammatica, vocabolario, punteggiatura)
 
 **Elementi interattivi:**
-- Un pulsante di stampa che attiva window.print()
+- Un pulsante "Esporta come PDF" che utilizza la libreria html2pdf.js per esportare il documento
 - Un pulsante di alternanza per passare dalla vista "correzioni in linea" alla vista "affiancata" (originale | corretto)
 
-**Requisiti CSS:**
-- Ottimizzato per la stampa A4 usando @media print
-- Nascondere i pulsanti interattivi durante la stampa
-- Tipografia pulita e leggibile
+**Requisiti CSS per esportazione PDF A4:**
+- Dimensioni pagina: 210mm × 297mm (formato A4)
+- Margini: 20mm su tutti i lati
+- Utilizzare le proprietà CSS di interruzione pagina (page-break-before, page-break-after, page-break-inside: avoid) per una corretta paginazione
+- Assicurare che il contenuto scorra correttamente su più pagine se necessario
+- Nascondere i pulsanti interattivi durante l'esportazione PDF
+- Tipografia pulita e leggibile con dimensioni dei caratteri appropriate per la stampa (corpo: 12pt, titoli: 14-18pt)
+- Impostare un contenitore max-width che si adatti all'area stampabile A4
 
 **Indulgenza nella correzione:**
 La tua severità nella correzione dipende dal livello QCER dell'autore ([CEFR]):

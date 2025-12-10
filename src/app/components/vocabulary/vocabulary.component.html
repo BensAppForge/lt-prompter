@@ -6,9 +6,8 @@
   </div>
   <mat-card class="vocabulary-container">
     <mat-card-header>
-      <mat-card-title>Vokabelübung als Lückentextübung erstellen</mat-card-title>
-      <mat-card-subtitle>Erstellen Sie eine Übung, bei der Schüler die richtigen Vokabeln in die Lücken einsetzen
-        müssen</mat-card-subtitle>
+      <mat-card-title>Vokabelübung erstellen</mat-card-title>
+      <mat-card-subtitle>{{ selectedExerciseType?.description || 'Wählen Sie einen Übungstyp aus' }}</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -17,25 +16,47 @@
           <mat-form-field>
             <mat-label>Zielsprache</mat-label>
             <mat-select formControlName="targetLanguage" required>
-              <mat-option *ngFor="let lang of languages" [value]="lang">
-                {{ lang }}
-              </mat-option>
+              @for (lang of languages; track lang) {
+                <mat-option [value]="lang">
+                  {{ lang }}
+                </mat-option>
+              }
             </mat-select>
-            <mat-error *ngIf="form.get('targetLanguage')?.errors?.['required']">
-              Bitte wählen Sie eine Zielsprache aus
-            </mat-error>
+            @if (form.get('targetLanguage')?.errors?.['required']) {
+              <mat-error>
+                Bitte wählen Sie eine Zielsprache aus
+              </mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>CEFR-Niveau</mat-label>
             <mat-select formControlName="cefr" required>
-              <mat-option *ngFor="let level of cefrLevels" [value]="level">
-                {{ level }}
-              </mat-option>
+              @for (level of cefrLevels; track level) {
+                <mat-option [value]="level">
+                  {{ level }}
+                </mat-option>
+              }
             </mat-select>
-            <mat-error *ngIf="form.get('cefr')?.errors?.['required']">
-              Bitte wählen Sie ein CEFR-Niveau aus
-            </mat-error>
+            @if (form.get('cefr')?.errors?.['required']) {
+              <mat-error>
+                Bitte wählen Sie ein CEFR-Niveau aus
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="full-width">
+            <mat-label>Übungstyp</mat-label>
+            <mat-select formControlName="exerciseType" required>
+              @for (type of exerciseTypes; track type.value) {
+                <mat-option [value]="type.value">
+                  {{ type.label }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-hint>{{ selectedExerciseType?.description }}</mat-hint>
           </mat-form-field>
         </div>
 
@@ -44,37 +65,44 @@
             <mat-label>Wortliste (Erforderlich)</mat-label>
             <div class="chip-list-container" auto-animate>
               <mat-chip-grid #chipGrid aria-label="Wortauswahl" class="chip-list">
-                <mat-chip-row *ngFor="let word of words.controls; let i = index" [removable]="true"
-                  (removed)="removeWord(i)">
-                  {{ word.value }}
-                  <button matChipRemove aria-label="Wort entfernen">
-                    <mat-icon>cancel</mat-icon>
-                  </button>
-                </mat-chip-row>
+                @for (word of words.controls; track word; let i = $index) {
+                  <mat-chip-row [removable]="true" (removed)="removeWord(i)">
+                    {{ word.value }}
+                    <button matChipRemove aria-label="Wort entfernen">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
                 <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
                   [attr.spellcheck]="true" autocomplete="off" #wordInput placeholder="Neues Wort..."
                   [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                   (matChipInputTokenEnd)="addWordFromInput($event)">
               </mat-chip-grid>
             </div>
-            <mat-error *ngIf="form.get('words')?.errors?.['required']">
-              Bitte fügen Sie mindestens ein Wort hinzu
-            </mat-error>
+            @if (form.get('words')?.errors?.['required']) {
+              <mat-error>
+                Bitte fügen Sie mindestens ein Wort hinzu
+              </mat-error>
+            }
           </mat-form-field>
         </div>
 
-        <div class="form-row context-row">
-          <mat-form-field class="full-width">
-            <mat-label>Kontext (Optional)</mat-label>
-            <textarea matInput formControlName="situationalContext" rows="3"
-              placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."></textarea>
-            <mat-hint>Falls nicht angegeben, wird automatisch ein passender Kontext generiert</mat-hint>
-          </mat-form-field>
+        @if (selectedExerciseType?.supportsContext) {
+          <div class="form-row context-row">
+            <mat-form-field class="full-width">
+              <mat-label>Kontext (Optional)</mat-label>
+              <textarea matInput formControlName="situationalContext" rows="3"
+                placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."></textarea>
+              <mat-hint>Falls nicht angegeben, wird automatisch ein passender Kontext generiert</mat-hint>
+            </mat-form-field>
 
-          <mat-slide-toggle formControlName="situationalContextIsDialog" class="dialog-toggle" color="primary">
-            Übung in Dialogform (anstelle von Fließtext)
-          </mat-slide-toggle>
-        </div>
+            @if (selectedExerciseType?.supportsDialog) {
+              <mat-slide-toggle formControlName="situationalContextIsDialog" class="dialog-toggle" color="primary">
+                Übung in Dialogform (anstelle von Fließtext)
+              </mat-slide-toggle>
+            }
+          </div>
+        }
 
         <div class="button-container">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
@@ -83,7 +111,7 @@
         </div>
       </form>
 
-      <ng-container *ngIf="generatedPrompt()">
+      @if (generatedPrompt()) {
         <div class="prompt-controls">
           <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
             [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
@@ -105,17 +133,16 @@
 
         <div class="prompt-container" #promptContainer>
           <div class="prompt-content">
-            <ng-container *ngIf="!isEditMode()">
+            @if (!isEditMode()) {
               <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
-            </ng-container>
-            <ng-container *ngIf="isEditMode()">
+            } @else {
               <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
                 [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
               </textarea>
-            </ng-container>
+            }
           </div>
         </div>
-      </ng-container>
+      }
     </mat-card-content>
   </mat-card>
 </div>

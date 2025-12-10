@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Language } from '../models/preferences.model';
-import { VocabularyPromptConfig } from '../models/vocabulary.model';
+import { VocabularyPromptConfig, VOCABULARY_EXERCISE_TYPES } from '../models/vocabulary.model';
 import {
   VocabularyPromptTemplate,
   vocabularyPromptTemplates,
+  getBaseIntro,
+  getExerciseTypeContent,
+  commonTemplateParts,
 } from '../templates/vocabulary-prompts';
 import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig } from '../models/grammar.model';
@@ -184,49 +187,57 @@ export class PromptTemplateService {
   }
 
   generateVocabularyPrompt(config: VocabularyPromptConfig): string {
-    const template = this.getVocabularyTemplate(config.targetLanguage);
+    const language = config.targetLanguage;
+    const exerciseType = config.exerciseType || 'gap-filling';
 
-    if (!template) {
-      throw new Error('No template found for the specified language');
-    }
+    // Get exercise type metadata
+    const exerciseTypeMeta = VOCABULARY_EXERCISE_TYPES.find(
+      (t) => t.value === exerciseType
+    );
+
+    // Get base intro and exercise-specific content
+    const baseIntro = getBaseIntro(language);
+    const exerciseContent = getExerciseTypeContent(language, exerciseType);
+    const templateParts = commonTemplateParts[language];
 
     const parts: string[] = [];
 
-    // Add intro
-    parts.push(
-      template.intro
-        .replace(
-          '[TARGET_LANGUAGE]',
-          config.targetLanguage === 'English'
-            ? config.targetLanguage
-            : config.targetLanguage.toLowerCase()
-        )
-        .replace('[CEFR]', config.cefr)
-    );
+    // Add base intro with replacements
+    const formattedBaseIntro = baseIntro
+      .replace(
+        '[TARGET_LANGUAGE]',
+        language === 'English' ? language : language.toLowerCase()
+      )
+      .replace('[CEFR]', config.cefr);
+
+    // Add exercise-specific intro
+    parts.push(formattedBaseIntro + exerciseContent.intro);
 
     // Add word list
     parts.push(
-      template.wordListIntro,
+      templateParts.wordListIntro,
       config.wordList.map((w) => w.word).join(', '),
       ''
     );
 
-    // Add context if provided, otherwise use auto context
-    const trimmedContext = config.situationalContext?.trim() ?? '';
-    if (trimmedContext) {
-      parts.push('', template.contextIntro, trimmedContext);
-    } else {
-      parts.push('', template.autoContextIntro);
+    // Add context only for exercise types that support it
+    if (exerciseTypeMeta?.supportsContext) {
+      const trimmedContext = config.situationalContext?.trim() ?? '';
+      if (trimmedContext) {
+        parts.push('', templateParts.contextIntro, trimmedContext);
+      } else {
+        parts.push('', templateParts.autoContextIntro);
+      }
     }
 
-    // Add dialog requirement if requested
-    if (config.isDialog && template.dialogRequirement) {
-      parts.push('', template.dialogRequirement);
+    // Add dialog requirement if requested and supported
+    if (config.isDialog && exerciseTypeMeta?.supportsDialog) {
+      parts.push('', templateParts.dialogRequirement);
     }
 
     // Add requirements
-    parts.push('', template.requirementsIntro);
-    template.requirements.forEach((req, index) => {
+    parts.push('', templateParts.requirementsIntro);
+    exerciseContent.requirements.forEach((req, index) => {
       parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
     });
 

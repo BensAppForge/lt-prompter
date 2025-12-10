@@ -50,7 +50,7 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     requirementsIntro: 'Additional requirements:',
     requirements: [
       'Keep the same length as the source.',
-      'Mimic the layout of the source exercise.',
+      'Mimic the layout of the source exercise. Output as a printable and editable document, not as a webpage.',
       'Adjust the complexity to match the [CEFR] level.',
       'Provide a solution key.',
       'For gap filling exercises: Provide the solutions by filling the gaps with the correct forms in bold.',
@@ -63,7 +63,7 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     requirementsIntro: 'Exigences supplémentaires:',
     requirements: [
       'Gardez la même longueur que la source.',
-      "Imitez la mise en page de l'exercice source.",
+      "Imitez la mise en page de l'exercice source. Produisez un document imprimable et modifiable, pas une page web.",
       'Adaptez la complexité au niveau [CEFR].',
       'Fournissez un corrigé.',
       'Pour les exercices à trous : fournissez les solutions en remplissant les espaces avec les formes correctes en gras.',
@@ -76,7 +76,7 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     requirementsIntro: 'Requisitos adicionales:',
     requirements: [
       'Mantén la misma longitud que la fuente.',
-      'Imita el diseño del ejercicio original.',
+      'Imita el diseño del ejercicio original. Genera un documento imprimible y editable, no una página web.',
       'Ajusta la complejidad al nivel [CEFR].',
       'Proporciona una clave de respuestas.',
       'Para ejercicios de completar espacios: proporciona las soluciones rellenando los huecos con las formas correctas en negrita.',
@@ -89,7 +89,7 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     requirementsIntro: 'Requisiti aggiuntivi:',
     requirements: [
       'Mantieni la stessa lunghezza della fonte.',
-      "Imita il layout dell'esercizio originale.",
+      "Imita il layout dell'esercizio originale. Produci un documento stampabile e modificabile, non una pagina web.",
       'Adatta la complessità al livello [CEFR].',
       'Fornisci una chiave di soluzione.',
       'Per gli esercizi con spazi vuoti: fornisci le soluzioni riempiendo gli spazi con le forme corrette in grassetto.',
