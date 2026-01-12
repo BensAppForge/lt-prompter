@@ -1,6 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Observable, from, map, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Preferences } from '../models/preferences.model';
 
 @Injectable({
@@ -10,6 +11,7 @@ export class PreferencesService {
   private readonly STORE_NAME = 'preferences';
   private readonly DEFAULT_ID = 1;
   private readonly dbService = inject(NgxIndexedDBService);
+  private readonly destroyRef = inject(DestroyRef);
   
   currentPreferences = signal<Preferences>({
     language: 'English',
@@ -22,11 +24,13 @@ export class PreferencesService {
   }
 
   private loadPreferences(): void {
-    this.getPreferences().subscribe(prefs => {
-      if (prefs) {
-        this.currentPreferences.set(prefs);
-      }
-    });
+    this.getPreferences()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(prefs => {
+        if (prefs) {
+          this.currentPreferences.set(prefs);
+        }
+      });
   }
 
   getPreferences(): Observable<Preferences> {

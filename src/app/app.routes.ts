@@ -1,12 +1,14 @@
 import { Routes } from '@angular/router';
 import { inject } from '@angular/core';
+import { of } from 'rxjs';
 import { VersionService } from './services/version.service';
 
 // Resolver function to ensure version service is initialized
 function versionResolver() {
   const versionService = inject(VersionService);
   const versions = versionService.getAllVersions();
-  return versions.length > 0;
+  // Return Observable to properly work as a resolver
+  return of(versions.length > 0);
 }
 
 export const routes: Routes = [

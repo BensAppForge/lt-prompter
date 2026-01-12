@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
-import { environment } from '../../../environments/environment';
 
 interface DashboardCard {
   title: string;
@@ -18,7 +16,6 @@ interface DashboardCard {
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
@@ -27,7 +24,7 @@ interface DashboardCard {
   template: `
     <div class="dashboard-container">
       <div class="cards-grid">
-        <ng-container *ngFor="let card of cards">
+        @for (card of cards; track card.route) {
           <mat-card
             [routerLink]="card.disabled ? null : card.route"
             [class.disabled]="card.disabled"
@@ -40,7 +37,7 @@ interface DashboardCard {
               <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
             </mat-card-header>
           </mat-card>
-        </ng-container>
+        }
       </div>
       <div class="footer-space"></div>
     </div>

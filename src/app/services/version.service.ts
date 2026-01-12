@@ -145,6 +145,20 @@ export class VersionService {
         • Verbesserte Benutzerführung durch dynamische Beschreibungen
       `.trim(),
     },
+    {
+      id: 13,
+      versionNumber: '1.4.0',
+      releaseDate: new Date('2025-01-12'),
+      shortDescription: 'Mehrfachauswahl bei Vokabelübungen und Code-Verbesserungen',
+      longDescription: `
+        • Vokabelübungen: Mehrere Übungstypen können gleichzeitig ausgewählt werden
+        • Kontextfeld ist nun immer verfügbar für alle Übungstypen
+        • Dialogoption wird nur angezeigt, wenn Lückentext ausgewählt ist
+        • Code-Qualität: Behebung von Speicherlecks und Verbesserung der Code-Struktur
+        • Standardisierung der Steuerungsstrukturen (@if/@for statt *ngIf/*ngFor)
+        • Verbesserte Navigation und Konsistenz im gesamten Code
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

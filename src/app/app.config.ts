@@ -97,27 +97,18 @@ const dbConfig: DBConfig = {
     },
   ],
   migrationFactory: () => {
+    // Helper function to clear versions store during migrations
+    const clearVersionsStore = (_db: IDBDatabase, transaction: IDBTransaction) => {
+      const versionsStore = transaction.objectStore('versions');
+      versionsStore.clear();
+    };
+    
     return {
-      1: (db, transaction) => {
-        const versionsStore = transaction.objectStore('versions');
-        versionsStore.clear();
-      },
-      2: (db, transaction) => {
-        const versionsStore = transaction.objectStore('versions');
-        versionsStore.clear();
-      },
-      3: (db, transaction) => {
-        const versionsStore = transaction.objectStore('versions');
-        versionsStore.clear();
-      },
-      4: (db, transaction) => {
-        const versionsStore = transaction.objectStore('versions');
-        versionsStore.clear();
-      },
-      5: (db, transaction) => {
-        const versionsStore = transaction.objectStore('versions');
-        versionsStore.clear();
-      },
+      1: clearVersionsStore,
+      2: clearVersionsStore,
+      3: clearVersionsStore,
+      4: clearVersionsStore,
+      5: clearVersionsStore,
     };
   },
 };

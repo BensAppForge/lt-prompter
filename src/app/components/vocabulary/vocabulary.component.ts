@@ -26,7 +26,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RouterModule } from '@angular/router';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Router, RouterModule } from '@angular/router';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { signal } from '@angular/core';
@@ -49,7 +50,7 @@ import { LibraryPrompt } from '../../models/library.model';
 interface VocabularyForm {
   targetLanguage: Language;
   cefr: CEFRLevel;
-  exerciseType: VocabularyExerciseType;
+  exerciseTypes: VocabularyExerciseType[];
   words: string[];
   situationalContext: string;
   situationalContextIsDialog: boolean;
@@ -70,6 +71,7 @@ interface VocabularyForm {
     MatIconModule,
     MatChipsModule,
     MatSlideToggleModule,
+    MatCheckboxModule,
     MatSnackBarModule,
     MatDialogModule,
     RouterModule,
@@ -87,6 +89,7 @@ export class VocabularyComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly clipboard = inject(Clipboard);
+  private readonly router = inject(Router);
 
   private readonly languageMap: Record<Language, string> = {
     English: 'en-EN',
@@ -104,7 +107,10 @@ export class VocabularyComponent implements OnInit {
   readonly form = this.fb.group({
     targetLanguage: this.fb.control<Language | null>(null, Validators.required),
     cefr: this.fb.control<CEFRLevel | null>(null, Validators.required),
-    exerciseType: this.fb.control<VocabularyExerciseType>('gap-filling', Validators.required),
+    exerciseTypes: this.fb.control<VocabularyExerciseType[]>([], [
+      Validators.required,
+      Validators.minLength(1)
+    ]),
     words: this.fb.array<string>(
       [],
       [Validators.required, Validators.minLength(1)]
@@ -115,9 +121,33 @@ export class VocabularyComponent implements OnInit {
 
   readonly exerciseTypes = VOCABULARY_EXERCISE_TYPES;
 
-  get selectedExerciseType() {
-    const type = this.form.get('exerciseType')?.value;
-    return this.exerciseTypes.find(t => t.value === type);
+  get selectedExerciseTypes(): VocabularyExerciseType[] {
+    return this.form.get('exerciseTypes')?.value || [];
+  }
+
+  get hasGapFillingSelected(): boolean {
+    return this.selectedExerciseTypes.includes('gap-filling');
+  }
+
+  isExerciseTypeSelected(type: VocabularyExerciseType): boolean {
+    return this.selectedExerciseTypes.includes(type);
+  }
+
+  onExerciseTypeChange(event: { checked: boolean }, type: VocabularyExerciseType): void {
+    const currentTypes = this.selectedExerciseTypes;
+    if (event.checked && !currentTypes.includes(type)) {
+      this.form.patchValue({
+        exerciseTypes: [...currentTypes, type],
+      });
+    } else if (!event.checked && currentTypes.includes(type)) {
+      this.form.patchValue({
+        exerciseTypes: currentTypes.filter(t => t !== type),
+      });
+      // If gap-filling is deselected, also disable dialog toggle
+      if (type === 'gap-filling') {
+        this.form.patchValue({ situationalContextIsDialog: false });
+      }
+    }
   }
 
   readonly languages: Language[] = [
@@ -193,7 +223,7 @@ export class VocabularyComponent implements OnInit {
         targetLanguage: formValue.targetLanguage!,
         cefr: formValue.cefr!,
         numberOfWords: formValue.words.length,
-        exerciseType: formValue.exerciseType,
+        exerciseTypes: formValue.exerciseTypes!,
         wordList: formValue.words.map((word) => ({ word })),
         situationalContext: formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
@@ -206,7 +236,7 @@ export class VocabularyComponent implements OnInit {
   }
 
   navigateToDashboard(): void {
-    window.location.href = '/dashboard';
+    this.router.navigate(['/dashboard']);
   }
 
   async copyToClipboard(text: string): Promise<void> {
@@ -269,19 +299,19 @@ export class VocabularyComponent implements OnInit {
     const {
       targetLanguage,
       cefr,
-      exerciseType,
+      exerciseTypes,
       words,
       situationalContext,
       situationalContextIsDialog,
     } = this.form.value;
-    if (!words || !Array.isArray(words)) {
+    if (!words || !Array.isArray(words) || !exerciseTypes || exerciseTypes.length === 0) {
       return;
     }
     const config: VocabularyPromptConfig = {
       targetLanguage: targetLanguage!,
       cefr: cefr!,
       numberOfWords: words.length,
-      exerciseType: exerciseType || 'gap-filling',
+      exerciseTypes: exerciseTypes,
       wordList: words.map((word) => ({ word })),
       situationalContext: situationalContext,
       isDialog: situationalContextIsDialog,
@@ -304,7 +334,7 @@ export class VocabularyComponent implements OnInit {
         name: `Vokabelübung - ${formValue.words.join(', ')}`,
         description: `Vokabelübung für ${formValue.targetLanguage} (${
           formValue.cefr
-        }) mit den Wörtern: ${formValue.words.join(', ')}`,
+        }) mit ${formValue.exerciseTypes?.length || 1} Übungstyp(en) und den Wörtern: ${formValue.words.join(', ')}`,
         tags: formValue.words,
       },
     });

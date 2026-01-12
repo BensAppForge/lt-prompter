@@ -18,9 +18,11 @@
                         <mat-label>Kategorie</mat-label>
                         <mat-select formControlName="category">
                             <mat-option [value]="null">Alle Kategorien</mat-option>
-                            <mat-option *ngFor="let category of categories" [value]="category">
-                                {{ getCategoryLabel(category) }}
-                            </mat-option>
+                            @for (category of categories; track category) {
+                                <mat-option [value]="category">
+                                    {{ getCategoryLabel(category) }}
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
 
@@ -28,9 +30,11 @@
                         <mat-label>Zielsprache</mat-label>
                         <mat-select formControlName="targetLanguage">
                             <mat-option [value]="null">Alle Sprachen</mat-option>
-                            <mat-option *ngFor="let lang of languages" [value]="lang">
-                                {{ lang }}
-                            </mat-option>
+                            @for (lang of languages; track lang) {
+                                <mat-option [value]="lang">
+                                    {{ lang }}
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
 
@@ -38,9 +42,11 @@
                         <mat-label>CEFR-Niveau</mat-label>
                         <mat-select formControlName="cefr">
                             <mat-option [value]="null">Alle Niveaus</mat-option>
-                            <mat-option *ngFor="let level of cefrLevels" [value]="level">
-                                {{ level }}
-                            </mat-option>
+                            @for (level of cefrLevels; track level) {
+                                <mat-option [value]="level">
+                                    {{ level }}
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
 
@@ -58,70 +64,71 @@
                 </div>
             </form>
 
-            <ng-container *ngIf="prompts.length > 0; else emptyState">
+            @if (prompts.length > 0) {
                 <div class="prompts-grid" auto-animate>
-                    <div class="prompt-card" *ngFor="let prompt of filteredPrompts()">
-                        <div class="prompt-header">
-                            <h3>{{ prompt.name }}</h3>
-                            <div class="prompt-meta">
-                                <span class="category">{{ getCategoryLabel(prompt.category) }}</span>
-                                <span class="language">{{ prompt.targetLanguage }}</span>
-                                <span class="cefr">{{ prompt.cefr }}</span>
+                    @for (prompt of filteredPrompts(); track prompt.id) {
+                        <div class="prompt-card">
+                            <div class="prompt-header">
+                                <h3>{{ prompt.name }}</h3>
+                                <div class="prompt-meta">
+                                    <span class="category">{{ getCategoryLabel(prompt.category) }}</span>
+                                    <span class="language">{{ prompt.targetLanguage }}</span>
+                                    <span class="cefr">{{ prompt.cefr }}</span>
+                                </div>
+                            </div>
+                            <p class="description">{{ prompt.description }}</p>
+                            <div class="prompt-actions">
+                                <button mat-icon-button (click)="viewPrompt(prompt)" matTooltip="Anzeigen">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                                <button mat-icon-button (click)="deletePrompt(prompt)" matTooltip="Löschen">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
                             </div>
                         </div>
-                        <p class="description">{{ prompt.description }}</p>
-                        <div class="prompt-actions">
-                            <button mat-icon-button (click)="viewPrompt(prompt)" matTooltip="Anzeigen">
-                                <mat-icon>visibility</mat-icon>
-                            </button>
-                            <button mat-icon-button (click)="deletePrompt(prompt)" matTooltip="Löschen">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                        </div>
-                    </div>
+                    }
                 </div>
-            </ng-container>
-
-            <ng-template #emptyState>
+            } @else {
                 <div class="empty-state">
                     <mat-icon>library_books</mat-icon>
                     <h2>Keine Prompts gefunden</h2>
                     <p>Erstellen Sie einen neuen Prompt oder passen Sie Ihre Suchkriterien an</p>
                 </div>
-            </ng-template>
+            }
         </mat-card-content>
     </mat-card>
 
     <!-- Prompt Container -->
-    <mat-card class="prompt-container" *ngIf="selectedPrompt()">
-        <div class="button-group">
-            <button mat-button (click)="toggleEditMode()" [class.active]="isEditMode()"
-                [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
-                <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
-                <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
-            </button>
-            <button mat-button (click)="copyToClipboard(editedPrompt() || selectedPrompt()?.content || '')"
-                [class.success]="copySuccess()" [class.error]="copyError()"
-                [attr.aria-label]="'In die Zwischenablage kopieren'">
-                <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>
-                <span class="button-text">Kopieren</span>
-            </button>
-            <button mat-icon-button (click)="closePrompt()" aria-label="Schließen">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
-        <mat-card-content>
-            <div class="prompt-text">
-                <ng-container *ngIf="!isEditMode()">
-                    <pre>{{ editedPrompt() || selectedPrompt()?.content }}</pre>
-                </ng-container>
-                <ng-container *ngIf="isEditMode()">
-                    <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10"
-                        [placeholder]="selectedPrompt()?.content"
-                        [attr.lang]="getLanguageCode(selectedPrompt()?.targetLanguage)" [attr.spellcheck]="true">
-                    </textarea>
-                </ng-container>
+    @if (selectedPrompt()) {
+        <mat-card class="prompt-container">
+            <div class="button-group">
+                <button mat-button (click)="toggleEditMode()" [class.active]="isEditMode()"
+                    [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+                    <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+                    <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+                </button>
+                <button mat-button (click)="copyToClipboard(editedPrompt() || selectedPrompt()?.content || '')"
+                    [class.success]="copySuccess()" [class.error]="copyError()"
+                    [attr.aria-label]="'In die Zwischenablage kopieren'">
+                    <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>
+                    <span class="button-text">Kopieren</span>
+                </button>
+                <button mat-icon-button (click)="closePrompt()" aria-label="Schließen">
+                    <mat-icon>close</mat-icon>
+                </button>
             </div>
-        </mat-card-content>
-    </mat-card>
+            <mat-card-content>
+                <div class="prompt-text">
+                    @if (!isEditMode()) {
+                        <pre>{{ editedPrompt() || selectedPrompt()?.content }}</pre>
+                    } @else {
+                        <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10"
+                            [placeholder]="selectedPrompt()?.content"
+                            [attr.lang]="getLanguageCode(selectedPrompt()?.targetLanguage)" [attr.spellcheck]="true">
+                        </textarea>
+                    }
+                </div>
+            </mat-card-content>
+        </mat-card>
+    }
 </div>

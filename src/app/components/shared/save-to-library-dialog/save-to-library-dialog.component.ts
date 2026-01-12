@@ -1,5 +1,4 @@
-import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -15,10 +14,8 @@ import {
   FormsModule,
   ReactiveFormsModule,
   FormBuilder,
-  FormGroup,
   Validators,
 } from '@angular/forms';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { LibraryPrompt, PromptCategory } from '../../../models/library.model';
 import { Language, CEFRLevel } from '../../../models/preferences.model';
@@ -37,7 +34,6 @@ export interface SaveToLibraryDialogData {
   selector: 'app-save-to-library-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -62,9 +58,9 @@ export interface SaveToLibraryDialogData {
               formControlName="name"
               placeholder="Geben Sie einen Namen ein"
             />
-            <mat-error *ngIf="form.get('name')?.hasError('required')">
-              Name ist erforderlich
-            </mat-error>
+            @if (form.get('name')?.hasError('required')) {
+              <mat-error>Name ist erforderlich</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -80,12 +76,14 @@ export interface SaveToLibraryDialogData {
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Tags</mat-label>
             <mat-chip-grid #chipGrid>
-              <mat-chip-row *ngFor="let tag of tags" (removed)="removeTag(tag)">
-                {{ tag }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip-row>
+              @for (tag of tags; track tag) {
+                <mat-chip-row (removed)="removeTag(tag)">
+                  {{ tag }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
             </mat-chip-grid>
             <input
               placeholder="Neue Tags..."
@@ -191,28 +189,25 @@ export interface SaveToLibraryDialogData {
   ],
 })
 export class SaveToLibraryDialogComponent {
-  form: FormGroup;
+  private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<SaveToLibraryDialogComponent>);
+  readonly data = inject<SaveToLibraryDialogData>(MAT_DIALOG_DATA);
+
   tags: string[] = [];
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  form = this.fb.group({
+    name: [this.data.name || '', Validators.required],
+    description: [this.data.description || ''],
+  });
 
-  constructor(
-    private readonly fb: FormBuilder,
-    private readonly dialogRef: MatDialogRef<SaveToLibraryDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: SaveToLibraryDialogData
-  ) {
-    this.form = this.fb.group({
-      name: [data.name || '', Validators.required],
-      description: [data.description || ''],
-    });
-
-    this.tags = data.tags || [];
+  constructor() {
+    this.tags = this.data.tags || [];
   }
 
   onSubmit(): void {
     if (this.form.valid) {
       const result: Partial<LibraryPrompt> = {
-        name: this.form.get('name')?.value,
-        description: this.form.get('description')?.value,
+        name: this.form.get('name')?.value ?? undefined,
+        description: this.form.get('description')?.value ?? undefined,
         tags: this.tags,
       };
       this.dialogRef.close(result);

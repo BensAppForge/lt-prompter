@@ -7,7 +7,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -43,7 +42,6 @@ import { PromptCategory, LibraryPrompt } from '../../models/library.model';
   selector: 'app-comprehension',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -160,7 +158,7 @@ export class ComprehensionComponent {
   }
 
   navigateToDashboard(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 
   isExerciseTypeSelected(type: ComprehensionExerciseType): boolean {

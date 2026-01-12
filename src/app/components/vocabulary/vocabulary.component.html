@@ -7,7 +7,7 @@
   <mat-card class="vocabulary-container">
     <mat-card-header>
       <mat-card-title>Vokabelübung erstellen</mat-card-title>
-      <mat-card-subtitle>{{ selectedExerciseType?.description || 'Wählen Sie einen Übungstyp aus' }}</mat-card-subtitle>
+      <mat-card-subtitle>Wählen Sie einen oder mehrere Übungstypen aus</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -46,18 +46,26 @@
           </mat-form-field>
         </div>
 
-        <div class="form-row">
-          <mat-form-field class="full-width">
-            <mat-label>Übungstyp</mat-label>
-            <mat-select formControlName="exerciseType" required>
-              @for (type of exerciseTypes; track type.value) {
-                <mat-option [value]="type.value">
-                  {{ type.label }}
-                </mat-option>
-              }
-            </mat-select>
-            <mat-hint>{{ selectedExerciseType?.description }}</mat-hint>
-          </mat-form-field>
+        <div class="exercise-types-container">
+          <h3>Übungstypen (mindestens 1 auswählen)</h3>
+          <div class="exercise-types-grid">
+            @for (type of exerciseTypes; track type.value) {
+              <mat-checkbox
+                [checked]="isExerciseTypeSelected(type.value)"
+                (change)="onExerciseTypeChange($event, type.value)"
+                color="primary">
+                <div class="exercise-type-content">
+                  <div class="exercise-type-label">{{ type.label }}</div>
+                  <div class="exercise-type-description">{{ type.description }}</div>
+                </div>
+              </mat-checkbox>
+            }
+          </div>
+          @if (form.get('exerciseTypes')?.errors?.['required'] || form.get('exerciseTypes')?.errors?.['minLength']) {
+            <mat-error class="exercise-type-error">
+              Bitte wählen Sie mindestens einen Übungstyp aus
+            </mat-error>
+          }
         </div>
 
         <div class="form-row">
@@ -87,22 +95,20 @@
           </mat-form-field>
         </div>
 
-        @if (selectedExerciseType?.supportsContext) {
-          <div class="form-row context-row">
-            <mat-form-field class="full-width">
-              <mat-label>Kontext (Optional)</mat-label>
-              <textarea matInput formControlName="situationalContext" rows="3"
-                placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."></textarea>
-              <mat-hint>Falls nicht angegeben, wird automatisch ein passender Kontext generiert</mat-hint>
-            </mat-form-field>
+        <div class="form-row context-row">
+          <mat-form-field class="full-width">
+            <mat-label>Kontext (Optional)</mat-label>
+            <textarea matInput formControlName="situationalContext" rows="3"
+              placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."></textarea>
+            <mat-hint>Falls nicht angegeben, wird automatisch ein passender Kontext generiert</mat-hint>
+          </mat-form-field>
 
-            @if (selectedExerciseType?.supportsDialog) {
-              <mat-slide-toggle formControlName="situationalContextIsDialog" class="dialog-toggle" color="primary">
-                Übung in Dialogform (anstelle von Fließtext)
-              </mat-slide-toggle>
-            }
-          </div>
-        }
+          @if (hasGapFillingSelected) {
+            <mat-slide-toggle formControlName="situationalContextIsDialog" class="dialog-toggle" color="primary">
+              Übung in Dialogform (anstelle von Fließtext)
+            </mat-slide-toggle>
+          }
+        </div>
 
         <div class="button-container">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">

@@ -182,7 +182,7 @@ export class GrammarConComponent {
   }
 
   navigateToDashboard(): void {
-    void this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 
   onSubmit(): void {

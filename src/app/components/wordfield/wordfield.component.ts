@@ -152,7 +152,7 @@ export class WordfieldComponent {
   }
 
   navigateToDashboard(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 
   onSubmit(): void {

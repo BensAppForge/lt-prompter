@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Language } from '../models/preferences.model';
-import { VocabularyPromptConfig, VOCABULARY_EXERCISE_TYPES } from '../models/vocabulary.model';
+import { VocabularyPromptConfig, VocabularyExerciseType, VOCABULARY_EXERCISE_TYPES } from '../models/vocabulary.model';
 import {
   VocabularyPromptTemplate,
   vocabularyPromptTemplates,
@@ -188,16 +188,12 @@ export class PromptTemplateService {
 
   generateVocabularyPrompt(config: VocabularyPromptConfig): string {
     const language = config.targetLanguage;
-    const exerciseType = config.exerciseType || 'gap-filling';
+    const exerciseTypes: VocabularyExerciseType[] = config.exerciseTypes && config.exerciseTypes.length > 0 
+      ? config.exerciseTypes 
+      : ['gap-filling' as VocabularyExerciseType]; // Fallback for backward compatibility
 
-    // Get exercise type metadata
-    const exerciseTypeMeta = VOCABULARY_EXERCISE_TYPES.find(
-      (t) => t.value === exerciseType
-    );
-
-    // Get base intro and exercise-specific content
+    // Get base intro
     const baseIntro = getBaseIntro(language);
-    const exerciseContent = getExerciseTypeContent(language, exerciseType);
     const templateParts = commonTemplateParts[language];
 
     const parts: string[] = [];
@@ -210,8 +206,40 @@ export class PromptTemplateService {
       )
       .replace('[CEFR]', config.cefr);
 
-    // Add exercise-specific intro
-    parts.push(formattedBaseIntro + exerciseContent.intro);
+    // Build exercise types list for intro
+    const exerciseTypeLabels = exerciseTypes.map(type => {
+      const meta = VOCABULARY_EXERCISE_TYPES.find(t => t.value === type);
+      return meta?.label || type;
+    });
+
+    // Language-specific text for multiple exercise types
+    const multipleTypesIntro: Record<Language, string> = {
+      English: 'Create vocabulary exercises with the following exercise types: ',
+      français: 'Créez des exercices de vocabulaire avec les types d\'exercices suivants : ',
+      español: 'Crea ejercicios de vocabulario con los siguientes tipos de ejercicios: ',
+      italiano: 'Crea esercizi di vocabolario con i seguenti tipi di esercizi: ',
+    };
+    const multipleTypesInstruction: Record<Language, string> = {
+      English: 'Create a separate exercise for each exercise type with the following instructions:\n',
+      français: 'Créez un exercice séparé pour chaque type d\'exercice avec les instructions suivantes :\n',
+      español: 'Crea un ejercicio separado para cada tipo de ejercicio con las siguientes instrucciones:\n',
+      italiano: 'Crea un esercizio separato per ogni tipo di esercizio con le seguenti istruzioni:\n',
+    };
+
+    // Add intro with exercise types
+    if (exerciseTypes.length === 1) {
+      // Single exercise type - use the original format
+      const exerciseContent = getExerciseTypeContent(language, exerciseTypes[0]);
+      parts.push(formattedBaseIntro + exerciseContent.intro);
+    } else {
+      // Multiple exercise types - create combined intro
+      const exerciseTypesText = exerciseTypeLabels.join(', ');
+      parts.push(
+        formattedBaseIntro + 
+        multipleTypesIntro[language] + exerciseTypesText + '.\n' +
+        multipleTypesInstruction[language]
+      );
+    }
 
     // Add word list
     parts.push(
@@ -220,26 +248,42 @@ export class PromptTemplateService {
       ''
     );
 
-    // Add context only for exercise types that support it
-    if (exerciseTypeMeta?.supportsContext) {
-      const trimmedContext = config.situationalContext?.trim() ?? '';
-      if (trimmedContext) {
-        parts.push('', templateParts.contextIntro, trimmedContext);
-      } else {
-        parts.push('', templateParts.autoContextIntro);
-      }
+    // Always add context (as per user request)
+    const trimmedContext = config.situationalContext?.trim() ?? '';
+    if (trimmedContext) {
+      parts.push('', templateParts.contextIntro, trimmedContext);
+    } else {
+      parts.push('', templateParts.autoContextIntro);
     }
 
-    // Add dialog requirement if requested and supported
-    if (config.isDialog && exerciseTypeMeta?.supportsDialog) {
+    // Add dialog requirement if requested and gap-filling is selected
+    const hasGapFilling = exerciseTypes.includes('gap-filling');
+    if (config.isDialog && hasGapFilling) {
       parts.push('', templateParts.dialogRequirement);
     }
 
-    // Add requirements
+    // Add requirements for each exercise type
     parts.push('', templateParts.requirementsIntro);
-    exerciseContent.requirements.forEach((req, index) => {
-      parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
-    });
+    
+    if (exerciseTypes.length === 1) {
+      // Single exercise type - simple requirements list
+      const exerciseContent = getExerciseTypeContent(language, exerciseTypes[0]);
+      exerciseContent.requirements.forEach((req, index) => {
+        parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
+      });
+    } else {
+      // Multiple exercise types - group requirements by type
+      exerciseTypes.forEach((exerciseType, typeIndex) => {
+        const exerciseContent = getExerciseTypeContent(language, exerciseType);
+        const meta = VOCABULARY_EXERCISE_TYPES.find(t => t.value === exerciseType);
+        const typeLabel = meta?.label || exerciseType;
+        
+        parts.push(`\n${typeLabel}:`);
+        exerciseContent.requirements.forEach((req, index) => {
+          parts.push(`  ${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
+        });
+      });
+    }
 
     return parts.join('\n');
   }

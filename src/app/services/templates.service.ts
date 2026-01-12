@@ -1,14 +1,21 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Observable, from, map, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Template, PromptTemplate } from '../models/template.model';
 
+/**
+ * @description Service for managing custom prompt templates.
+ * NOTE: This service is currently not in use but is prepared for future template management features.
+ * The corresponding UI component (TemplateManagerComponent) is a placeholder.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class TemplatesService {
   private readonly STORE_NAME = 'templates';
   private readonly dbService = inject(NgxIndexedDBService);
+  private readonly destroyRef = inject(DestroyRef);
   templates = signal<Template[]>([]);
 
   constructor() {
@@ -16,9 +23,11 @@ export class TemplatesService {
   }
 
   private loadTemplates(): void {
-    this.getAllTemplates().subscribe(templates => {
-      this.templates.set(templates);
-    });
+    this.getAllTemplates()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(templates => {
+        this.templates.set(templates);
+      });
   }
 
   getAllTemplates(): Observable<Template[]> {

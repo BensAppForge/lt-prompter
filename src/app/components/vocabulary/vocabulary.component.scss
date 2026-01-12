@@ -229,6 +229,51 @@
     margin: 1rem 0;
   }
 
+  .exercise-types-container {
+    margin: 24px 0;
+
+    h3 {
+      color: var(--text-color);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .exercise-types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+
+      @media (max-width: 599px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .exercise-type-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-left: 8px;
+
+      .exercise-type-label {
+        font-weight: 500;
+        color: var(--text-color);
+      }
+
+      .exercise-type-description {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+    }
+
+    .exercise-type-error {
+      margin-top: 8px;
+      display: block;
+    }
+  }
+
   .exercise-types {
     margin: 24px 0;
 

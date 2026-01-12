@@ -17,54 +17,62 @@
           <mat-form-field appearance="fill" color="primary">
             <mat-label>Zielsprache</mat-label>
             <mat-select formControlName="targetLanguage" required>
-              <mat-option *ngFor="let lang of languages; trackBy: trackByIndex" [value]="lang">
-                {{ displayLanguage(lang) }}
-              </mat-option>
+              @for (lang of languages; track lang) {
+                <mat-option [value]="lang">
+                  {{ displayLanguage(lang) }}
+                </mat-option>
+              }
             </mat-select>
-            <mat-error *ngIf="form.get('targetLanguage')?.hasError('required')">
-              Bitte wählen Sie eine Zielsprache aus
-            </mat-error>
+            @if (form.get('targetLanguage')?.hasError('required')) {
+              <mat-error>Bitte wählen Sie eine Zielsprache aus</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="fill" color="primary">
             <mat-label>CEFR-Niveau</mat-label>
             <mat-select formControlName="cefr" required>
-              <mat-option *ngFor="let level of cefrLevels; trackBy: trackByIndex" [value]="level">
-                {{ level }}
-              </mat-option>
+              @for (level of cefrLevels; track level) {
+                <mat-option [value]="level">
+                  {{ level }}
+                </mat-option>
+              }
             </mat-select>
-            <mat-error *ngIf="form.get('cefr')?.hasError('required')">
-              Bitte wählen Sie ein CEFR-Niveau aus
-            </mat-error>
+            @if (form.get('cefr')?.hasError('required')) {
+              <mat-error>Bitte wählen Sie ein CEFR-Niveau aus</mat-error>
+            }
           </mat-form-field>
         </div>
 
         <div class="exercise-types-container">
           <h3>Übungstypen (mindestens 2 auswählen)</h3>
           <div class="exercise-types-grid">
-            <mat-checkbox *ngFor="let type of exerciseTypes; trackBy: trackByIndex"
-              [checked]="isExerciseTypeSelected(type)" (change)="onExerciseTypeChange($event, type)" color="primary">
-              {{ getExerciseTypeTranslation(type) }}
-            </mat-checkbox>
+            @for (type of exerciseTypes; track type) {
+              <mat-checkbox
+                [checked]="isExerciseTypeSelected(type)" (change)="onExerciseTypeChange($event, type)" color="primary">
+                {{ getExerciseTypeTranslation(type) }}
+              </mat-checkbox>
+            }
           </div>
-          <mat-error
-            *ngIf="form.get('exerciseTypes')?.hasError('required') || form.get('exerciseTypes')?.hasError('minLength')"
-            class="exercise-type-error">
-            Bitte wählen Sie mindestens 2 Übungstypen aus
-          </mat-error>
+          @if (form.get('exerciseTypes')?.hasError('required') || form.get('exerciseTypes')?.hasError('minLength')) {
+            <mat-error class="exercise-type-error">
+              Bitte wählen Sie mindestens 2 Übungstypen aus
+            </mat-error>
+          }
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="fill" color="primary">
             <mat-label>Quellentyp</mat-label>
             <mat-select formControlName="sourceType" required>
-              <mat-option *ngFor="let type of sourceTypes; trackBy: trackByIndex" [value]="type">
-                {{ getSourceTypeTranslation(type) }}
-              </mat-option>
+              @for (type of sourceTypes; track type) {
+                <mat-option [value]="type">
+                  {{ getSourceTypeTranslation(type) }}
+                </mat-option>
+              }
             </mat-select>
-            <mat-error *ngIf="form.get('sourceType')?.hasError('required')">
-              Bitte wählen Sie einen Quellentyp aus
-            </mat-error>
+            @if (form.get('sourceType')?.hasError('required')) {
+              <mat-error>Bitte wählen Sie einen Quellentyp aus</mat-error>
+            }
           </mat-form-field>
         </div>
 
@@ -75,7 +83,7 @@
         </div>
       </form>
 
-      <ng-container *ngIf="generatedPrompt()">
+      @if (generatedPrompt()) {
         <div class="prompt-controls">
           <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
             [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
@@ -96,17 +104,16 @@
 
         <div class="prompt-container" #promptContainer>
           <div class="prompt-content">
-            <ng-container *ngIf="!isEditMode()">
+            @if (!isEditMode()) {
               <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
-            </ng-container>
-            <ng-container *ngIf="isEditMode()">
+            } @else {
               <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
                 [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
               </textarea>
-            </ng-container>
+            }
           </div>
         </div>
-      </ng-container>
+      }
     </mat-card-content>
   </mat-card>
 </div>

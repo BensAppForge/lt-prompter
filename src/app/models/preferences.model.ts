@@ -3,7 +3,6 @@ export interface Preferences {
   language: Language;
   level: CEFRLevel;
   theme: 'light' | 'dark';
-  lastExerciseType?: ExerciseType;
 }
 
 export type CEFRLevel =
@@ -20,16 +19,3 @@ export type CEFRLevel =
   | 'C2';
 
 export type Language = 'English' | 'español' | 'français' | 'italiano';
-
-export type ExerciseCategory =
-  | 'vocabulary'
-  | 'grammar'
-  | 'listening'
-  | 'reading';
-
-export type VocabularyExerciseType =
-  | 'gap-filling'
-  | 'matching'
-  | 'multiple-choice';
-
-export type ExerciseType = VocabularyExerciseType; // Will be extended with other exercise types

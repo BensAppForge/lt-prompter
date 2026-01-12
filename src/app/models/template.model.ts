@@ -1,10 +1,11 @@
-import { ExerciseType, CEFRLevel, Language } from './preferences.model';
+import { CEFRLevel, Language } from './preferences.model';
+import { VocabularyExerciseType } from './vocabulary.model';
 
 export interface Template {
   id?: number;
   name: string;
   content: string;
-  exerciseType: ExerciseType;
+  exerciseType: VocabularyExerciseType;
   language?: Language;
   cefrLevel?: CEFRLevel;
   createdAt: Date;

@@ -86,7 +86,7 @@
               },
               "src/assets"
             ],
-            "styles": ["src/styles/theme.scss", "src/styles.scss"],
+            "styles": ["src/styles/theme.scss"],
             "scripts": []
           }
         }

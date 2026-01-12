@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,23 +12,20 @@ import {
   FormsModule,
   ReactiveFormsModule,
   FormBuilder,
-  FormGroup,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LibraryService } from '../../services/library.service';
 import { LibraryPrompt, PromptCategory } from '../../models/library.model';
 import { Language, CEFRLevel } from '../../models/preferences.model';
-import { SaveToLibraryDialogComponent } from '../shared/save-to-library-dialog/save-to-library-dialog.component';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
-import { signal } from '@angular/core';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-library',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -53,6 +49,7 @@ export class LibraryComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly clipboard = inject(Clipboard);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   searchForm = this.fb.group({
     category: [null],
@@ -102,18 +99,20 @@ export class LibraryComponent implements OnInit {
   }
 
   private loadPrompts(): void {
-    this.libraryService.getAllPrompts().subscribe({
-      next: (prompts: LibraryPrompt[]) => {
-        this.prompts = prompts;
-        this.filteredPrompts.set(prompts);
-      },
-      error: (error: Error) => {
-        console.error('Error loading prompts:', error);
-        this.snackBar.open('Fehler beim Laden der Prompts', 'Schließen', {
-          duration: 3000,
-        });
-      },
-    });
+    this.libraryService.getAllPrompts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (prompts: LibraryPrompt[]) => {
+          this.prompts = prompts;
+          this.filteredPrompts.set(prompts);
+        },
+        error: (error: Error) => {
+          console.error('Error loading prompts:', error);
+          this.snackBar.open('Fehler beim Laden der Prompts', 'Schließen', {
+            duration: 3000,
+          });
+        },
+      });
   }
 
   onSearch(): void {
@@ -126,6 +125,7 @@ export class LibraryComponent implements OnInit {
         cefr: cefr || undefined,
         searchTerm: searchTerm || undefined,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (prompts) => {
           this.prompts = prompts;
@@ -174,13 +174,15 @@ export class LibraryComponent implements OnInit {
         },
       });
 
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          this.saveEditedPrompt();
-        }
-        this.isEditMode.set(false);
-        this.editedPrompt.set(result ? this.editablePrompt : null);
-      });
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((result) => {
+          if (result) {
+            this.saveEditedPrompt();
+          }
+          this.isEditMode.set(false);
+          this.editedPrompt.set(result ? this.editablePrompt : null);
+        });
     } else {
       this.isEditMode.update((current) => !current);
       if (this.isEditMode()) {
@@ -262,25 +264,27 @@ export class LibraryComponent implements OnInit {
       updatedAt: new Date(),
     };
 
-    this.libraryService.updatePrompt(updatedPrompt).subscribe({
-      next: () => {
-        this.snackBar.open('Prompt aktualisiert', 'Schließen', {
-          duration: 3000,
-        });
-        this.loadPrompts();
-        this.editedPrompt.set(this.editablePrompt);
-      },
-      error: (error) => {
-        console.error('Error updating prompt:', error);
-        this.snackBar.open(
-          'Fehler beim Aktualisieren des Prompts',
-          'Schließen',
-          {
+    this.libraryService.updatePrompt(updatedPrompt)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Prompt aktualisiert', 'Schließen', {
             duration: 3000,
-          }
-        );
-      },
-    });
+          });
+          this.loadPrompts();
+          this.editedPrompt.set(this.editablePrompt);
+        },
+        error: (error) => {
+          console.error('Error updating prompt:', error);
+          this.snackBar.open(
+            'Fehler beim Aktualisieren des Prompts',
+            'Schließen',
+            {
+              duration: 3000,
+            }
+          );
+        },
+      });
   }
 
   copyPrompt(prompt: LibraryPrompt): void {
@@ -301,27 +305,31 @@ export class LibraryComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.libraryService.deletePrompt(prompt.id).subscribe({
-          next: () => {
-            this.loadPrompts();
-            if (this.selectedPrompt()?.id === prompt.id) {
-              this.closePrompt();
-            }
-            this.snackBar.open('Prompt gelöscht', 'Schließen', {
-              duration: 3000,
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) {
+          this.libraryService.deletePrompt(prompt.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => {
+                this.loadPrompts();
+                if (this.selectedPrompt()?.id === prompt.id) {
+                  this.closePrompt();
+                }
+                this.snackBar.open('Prompt gelöscht', 'Schließen', {
+                  duration: 3000,
+                });
+              },
+              error: (error) => {
+                console.error('Error deleting prompt:', error);
+                this.snackBar.open('Fehler beim Löschen des Prompts', 'Schließen', {
+                  duration: 3000,
+                });
+              },
             });
-          },
-          error: (error) => {
-            console.error('Error deleting prompt:', error);
-            this.snackBar.open('Fehler beim Löschen des Prompts', 'Schließen', {
-              duration: 3000,
-            });
-          },
-        });
-      }
-    });
+        }
+      });
   }
 
   getCategoryLabel(category: PromptCategory | undefined): string {

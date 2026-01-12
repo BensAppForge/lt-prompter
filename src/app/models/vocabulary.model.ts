@@ -1,7 +1,5 @@
 import { CEFRLevel, Language } from './preferences.model';
 
-export type CefrLevel = CEFRLevel;
-
 export type VocabularyExerciseType =
   | 'gap-filling'
   | 'matching'
@@ -67,9 +65,9 @@ export interface VocabularyWord {
 
 export interface VocabularyPromptConfig {
   targetLanguage: Language;
-  cefr: CefrLevel;
+  cefr: CEFRLevel;
   numberOfWords: number;
-  exerciseType: VocabularyExerciseType;
+  exerciseTypes: VocabularyExerciseType[];
   wordList: VocabularyWord[];
   situationalContext?: string;
   isDialog?: boolean;

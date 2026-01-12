@@ -21,6 +21,9 @@ const DEFAULT_SETTINGS: AppSettings = {
 export class SettingsService {
   private readonly STORAGE_KEY = 'lt-prompter-settings';
   private settings = signal<AppSettings>(this.loadSettings());
+  
+  // Store the handler reference so we can properly remove it
+  private systemThemeHandler: ((e: MediaQueryListEvent) => void) | null = null;
 
   constructor() {
     // Automatically save settings when they change
@@ -50,23 +53,29 @@ export class SettingsService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
   }
 
+  private applyThemeFromMediaQuery(e: MediaQueryListEvent | MediaQueryList): void {
+    document.body.classList.remove('dark-theme', 'light-theme');
+    document.body.classList.add(e.matches ? 'dark-theme' : 'light-theme');
+  }
+
   private setupSystemThemeListener(): void {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      // Ensure we remove any existing theme class first
-      document.body.classList.remove('dark-theme');
-      document.body.classList.remove('light-theme');
-      
-      // Then apply the appropriate theme class
-      if (e.matches) {
-        document.body.classList.add('dark-theme');
-      } else {
-        document.body.classList.add('light-theme');
-      }
+    
+    // Create the handler and store reference for later removal
+    this.systemThemeHandler = (e: MediaQueryListEvent) => {
+      this.applyThemeFromMediaQuery(e);
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    handleChange(mediaQuery); // Initial check
+    mediaQuery.addEventListener('change', this.systemThemeHandler);
+    this.applyThemeFromMediaQuery(mediaQuery); // Initial check
+  }
+
+  private removeSystemThemeListener(): void {
+    if (this.systemThemeHandler) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.removeEventListener('change', this.systemThemeHandler);
+      this.systemThemeHandler = null;
+    }
   }
 
   getSettings() {
@@ -74,11 +83,9 @@ export class SettingsService {
   }
 
   updateThemePreference(preference: ThemePreference) {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
     // Remove system theme listener if switching away from system preference
     if (this.settings().themePreference === ThemePreference.System) {
-      mediaQuery.removeEventListener('change', () => {});
+      this.removeSystemThemeListener();
     }
 
     this.settings.update(current => ({
@@ -89,12 +96,10 @@ export class SettingsService {
     // Apply theme based on preference
     switch (preference) {
       case ThemePreference.Light:
-        // Ensure we remove dark theme and add light theme
         document.body.classList.remove('dark-theme');
         document.body.classList.add('light-theme');
         break;
       case ThemePreference.Dark:
-        // Ensure we remove light theme and add dark theme
         document.body.classList.remove('light-theme');
         document.body.classList.add('dark-theme');
         break;
