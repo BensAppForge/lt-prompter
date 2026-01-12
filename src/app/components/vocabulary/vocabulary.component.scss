@@ -29,6 +29,7 @@
     gap: 1rem;
     margin-bottom: 1rem;
     align-items: flex-start;
+    width: 100%;
 
     mat-form-field {
       flex: 1;
@@ -40,6 +41,8 @@
       .dialog-toggle {
         margin-top: 1.5rem;
         padding: 8px 0;
+        display: block;
+        opacity: 0.87;
 
         @media (max-width: 599px) {
           margin-top: 2rem;
@@ -48,27 +51,29 @@
         }
       }
     }
+
+    &:first-of-type {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      &:not(.context-row) {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      &:first-of-type {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 
   .full-width {
     width: 100%;
-  }
-
-  .chip-container {
-    margin-bottom: 0.5rem;
-
-    mat-chip-grid {
-      display: block;
-    }
-
-    mat-chip-row {
-      background-color: #e0e0ff !important;
-      margin: 4px;
-
-      &:hover {
-        background-color: #d0d0ff !important;
-      }
-    }
   }
 
   .chip-list-container {
@@ -82,26 +87,6 @@
 
   .chip-list {
     width: 100%;
-  }
-
-  .word-input-container {
-    width: 100%;
-  }
-
-  .word-input {
-    width: 100%;
-    padding: 8px;
-    border: 1px dashed #ccc;
-    border-radius: 4px;
-    margin: 4px 0;
-    min-height: 32px;
-    box-sizing: border-box;
-
-    &:focus {
-      outline: none;
-      border-color: #673ab7;
-      border-style: solid;
-    }
   }
 
   .button-container {
@@ -155,11 +140,9 @@
         }
       }
 
-      &.save-button {
-        &:hover {
-          color: var(--primary-color);
-          border-color: var(--primary-color);
-        }
+      &.save-button:hover {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
       }
 
       @media (max-width: 599px) {
@@ -201,10 +184,6 @@
         margin: 0;
         font-family: "Roboto Mono", monospace;
         color: var(--text-color);
-
-        @media (max-width: 599px) {
-          padding-right: 0.5rem;
-        }
       }
 
       .prompt-editor {
@@ -223,10 +202,6 @@
         }
       }
     }
-  }
-
-  .dialog-toggle {
-    margin: 1rem 0;
   }
 
   .exercise-types-container {
@@ -274,91 +249,14 @@
     }
   }
 
-  .exercise-types {
-    margin: 24px 0;
-
-    .checkbox-label {
-      display: block;
-      margin-bottom: 12px;
-      color: var(--text-secondary);
-      font-size: 1rem;
-    }
-  }
-
-  .checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .exercise-type-checkbox {
-    margin: 8px 0;
-  }
-
-  .word-list-toggle {
-    margin: 16px 0;
-  }
-
-  .words-list {
-    margin: 24px 0;
-  }
-
-  .word-item {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 16px;
-    align-items: start;
-    margin-bottom: 16px;
-
-    .remove-word-btn {
-      margin-top: 8px;
-    }
-  }
-
-  .add-word-btn {
-    margin: 8px 0;
-  }
-
-  .submit-button-container {
-    margin-top: 24px;
-    text-align: right;
-  }
-
-  pre {
-    white-space: pre-wrap;
-    background: var(--card-background);
-    padding: 16px;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    margin-top: 16px;
-  }
-
-  .form-row {
-    margin-bottom: 1.5rem;
-    width: 100%;
-
-    .full-width {
-      width: 100%;
-    }
-
-    &:first-of-type {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-  }
-
   :host ::ng-deep {
     .mat-mdc-form-field {
-      .mdc-text-field {
-        .word-input.mat-mdc-chip-input {
-          width: 100%;
-          padding: 8px 12px;
-          border: 1px solid;
-          border-radius: 4px;
-          margin-bottom: 8px;
-        }
+      .mdc-text-field .word-input.mat-mdc-chip-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid;
+        border-radius: 4px;
+        margin-bottom: 8px;
       }
 
       .mat-mdc-chip-grid {
@@ -369,7 +267,6 @@
         margin: 2px;
       }
 
-      // Make hint text more visible
       .mat-mdc-form-field-hint {
         opacity: 0.8;
       }
@@ -393,62 +290,9 @@
     }
   }
 
-  .copy-feedback {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    margin-top: 8px;
-    border-radius: 4px;
-    font-size: 0.875rem;
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-
-    &.success {
-      background-color: rgba(76, 175, 80, 0.1);
-      color: #2e7d32;
-
-      .dark-theme & {
-        background-color: rgba(76, 175, 80, 0.2);
-        color: #81c784;
-      }
-    }
-
-    &.error {
-      background-color: rgba(244, 67, 54, 0.1);
-      color: #d32f2f;
-
-      .dark-theme & {
-        background-color: rgba(244, 67, 54, 0.2);
-        color: #e57373;
-      }
-    }
-  }
-
-  .dialog-toggle {
-    display: block;
-    margin: 0.5rem 0 1.5rem;
-    opacity: 0.87; // Material Design text opacity
-  }
-
-  .dialog-checkbox {
-    display: block;
-    margin: 0.5rem 0 1rem;
-  }
-
   @media (prefers-color-scheme: dark) {
-    .vocabulary-container {
-      .form-row.context-row {
-        .dialog-toggle.mat-mdc-slide-toggle {
-          ::ng-deep .mdc-form-field {
-            color: rgba(255, 255, 255, 0.87);
-          }
-        }
-      }
+    .form-row.context-row .dialog-toggle.mat-mdc-slide-toggle ::ng-deep .mdc-form-field {
+      color: rgba(255, 255, 255, 0.87);
     }
 
     .prompt-container {
@@ -460,32 +304,7 @@
     }
   }
 
-  @media (max-width: 600px) {
-    .form-row:not(.context-row) {
-      flex-direction: column;
-      gap: 0;
-    }
-  }
-
   @media (max-width: 768px) {
-    .vocabulary-container {
-      padding: 16px;
-    }
-
-    .form-row {
-      &:first-of-type {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .word-item {
-      grid-template-columns: 1fr;
-      gap: 8px;
-
-      .remove-word-btn {
-        justify-self: end;
-        margin-top: 0;
-      }
-    }
+    padding: 16px;
   }
 }
