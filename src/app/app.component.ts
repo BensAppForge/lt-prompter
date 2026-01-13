@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { VersionNotificationComponent } from './components/version-notification/version-notification.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { SettingsService, ThemePreference } from './services/settings.service';
+import { PwaUpdateService } from './services/pwa-update.service';
 
 @Component({
   selector: 'app-root',
@@ -73,7 +74,8 @@ import { SettingsService, ThemePreference } from './services/settings.service';
 })
 export class AppComponent {
   private settingsService = inject(SettingsService);
-  
+  private pwaUpdateService = inject(PwaUpdateService);
+
   isDarkMode = computed(() => {
     const settings = this.settingsService.getSettings()();
     if (settings.themePreference === ThemePreference.System) {
@@ -90,6 +92,9 @@ export class AppComponent {
     effect(() => {
       this.updateThemeClass();
     });
+
+    // Initialize PWA update monitoring
+    this.pwaUpdateService.initialize();
   }
 
   private updateThemeClass(): void {
