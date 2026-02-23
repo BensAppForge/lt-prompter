@@ -1,6 +1,45 @@
 import { Language } from '../models/preferences.model';
 import { VocabularyExerciseType } from '../models/vocabulary.model';
 
+// Exercise type translations for prompt generation (not UI labels)
+export const vocabularyExerciseTypeTranslations: Record<
+  Language,
+  Record<VocabularyExerciseType, string>
+> = {
+  English: {
+    'gap-filling': 'Gap-filling',
+    'matching': 'Matching',
+    'multiple-choice': 'Multiple choice',
+    'word-formation': 'Word formation',
+    'categorization': 'Categorization',
+    'odd-one-out': 'Odd one out',
+  },
+  français: {
+    'gap-filling': 'Texte à trous',
+    'matching': 'Correspondance',
+    'multiple-choice': 'Choix multiples',
+    'word-formation': 'Formation de mots',
+    'categorization': 'Catégorisation',
+    'odd-one-out': 'Intrus',
+  },
+  español: {
+    'gap-filling': 'Texto con espacios',
+    'matching': 'Correspondencia',
+    'multiple-choice': 'Opción múltiple',
+    'word-formation': 'Formación de palabras',
+    'categorization': 'Categorización',
+    'odd-one-out': 'Encuentra el intruso',
+  },
+  italiano: {
+    'gap-filling': 'Testo con spazi',
+    'matching': 'Abbinamento',
+    'multiple-choice': 'Scelta multipla',
+    'word-formation': 'Formazione delle parole',
+    'categorization': 'Categorizzazione',
+    'odd-one-out': "Trova l'intruso",
+  },
+};
+
 export interface BasePromptTemplate {
   intro: string;
   contextIntro: string;

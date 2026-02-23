@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Language } from '../models/preferences.model';
-import { VocabularyPromptConfig, VocabularyExerciseType, VOCABULARY_EXERCISE_TYPES } from '../models/vocabulary.model';
+import { VocabularyPromptConfig, VocabularyExerciseType } from '../models/vocabulary.model';
 import {
   VocabularyPromptTemplate,
   vocabularyPromptTemplates,
   getBaseIntro,
   getExerciseTypeContent,
   commonTemplateParts,
+  vocabularyExerciseTypeTranslations,
 } from '../templates/vocabulary-prompts';
 import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig } from '../models/grammar.model';
@@ -206,10 +207,9 @@ export class PromptTemplateService {
       )
       .replace('[CEFR]', config.cefr);
 
-    // Build exercise types list for intro
+    // Build exercise types list for intro (using language-specific translations)
     const exerciseTypeLabels = exerciseTypes.map(type => {
-      const meta = VOCABULARY_EXERCISE_TYPES.find(t => t.value === type);
-      return meta?.label || type;
+      return vocabularyExerciseTypeTranslations[language]?.[type] || type;
     });
 
     // Language-specific text for multiple exercise types
@@ -275,8 +275,7 @@ export class PromptTemplateService {
       // Multiple exercise types - group requirements by type
       exerciseTypes.forEach((exerciseType, typeIndex) => {
         const exerciseContent = getExerciseTypeContent(language, exerciseType);
-        const meta = VOCABULARY_EXERCISE_TYPES.find(t => t.value === exerciseType);
-        const typeLabel = meta?.label || exerciseType;
+        const typeLabel = vocabularyExerciseTypeTranslations[language]?.[exerciseType] || exerciseType;
         
         parts.push(`\n${typeLabel}:`);
         exerciseContent.requirements.forEach((req, index) => {

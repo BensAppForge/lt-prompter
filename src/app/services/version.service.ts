@@ -147,16 +147,12 @@ export class VersionService {
     },
     {
       id: 13,
-      versionNumber: '1.4.0',
-      releaseDate: new Date('2025-01-12'),
-      shortDescription: 'Mehrfachauswahl bei Vokabelübungen und Code-Verbesserungen',
+      versionNumber: '1.3.1',
+      releaseDate: new Date('2026-02-23'),
+      shortDescription: 'Fehlerbehebung bei Übersetzungen in Vokabelübungen',
       longDescription: `
-        • Vokabelübungen: Mehrere Übungstypen können gleichzeitig ausgewählt werden
-        • Kontextfeld ist nun immer verfügbar für alle Übungstypen
-        • Dialogoption wird nur angezeigt, wenn Lückentext ausgewählt ist
-        • Code-Qualität: Behebung von Speicherlecks und Verbesserung der Code-Struktur
-        • Standardisierung der Steuerungsstrukturen (@if/@for statt *ngIf/*ngFor)
-        • Verbesserte Navigation und Konsistenz im gesamten Code
+        • Fehlerbehebung: Deutsche Übungstyp-Bezeichnungen (z.B. "Lückentext", "Zuordnung") wurden in fremdsprachige Prompts eingefügt
+        • Übungstyp-Bezeichnungen werden nun korrekt in der jeweiligen Zielsprache angezeigt
       `.trim(),
     },
   ];
