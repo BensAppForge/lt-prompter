@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { VersionService } from '../../services/version.service';
   selector: 'app-changelog',
   standalone: true,
   imports: [
-    CommonModule,
+    DatePipe,
     MatCardModule,
     MatProgressSpinnerModule,
     MatButtonModule,
@@ -224,7 +224,8 @@ import { VersionService } from '../../services/version.service';
       margin-top: 1rem;
       padding: 0 1rem;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangelogComponent implements OnInit {
   readonly versions = signal<Version[]>([]);

@@ -295,13 +295,7 @@ export class PromptTemplateService {
       throw new Error('Language is required for generating grammar prompts');
     }
 
-    // Convert language to proper casing for template lookup
-    const templateKey =
-      language === 'English'
-        ? 'English'
-        : language.charAt(0).toUpperCase() + language.slice(1);
-
-    const template = grammarPromptTemplates[templateKey];
+    const template = grammarPromptTemplates[language];
     if (!template) {
       throw new Error(`No template found for language: ${language}`);
     }

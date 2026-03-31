@@ -1,5 +1,4 @@
-import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MatDialogModule,
   MAT_DIALOG_DATA,
@@ -17,7 +16,7 @@ export interface ConfirmDialogData {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
@@ -56,10 +55,9 @@ export interface ConfirmDialogData {
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDialogComponent {
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
-    public dialogRef: MatDialogRef<ConfirmDialogComponent>
-  ) {}
+  readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  readonly dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
 }

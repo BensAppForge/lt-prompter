@@ -1,5 +1,7 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   ViewChild,
   ElementRef,
@@ -7,6 +9,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -15,7 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
-  FormBuilder,
+  NonNullableFormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -55,9 +58,11 @@ import { PromptCategory, LibraryPrompt } from '../../models/library.model';
   ],
   templateUrl: './comprehension.component.html',
   styleUrls: ['./comprehension.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComprehensionComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
   private readonly promptService = inject(PromptTemplateService);
   private readonly clipboardService = inject(ClipboardService);
@@ -90,6 +95,7 @@ export class ComprehensionComponent {
 
   readonly _editedPrompt = signal<string | null>(null);
   readonly editedPrompt = computed(() => this._editedPrompt());
+  readonly displayedPrompt = computed(() => this.editedPrompt() || this.generatedPrompt());
 
   editablePrompt: string = '';
 
@@ -142,10 +148,9 @@ export class ComprehensionComponent {
       situationalContextIsDialog: [false],
     });
 
-    // Create an effect to handle scrolling when prompt changes
-    effect(() => {
+    effect((onCleanup) => {
       if (this._generatedPrompt()) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
             this.scrollService.scrollToBottom(
               this.promptContainer.nativeElement,
@@ -153,6 +158,7 @@ export class ComprehensionComponent {
             );
           }
         }, 100);
+        onCleanup(() => clearTimeout(timer));
       }
     });
   }
@@ -204,11 +210,13 @@ export class ComprehensionComponent {
     }
   }
 
-  copyToClipboard(text: string): void {
-    this.clipboardService.copyToClipboard(text);
-    this.snackBar.open('In die Zwischenablage kopiert', 'OK', {
-      duration: 2000,
-    });
+  async copyToClipboard(text: string): Promise<void> {
+    const success = await this.clipboardService.copy(text);
+    this.snackBar.open(
+      success ? 'In die Zwischenablage kopiert' : 'Fehler beim Kopieren',
+      'OK',
+      { duration: 2000 }
+    );
   }
 
   toggleEditMode(): void {
@@ -222,10 +230,6 @@ export class ComprehensionComponent {
       // Exiting edit mode - save the edited content
       this._editedPrompt.set(this.editablePrompt);
     }
-  }
-
-  trackByIndex(index: number): number {
-    return index;
   }
 
   displayLanguage(lang: Language): string {
@@ -256,7 +260,7 @@ export class ComprehensionComponent {
         category: 'comprehension' as PromptCategory,
         targetLanguage: formValue.targetLanguage,
         cefr: formValue.cefr,
-        content: this.editedPrompt() || this.generatedPrompt(),
+        content: this.displayedPrompt(),
         name: `Textverständnis - ${this.getSourceTypeTranslation(
           formValue.sourceType
         )}`,
@@ -273,7 +277,7 @@ export class ComprehensionComponent {
       },
     });
 
-    dialogRef.afterClosed().subscribe({
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         if (result) {
           const prompt: Omit<
@@ -283,13 +287,13 @@ export class ComprehensionComponent {
             category: 'comprehension',
             targetLanguage: formValue.targetLanguage!,
             cefr: formValue.cefr!,
-            content: this.editedPrompt() || this.generatedPrompt(),
+            content: this.displayedPrompt(),
             name: result.name,
             description: result.description,
             tags: result.tags || [],
           };
 
-          this.libraryService.addPrompt(prompt).subscribe({
+          this.libraryService.addPrompt(prompt).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
               this._isSavedToLibrary.set(true);
               this.snackBar.open(

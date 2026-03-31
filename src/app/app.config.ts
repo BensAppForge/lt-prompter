@@ -109,6 +109,7 @@ const dbConfig: DBConfig = {
       3: clearVersionsStore,
       4: clearVersionsStore,
       5: clearVersionsStore,
+      6: clearVersionsStore,
     };
   },
 };

@@ -1,3 +1,4 @@
+import { Language } from '../models/preferences.model';
 import { BasePromptTemplate } from './vocabulary-prompts';
 
 export interface GrammarPromptTemplate extends BasePromptTemplate {
@@ -5,7 +6,7 @@ export interface GrammarPromptTemplate extends BasePromptTemplate {
   requirementsIntro?: string;
 }
 
-export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
+export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
   English: {
     intro:
       'You are an expert in teaching English as a foreign language and teach German teenage students. Create a grammar exercise in [TARGET_LANGUAGE] suitable for learners at the [CEFR] level.',
@@ -25,7 +26,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
       'Provide the solutions by filling the gaps with the correct forms in bold.',
     ],
   },
-  Français: {
+  français: {
     intro:
       "Vous êtes un expert dans l'enseignement du français comme langue étrangère et vous enseignez à des adolescents allemands. Créez un exercice de grammaire en [TARGET_LANGUAGE] adapté aux apprenants de niveau [CEFR].",
     phenomenaIntro:
@@ -45,7 +46,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
       'Fournissez les solutions en remplissant les espaces avec les formes correctes en gras.',
     ],
   },
-  Español: {
+  español: {
     intro:
       'Eres un experto en la enseñanza del español como lengua extranjera y enseñas a adolescentes alemanes. Crea un ejercicio de gramática en [TARGET_LANGUAGE] adecuado para estudiantes de nivel [CEFR].',
     phenomenaIntro:
@@ -65,7 +66,7 @@ export const grammarPromptTemplates: Record<string, GrammarPromptTemplate> = {
       'Proporciona las soluciones rellenando los espacios con las formas correctas en negrita.',
     ],
   },
-  Italiano: {
+  italiano: {
     intro:
       "Sei un esperto nell'insegnamento dell'italiano come lingua straniera e insegni a studenti adolescenti tedeschi. Crea un esercizio di grammatica in [TARGET_LANGUAGE] adatto a studenti di livello [CEFR].",
     phenomenaIntro:

@@ -1,25 +1,25 @@
-import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Injectable, inject } from '@angular/core';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClipboardService {
-  constructor(private snackBar: MatSnackBar) {}
+  private readonly clipboard = inject(Clipboard);
 
-  copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        this.snackBar.open('In die Zwischenablage kopiert', 'OK', {
-          duration: 2000,
-        });
-      },
-      (err) => {
-        console.error('Fehler beim Kopieren:', err);
-        this.snackBar.open('Fehler beim Kopieren', 'OK', {
-          duration: 2000,
-        });
+  /**
+   * Copies text to clipboard using the native API with CDK fallback.
+   * Returns true on success, false on failure.
+   */
+  async copy(text: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
       }
-    );
+      return this.clipboard.copy(text);
+    } catch {
+      return this.clipboard.copy(text);
+    }
   }
 }

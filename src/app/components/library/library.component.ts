@@ -1,4 +1,4 @@
-import { Component, OnInit, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,10 +11,10 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import {
   FormsModule,
   ReactiveFormsModule,
-  FormBuilder,
+  NonNullableFormBuilder,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Clipboard } from '@angular/cdk/clipboard';
+import { ClipboardService } from '../../services/clipboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LibraryService } from '../../services/library.service';
 import { LibraryPrompt, PromptCategory } from '../../models/library.model';
@@ -41,13 +41,14 @@ import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.
   ],
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly libraryService = inject(LibraryService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly clipboard = inject(Clipboard);
+  private readonly clipboardService = inject(ClipboardService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -192,48 +193,17 @@ export class LibraryComponent implements OnInit {
     }
   }
 
+  private copyFeedbackTimer?: ReturnType<typeof setTimeout>;
+
   async copyToClipboard(text: string): Promise<void> {
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        this.showCopyFeedback(true);
-      } else {
-        await this.fallbackCopyToClipboard(text);
-        this.showCopyFeedback(true);
-      }
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-      this.showCopyFeedback(false);
-    }
-  }
-
-  private async fallbackCopyToClipboard(text: string): Promise<void> {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand('copy');
-      textArea.remove();
-    } catch (err) {
-      console.error('Fallback copy failed:', err);
-      textArea.remove();
-      throw new Error('Copy failed');
-    }
-  }
-
-  private showCopyFeedback(success: boolean): void {
+    clearTimeout(this.copyFeedbackTimer);
+    const success = await this.clipboardService.copy(text);
     if (success) {
       this.copySuccess.set(true);
-      setTimeout(() => this.copySuccess.set(false), 2000);
+      this.copyFeedbackTimer = setTimeout(() => this.copySuccess.set(false), 2000);
     } else {
       this.copyError.set(true);
-      setTimeout(() => this.copyError.set(false), 2000);
+      this.copyFeedbackTimer = setTimeout(() => this.copyError.set(false), 2000);
     }
   }
 
@@ -287,11 +257,13 @@ export class LibraryComponent implements OnInit {
       });
   }
 
-  copyPrompt(prompt: LibraryPrompt): void {
-    this.clipboard.copy(prompt.content);
-    this.snackBar.open('Prompt in die Zwischenablage kopiert', 'Schließen', {
-      duration: 3000,
-    });
+  async copyPrompt(prompt: LibraryPrompt): Promise<void> {
+    const success = await this.clipboardService.copy(prompt.content);
+    this.snackBar.open(
+      success ? 'Prompt in die Zwischenablage kopiert' : 'Fehler beim Kopieren',
+      'Schließen',
+      { duration: 3000 }
+    );
   }
 
   deletePrompt(prompt: LibraryPrompt): void {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   FormsModule,
   ReactiveFormsModule,
-  FormBuilder,
+  NonNullableFormBuilder,
   Validators,
 } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -187,9 +187,10 @@ export interface SaveToLibraryDialogData {
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SaveToLibraryDialogComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly dialogRef = inject(MatDialogRef<SaveToLibraryDialogComponent>);
   readonly data = inject<SaveToLibraryDialogData>(MAT_DIALOG_DATA);
 

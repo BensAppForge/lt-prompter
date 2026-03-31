@@ -78,10 +78,10 @@
                             </div>
                             <p class="description">{{ prompt.description }}</p>
                             <div class="prompt-actions">
-                                <button mat-icon-button (click)="viewPrompt(prompt)" matTooltip="Anzeigen">
+                                <button mat-icon-button (click)="viewPrompt(prompt)" matTooltip="Anzeigen" aria-label="Prompt anzeigen">
                                     <mat-icon>visibility</mat-icon>
                                 </button>
-                                <button mat-icon-button (click)="deletePrompt(prompt)" matTooltip="Löschen">
+                                <button mat-icon-button (click)="deletePrompt(prompt)" matTooltip="Löschen" aria-label="Prompt löschen">
                                     <mat-icon>delete</mat-icon>
                                 </button>
                             </div>

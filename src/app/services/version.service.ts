@@ -155,6 +155,20 @@ export class VersionService {
         • Übungstyp-Bezeichnungen werden nun korrekt in der jeweiligen Zielsprache angezeigt
       `.trim(),
     },
+    {
+      id: 14,
+      versionNumber: '1.4.0',
+      releaseDate: new Date('2026-03-31'),
+      shortDescription: 'Codequalität und Modernisierung',
+      longDescription: `
+        • Migration auf Angular 18 Built-in Control Flow (@if, @for)
+        • OnPush Change Detection für alle Komponenten
+        • Einheitliches Formular-Erscheinungsbild (Outline)
+        • Verbesserte Zwischenablage-Funktionalität
+        • Bereinigung ungenutzter Importe und toter Code
+        • Fehlerbehebungen bei CSS-Variablen und Barrierefreiheit
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

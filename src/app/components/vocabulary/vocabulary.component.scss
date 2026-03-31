@@ -130,13 +130,13 @@
 
       &.copy-button {
         &.success {
-          color: #4caf50;
-          border-color: #4caf50;
+          color: var(--success-color);
+          border-color: var(--success-color);
         }
 
         &.error {
-          color: #f44336;
-          border-color: #f44336;
+          color: var(--error-color);
+          border-color: var(--error-color);
         }
       }
 
@@ -274,7 +274,7 @@
   }
 
   .error-message {
-    color: var(--mdc-theme-error, #f44336);
+    color: var(--error-color);
     font-size: 0.75rem;
     margin-top: -0.5rem;
     margin-bottom: 1rem;

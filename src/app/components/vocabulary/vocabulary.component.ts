@@ -1,12 +1,15 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   ElementRef,
   ViewChild,
   effect,
   OnInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import {
   FormArray,
   FormBuilder,
@@ -30,7 +33,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router, RouterModule } from '@angular/router';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { signal } from '@angular/core';
+import { signal, computed } from '@angular/core';
 import { Language, CEFRLevel } from '../../models/preferences.model';
 import {
   VocabularyPromptConfig,
@@ -44,7 +47,7 @@ import { LibraryService } from '../../services/library.service';
 import { SaveToLibraryDialogComponent } from '../shared/save-to-library-dialog/save-to-library-dialog.component';
 import { PromptCategory } from '../../models/library.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Clipboard } from '@angular/cdk/clipboard';
+import { ClipboardService } from '../../services/clipboard.service';
 import { LibraryPrompt } from '../../models/library.model';
 
 interface VocabularyForm {
@@ -60,7 +63,6 @@ interface VocabularyForm {
   selector: 'app-vocabulary',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     MatCardModule,
@@ -79,8 +81,10 @@ interface VocabularyForm {
   ],
   templateUrl: './vocabulary.component.html',
   styleUrls: ['./vocabulary.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VocabularyComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly promptTemplateService = inject(PromptTemplateService);
   private readonly scrollService = inject(ScrollService);
   private readonly parent = inject(ElementRef);
@@ -88,7 +92,7 @@ export class VocabularyComponent implements OnInit {
   private readonly libraryService = inject(LibraryService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly clipboard = inject(Clipboard);
+  private readonly clipboardService = inject(ClipboardService);
   private readonly router = inject(Router);
 
   private readonly languageMap: Record<Language, string> = {
@@ -173,6 +177,7 @@ export class VocabularyComponent implements OnInit {
   readonly copyError = signal(false);
   readonly isEditMode = signal(false);
   readonly editedPrompt = signal<string | null>(null);
+  readonly displayedPrompt = computed(() => this.editedPrompt() || this.generatedPrompt());
   readonly isSavedToLibrary = signal(false);
   editablePrompt: string = '';
 
@@ -196,11 +201,9 @@ export class VocabularyComponent implements OnInit {
 
   constructor() {
     // Create an effect to handle scrolling when prompt changes
-    effect(() => {
-      // Only run the effect when there's a prompt
+    effect((onCleanup) => {
       if (this.generatedPrompt()) {
-        // Use setTimeout to ensure DOM is updated
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
             this.scrollService.scrollToBottom(
               this.promptContainer.nativeElement,
@@ -208,6 +211,7 @@ export class VocabularyComponent implements OnInit {
             );
           }
         }, 100);
+        onCleanup(() => clearTimeout(timer));
       }
     });
   }
@@ -239,18 +243,17 @@ export class VocabularyComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
 
+  private copyFeedbackTimer?: ReturnType<typeof setTimeout>;
+
   async copyToClipboard(text: string): Promise<void> {
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        this.showCopyFeedback(true);
-      } else {
-        await this.fallbackCopyToClipboard(text);
-        this.showCopyFeedback(true);
-      }
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-      this.showCopyFeedback(false);
+    clearTimeout(this.copyFeedbackTimer);
+    const success = await this.clipboardService.copy(text);
+    if (success) {
+      this.copySuccess.set(true);
+      this.copyFeedbackTimer = setTimeout(() => this.copySuccess.set(false), 2000);
+    } else {
+      this.copyError.set(true);
+      this.copyFeedbackTimer = setTimeout(() => this.copyError.set(false), 2000);
     }
   }
 
@@ -258,40 +261,10 @@ export class VocabularyComponent implements OnInit {
     this.isEditMode.update((current) => !current);
 
     if (this.isEditMode()) {
-      this.editablePrompt = this.editedPrompt() || this.generatedPrompt() || '';
+      this.editablePrompt = this.displayedPrompt() || '';
     } else {
       this.editedPrompt.set(this.editablePrompt);
       this.resetSavedState();
-    }
-  }
-
-  private async fallbackCopyToClipboard(text: string): Promise<void> {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand('copy');
-      textArea.remove();
-    } catch (err) {
-      console.error('Fallback copy failed:', err);
-      textArea.remove();
-      throw new Error('Copy failed');
-    }
-  }
-
-  private showCopyFeedback(success: boolean): void {
-    if (success) {
-      this.copySuccess.set(true);
-      setTimeout(() => this.copySuccess.set(false), 2000);
-    } else {
-      this.copyError.set(true);
-      setTimeout(() => this.copyError.set(false), 2000);
     }
   }
 
@@ -330,7 +303,7 @@ export class VocabularyComponent implements OnInit {
         category: 'vocabulary' as PromptCategory,
         targetLanguage: formValue.targetLanguage,
         cefr: formValue.cefr,
-        content: this.editedPrompt() || this.generatedPrompt(),
+        content: this.displayedPrompt(),
         name: `Vokabelübung - ${formValue.words.join(', ')}`,
         description: `Vokabelübung für ${formValue.targetLanguage} (${
           formValue.cefr
@@ -339,7 +312,7 @@ export class VocabularyComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe({
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         if (result) {
           // Ensure all required fields are set
@@ -350,7 +323,7 @@ export class VocabularyComponent implements OnInit {
             category: 'vocabulary',
             targetLanguage: formValue.targetLanguage!,
             cefr: formValue.cefr!,
-            content: this.editedPrompt() || this.generatedPrompt(),
+            content: this.displayedPrompt(),
             name: result.name || `Vokabelübung - ${formValue.words.join(', ')}`,
             description:
               result.description ||
@@ -360,7 +333,7 @@ export class VocabularyComponent implements OnInit {
             tags: result.tags || formValue.words,
           };
 
-          this.libraryService.addPrompt(prompt).subscribe({
+          this.libraryService.addPrompt(prompt).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
               this.isSavedToLibrary.set(true);
               this.snackBar.open(

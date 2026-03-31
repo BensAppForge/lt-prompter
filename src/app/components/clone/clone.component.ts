@@ -1,5 +1,7 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   signal,
   computed,
@@ -7,7 +9,8 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
-  FormBuilder,
+  NonNullableFormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -38,7 +41,6 @@ import { PromptCategory, LibraryPrompt } from '../../models/library.model';
   selector: 'app-clone',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -52,9 +54,11 @@ import { PromptCategory, LibraryPrompt } from '../../models/library.model';
   ],
   templateUrl: './clone.component.html',
   styleUrls: ['./clone.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CloneComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
   private readonly promptService = inject(PromptTemplateService);
   private readonly scrollService = inject(ScrollService);
@@ -98,6 +102,7 @@ export class CloneComponent {
 
   readonly _editedPrompt = signal<string | null>(null);
   readonly editedPrompt = computed(() => this._editedPrompt());
+  readonly displayedPrompt = computed(() => this.editedPrompt() || this.generatedPrompt());
 
   readonly _isSavedToLibrary = signal(false);
   readonly isSavedToLibrary = computed(() => this._isSavedToLibrary());
@@ -117,9 +122,9 @@ export class CloneComponent {
     });
 
     // Create an effect to handle scrolling when prompt changes
-    effect(() => {
+    effect((onCleanup) => {
       if (this._generatedPrompt()) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
             this.scrollService.scrollToBottom(
               this.promptContainer.nativeElement,
@@ -127,12 +132,9 @@ export class CloneComponent {
             );
           }
         }, 100);
+        onCleanup(() => clearTimeout(timer));
       }
     });
-  }
-
-  trackByIndex(index: number): number {
-    return index;
   }
 
   getLanguageCode(language: Language): string {
@@ -143,8 +145,13 @@ export class CloneComponent {
     this.router.navigate(['/dashboard']);
   }
 
-  copyToClipboard(text: string): void {
-    this.clipboardService.copyToClipboard(text);
+  async copyToClipboard(text: string): Promise<void> {
+    const success = await this.clipboardService.copy(text);
+    this.snackBar.open(
+      success ? 'In die Zwischenablage kopiert' : 'Fehler beim Kopieren',
+      'OK',
+      { duration: 2000 }
+    );
   }
 
   toggleEditMode(): void {
@@ -185,7 +192,7 @@ export class CloneComponent {
         category: 'clone' as PromptCategory,
         targetLanguage: formValue.targetLanguage,
         cefr: formValue.cefr,
-        content: this.editedPrompt() || this.generatedPrompt(),
+        content: this.displayedPrompt(),
         name: `Klonübung - ${formValue.sourceType}`,
         description: `Klonübung für ${formValue.targetLanguage} (${
           formValue.cefr
@@ -196,7 +203,7 @@ export class CloneComponent {
       },
     });
 
-    dialogRef.afterClosed().subscribe({
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         if (result) {
           const prompt: Omit<
@@ -206,13 +213,13 @@ export class CloneComponent {
             category: 'clone',
             targetLanguage: formValue.targetLanguage!,
             cefr: formValue.cefr!,
-            content: this.editedPrompt() || this.generatedPrompt(),
+            content: this.displayedPrompt(),
             name: result.name,
             description: result.description,
             tags: result.tags || [],
           };
 
-          this.libraryService.addPrompt(prompt).subscribe({
+          this.libraryService.addPrompt(prompt).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
               this._isSavedToLibrary.set(true);
               this.snackBar.open(

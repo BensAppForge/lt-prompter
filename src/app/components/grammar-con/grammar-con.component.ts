@@ -1,13 +1,16 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   signal,
   ViewChild,
   ElementRef,
   effect,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,9 +21,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Clipboard } from '@angular/cdk/clipboard';
+import { ClipboardService } from '../../services/clipboard.service';
 import {
-  FormBuilder,
+  NonNullableFormBuilder,
   FormGroup,
   FormArray,
   ReactiveFormsModule,
@@ -30,7 +33,6 @@ import { FormsModule } from '@angular/forms';
 import { Language, CEFRLevel } from '../../models/preferences.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
-import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ScrollService } from '../../shared/services/scroll.service';
 import {
   GrammarPromptConfig,
@@ -57,7 +59,6 @@ interface PhenomenonForm {
   selector: 'app-grammar-con',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     MatCardModule,
@@ -67,19 +68,20 @@ interface PhenomenonForm {
     MatInputModule,
     MatSelectModule,
     MatSlideToggleModule,
-    ClipboardModule,
     AutoAnimateDirective,
     MatDialogModule,
     MatSnackBarModule,
   ],
   templateUrl: './grammar-con.component.html',
   styleUrls: ['./grammar-con.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GrammarConComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
   private readonly promptService = inject(PromptTemplateService);
-  private readonly clipboard = inject(Clipboard);
+  private readonly clipboardService = inject(ClipboardService);
   private readonly scrollService = inject(ScrollService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -127,6 +129,7 @@ export class GrammarConComponent {
 
   private readonly _editedPrompt = signal<string | null>(null);
   readonly editedPrompt = computed(() => this._editedPrompt());
+  readonly displayedPrompt = computed(() => this.editedPrompt() || this.generatedPrompt());
 
   editablePrompt: string = '';
 
@@ -147,9 +150,9 @@ export class GrammarConComponent {
       situationalContextIsDialog: [false],
     });
 
-    effect(() => {
+    effect((onCleanup) => {
       if (this._generatedPrompt()) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
             this.scrollService.scrollToBottom(
               this.promptContainer.nativeElement,
@@ -157,6 +160,7 @@ export class GrammarConComponent {
             );
           }
         }, 100);
+        onCleanup(() => clearTimeout(timer));
       }
     });
   }
@@ -208,15 +212,13 @@ export class GrammarConComponent {
     }
   }
 
-  copyToClipboard(text: string): void {
-    try {
-      this.clipboard.copy(text);
-      this._copyStatus.set('success');
-      setTimeout(() => this._copyStatus.set('idle'), 2000);
-    } catch (error) {
-      this._copyStatus.set('error');
-      setTimeout(() => this._copyStatus.set('idle'), 2000);
-    }
+  private copyFeedbackTimer?: ReturnType<typeof setTimeout>;
+
+  async copyToClipboard(text: string): Promise<void> {
+    clearTimeout(this.copyFeedbackTimer);
+    const success = await this.clipboardService.copy(text);
+    this._copyStatus.set(success ? 'success' : 'error');
+    this.copyFeedbackTimer = setTimeout(() => this._copyStatus.set('idle'), 2000);
   }
 
   toggleEditMode(): void {
@@ -232,10 +234,6 @@ export class GrammarConComponent {
     }
   }
 
-  trackByIndex(index: number): number {
-    return index;
-  }
-
   saveToLibrary(): void {
     const formValue = this.form.getRawValue() as GrammarFormValue;
     const phenomena = formValue.phenomena.map((p) => p.description).join(', ');
@@ -246,7 +244,7 @@ export class GrammarConComponent {
         category: 'grammar' as PromptCategory,
         targetLanguage: formValue.targetLanguage,
         cefr: formValue.cefr,
-        content: this.editedPrompt() || this.generatedPrompt(),
+        content: this.displayedPrompt(),
         name: `Grammatik - ${phenomena}`,
         description: `Grammatikübung für ${formValue.targetLanguage} (${
           formValue.cefr
@@ -262,7 +260,7 @@ export class GrammarConComponent {
       },
     });
 
-    dialogRef.afterClosed().subscribe({
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         if (result) {
           const prompt: Omit<
@@ -272,13 +270,13 @@ export class GrammarConComponent {
             category: 'grammar',
             targetLanguage: formValue.targetLanguage!,
             cefr: formValue.cefr!,
-            content: this.editedPrompt() || this.generatedPrompt(),
+            content: this.displayedPrompt(),
             name: result.name,
             description: result.description,
             tags: result.tags || [],
           };
 
-          this.libraryService.addPrompt(prompt).subscribe({
+          this.libraryService.addPrompt(prompt).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
               this._isSavedToLibrary.set(true);
               this.snackBar.open(

@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-template-manager',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="template-container">
       <h1>Vorlagen</h1>
@@ -27,6 +26,7 @@ import { CommonModule } from '@angular/common';
       font-size: 2rem;
       margin-bottom: 1rem;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TemplateManagerComponent {}

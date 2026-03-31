@@ -1,5 +1,7 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   signal,
   computed,
@@ -7,7 +9,8 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
-  FormBuilder,
+  NonNullableFormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -41,7 +44,6 @@ import { PromptCategory, LibraryPrompt } from '../../models/library.model';
   selector: 'app-korrektur',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -55,9 +57,11 @@ import { PromptCategory, LibraryPrompt } from '../../models/library.model';
   ],
   templateUrl: './korrektur.component.html',
   styleUrls: ['./korrektur.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KorrekturComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
   private readonly promptService = inject(PromptTemplateService);
   private readonly scrollService = inject(ScrollService);
@@ -100,6 +104,7 @@ export class KorrekturComponent {
 
   readonly _editedPrompt = signal<string | null>(null);
   readonly editedPrompt = computed(() => this._editedPrompt());
+  readonly displayedPrompt = computed(() => this.editedPrompt() || this.generatedPrompt());
 
   readonly _isSavedToLibrary = signal(false);
   readonly isSavedToLibrary = computed(() => this._isSavedToLibrary());
@@ -115,9 +120,9 @@ export class KorrekturComponent {
       sourceType: ['', Validators.required],
     });
 
-    effect(() => {
+    effect((onCleanup) => {
       if (this._generatedPrompt()) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           if (this.promptContainer?.nativeElement) {
             this.scrollService.scrollToBottom(
               this.promptContainer.nativeElement,
@@ -125,12 +130,9 @@ export class KorrekturComponent {
             );
           }
         }, 100);
+        onCleanup(() => clearTimeout(timer));
       }
     });
-  }
-
-  trackByIndex(index: number): number {
-    return index;
   }
 
   getLanguageCode(language: Language): string {
@@ -141,8 +143,13 @@ export class KorrekturComponent {
     this.router.navigate(['/dashboard']);
   }
 
-  copyToClipboard(text: string): void {
-    this.clipboardService.copyToClipboard(text);
+  async copyToClipboard(text: string): Promise<void> {
+    const success = await this.clipboardService.copy(text);
+    this.snackBar.open(
+      success ? 'In die Zwischenablage kopiert' : 'Fehler beim Kopieren',
+      'OK',
+      { duration: 2000 }
+    );
   }
 
   toggleEditMode(): void {
@@ -180,14 +187,14 @@ export class KorrekturComponent {
         category: 'korrektur' as PromptCategory,
         targetLanguage: formValue.targetLanguage,
         cefr: formValue.cefr,
-        content: this.editedPrompt() || this.generatedPrompt(),
+        content: this.displayedPrompt(),
         name: `Korrektur - ${formValue.cefr}`,
         description: `Korrekturprompt für ${formValue.targetLanguage} (${formValue.cefr}) basierend auf ${formValue.sourceType}`,
         tags: ['korrektur', formValue.sourceType],
       },
     });
 
-    dialogRef.afterClosed().subscribe({
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         if (result) {
           const prompt: Omit<
@@ -197,13 +204,13 @@ export class KorrekturComponent {
             category: 'korrektur' as PromptCategory,
             targetLanguage: formValue.targetLanguage!,
             cefr: formValue.cefr!,
-            content: this.editedPrompt() || this.generatedPrompt(),
+            content: this.displayedPrompt(),
             name: result.name,
             description: result.description,
             tags: result.tags || [],
           };
 
-          this.libraryService.addPrompt(prompt).subscribe({
+          this.libraryService.addPrompt(prompt).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
               this._isSavedToLibrary.set(true);
               this.snackBar.open(

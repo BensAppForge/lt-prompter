@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { VersionService } from '../../services/version.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, MatIconModule],
+  imports: [RouterLink, DatePipe, MatIconModule],
   template: `
     <footer class="app-footer">
       <div class="footer-links">
@@ -66,7 +66,8 @@ import { MatIconModule } from '@angular/material/icon';
       height: 18px;
       opacity: 0.9;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent {
   versionService = inject(VersionService);

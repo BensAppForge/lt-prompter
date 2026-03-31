@@ -12,7 +12,7 @@
     </mat-card-header>
 
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" #korrekturForm="ngForm">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Zielsprache</mat-label>
@@ -82,7 +82,7 @@
             <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
             <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
           </button>
-          <button mat-button (click)="copyToClipboard(editedPrompt() || generatedPrompt())" class="copy-button"
+          <button mat-button (click)="copyToClipboard(displayedPrompt())" class="copy-button"
             aria-label="In die Zwischenablage kopieren">
             <mat-icon>content_copy</mat-icon>
             <span class="button-text">Kopieren</span>
@@ -97,7 +97,7 @@
         <div class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
           <div class="prompt-content">
             @if (!isEditMode()) {
-              <pre>{{ editedPrompt() || generatedPrompt() }}</pre>
+              <pre>{{ displayedPrompt() }}</pre>
             } @else {
               <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="10" [placeholder]="generatedPrompt()"
                 [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">

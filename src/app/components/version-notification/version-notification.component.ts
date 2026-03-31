@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject, DestroyRef } from '@angular/core';
+
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
@@ -9,9 +9,10 @@ import { VersionService } from '../../services/version.service';
 @Component({
   selector: 'app-version-notification',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, MatButtonModule],
+  imports: [MatSnackBarModule, MatButtonModule],
   template: '',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VersionNotificationComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);

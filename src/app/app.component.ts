@@ -1,5 +1,5 @@
-import { Component, inject, computed, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, computed, effect } from '@angular/core';
+
 import { RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +13,6 @@ import { PwaUpdateService } from './services/pwa-update.service';
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule,
     RouterOutlet,
     MatToolbarModule,
     MatIconModule,
@@ -71,6 +70,7 @@ import { PwaUpdateService } from './services/pwa-update.service';
       font-weight: 500;
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   private settingsService = inject(SettingsService);

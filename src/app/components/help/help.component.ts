@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,17 +8,17 @@ import { environment } from '../../../environments/environment';
   selector: 'app-help',
   standalone: true,
   imports: [
-    CommonModule,
     MatIconModule,
     MatButtonModule
   ],
   templateUrl: './help.component.html',
-  styleUrls: ['./help.component.scss']
+  styleUrls: ['./help.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HelpComponent {
+  private readonly router = inject(Router);
+
   currentVersion = environment.version;
-  
-  constructor(private router: Router) {}
 
   navigateToDashboard(): void {
     this.router.navigate(['/dashboard']);

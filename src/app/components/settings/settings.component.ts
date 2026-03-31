@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,6 @@ import { SettingsService, ThemePreference } from '../../services/settings.servic
   selector: 'app-settings',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
@@ -145,7 +144,8 @@ import { SettingsService, ThemePreference } from '../../services/settings.servic
       color: var(--text-secondary);
       font-size: 0.9rem;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
   settingsService = inject(SettingsService);
