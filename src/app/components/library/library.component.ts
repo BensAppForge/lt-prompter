@@ -107,7 +107,7 @@ export class LibraryComponent implements OnInit {
           this.prompts = prompts;
           this.filteredPrompts.set(prompts);
         },
-        error: (error: Error) => {
+        error: (error: unknown) => {
           console.error('Error loading prompts:', error);
           this.snackBar.open('Fehler beim Laden der Prompts', 'Schließen', {
             duration: 3000,
@@ -132,7 +132,7 @@ export class LibraryComponent implements OnInit {
           this.prompts = prompts;
           this.filteredPrompts.set(prompts);
         },
-        error: (error) => {
+        error: (error: unknown) => {
           console.error('Error searching prompts:', error);
           this.snackBar.open('Fehler beim Suchen der Prompts', 'Schließen', {
             duration: 3000,
@@ -244,7 +244,7 @@ export class LibraryComponent implements OnInit {
           this.loadPrompts();
           this.editedPrompt.set(this.editablePrompt);
         },
-        error: (error) => {
+        error: (error: unknown) => {
           console.error('Error updating prompt:', error);
           this.snackBar.open(
             'Fehler beim Aktualisieren des Prompts',
@@ -293,7 +293,7 @@ export class LibraryComponent implements OnInit {
                   duration: 3000,
                 });
               },
-              error: (error) => {
+              error: (error: unknown) => {
                 console.error('Error deleting prompt:', error);
                 this.snackBar.open('Fehler beim Löschen des Prompts', 'Schließen', {
                   duration: 3000,

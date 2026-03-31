@@ -25,8 +25,13 @@ export class TemplatesService {
   private loadTemplates(): void {
     this.getAllTemplates()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(templates => {
-        this.templates.set(templates);
+      .subscribe({
+        next: (templates) => {
+          this.templates.set(templates);
+        },
+        error: (error: unknown) => {
+          console.error('Error loading templates:', error);
+        },
       });
   }
 

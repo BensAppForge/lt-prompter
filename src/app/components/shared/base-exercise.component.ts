@@ -102,6 +102,10 @@ export abstract class BaseExerciseComponent {
     return this.languageService.getSpellcheckCode(language);
   }
 
+  displayLanguage(lang: Language): string {
+    return this.languageService.displayLanguage(lang);
+  }
+
   // --- Clipboard ---
   async copyToClipboard(text: string): Promise<void> {
     const success = await this.clipboardService.copy(text);

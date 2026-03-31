@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
-import { Observable, from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, from, EMPTY } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { LibraryPrompt, PromptCategory } from '../models/library.model';
 import { Language, CEFRLevel } from '../models/preferences.model';
 
-interface SearchQuery {
+export interface SearchQuery {
   category?: PromptCategory | null;
   targetLanguage?: Language | null;
   cefr?: CEFRLevel | null;
@@ -103,7 +103,8 @@ export class LibraryService {
           );
         }
         return from([undefined]);
-      })
+      }),
+      catchError(() => EMPTY)
     );
   }
 

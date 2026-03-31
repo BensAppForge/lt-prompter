@@ -134,12 +134,6 @@ export class ComprehensionComponent extends BaseExerciseComponent {
     }
   }
 
-  displayLanguage(lang: Language): string {
-    return lang === 'English'
-      ? lang
-      : lang.charAt(0).toUpperCase() + lang.slice(1);
-  }
-
   getSourceTypeTranslation(type: ComprehensionSourceType): string {
     return this.sourceTypeTranslations[type] || type;
   }

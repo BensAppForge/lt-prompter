@@ -26,10 +26,15 @@ export class PreferencesService {
   private loadPreferences(): void {
     this.getPreferences()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(prefs => {
-        if (prefs) {
-          this.currentPreferences.set(prefs);
-        }
+      .subscribe({
+        next: (prefs) => {
+          if (prefs) {
+            this.currentPreferences.set(prefs);
+          }
+        },
+        error: (error: unknown) => {
+          console.error('Error loading preferences:', error);
+        },
       });
   }
 

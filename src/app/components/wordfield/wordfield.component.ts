@@ -101,11 +101,6 @@ export class WordfieldComponent extends BaseExerciseComponent {
     }
   }
 
-  displayLanguage(lang: Language): string {
-    return lang === 'English'
-      ? lang
-      : lang.charAt(0).toUpperCase() + lang.slice(1);
-  }
 
   getSourceTypeTranslation(type: WordfieldSourceType): string {
     return this.sourceTypeTranslations[type] || type;
