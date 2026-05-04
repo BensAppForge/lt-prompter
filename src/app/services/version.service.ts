@@ -169,6 +169,19 @@ export class VersionService {
         • Fehlerbehebungen bei CSS-Variablen und Barrierefreiheit
       `.trim(),
     },
+    {
+      id: 15,
+      versionNumber: '1.5.0',
+      releaseDate: new Date('2026-05-04'),
+      shortDescription: 'Vokabeln aus Datei extrahieren',
+      longDescription: `
+        • Vokabelübungen können nun auch aus einer Datei generiert werden
+        • Unterstützte Formate: Screenshot/Bild, PDF, Word-Dokument
+        • Text aus PDF und Word-Dokumenten wird direkt im Browser extrahiert und in den Prompt eingebettet
+        • Bei Bildern wird die KI angewiesen, die Wörter aus dem angehängten Bild zu extrahieren
+        • Neuer Umschalter zwischen manueller Eingabe und Datei-Upload
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

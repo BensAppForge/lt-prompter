@@ -8,6 +8,8 @@ import {
   getExerciseTypeContent,
   commonTemplateParts,
   vocabularyExerciseTypeTranslations,
+  vocabularySourceTypeTranslations,
+  vocabularyFileSourceParts,
 } from '../templates/vocabulary-prompts';
 import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig } from '../models/grammar.model';
@@ -235,18 +237,40 @@ export class PromptTemplateService {
       // Multiple exercise types - create combined intro
       const exerciseTypesText = exerciseTypeLabels.join(', ');
       parts.push(
-        formattedBaseIntro + 
+        formattedBaseIntro +
         multipleTypesIntro[language] + exerciseTypesText + '.\n' +
         multipleTypesInstruction[language]
       );
     }
 
-    // Add word list
-    parts.push(
-      templateParts.wordListIntro,
-      config.wordList.map((w) => w.word).join(', '),
-      ''
-    );
+    // Add the word source: either the manually entered list, an embedded
+    // text excerpt extracted from a PDF/DOCX, or instructions to extract
+    // the vocabulary from an attached image.
+    const inputMode = config.inputMode ?? 'manual';
+    const fileParts = vocabularyFileSourceParts[language];
+    const sourceTypeLabels = vocabularySourceTypeTranslations[language];
+    const trimmedExtractedText = config.extractedText?.trim() ?? '';
+
+    if (inputMode === 'file' && config.sourceType) {
+      const sourceTypeLabel = sourceTypeLabels[config.sourceType];
+      if (trimmedExtractedText) {
+        parts.push(
+          fileParts.embeddedTextIntro.replace('[SOURCE_TYPE]', sourceTypeLabel) +
+          trimmedExtractedText +
+          fileParts.embeddedTextOutro
+        );
+      } else {
+        parts.push(
+          fileParts.attachmentInstruction.replace('[SOURCE_TYPE]', sourceTypeLabel)
+        );
+      }
+    } else {
+      parts.push(
+        templateParts.wordListIntro,
+        config.wordList.map((w) => w.word).join(', '),
+        ''
+      );
+    }
 
     // Always add context (as per user request)
     const trimmedContext = config.situationalContext?.trim() ?? '';

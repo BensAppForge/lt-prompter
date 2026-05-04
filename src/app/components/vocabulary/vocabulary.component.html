@@ -68,32 +68,136 @@
           }
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Wortliste (Erforderlich)</mat-label>
-            <div class="chip-list-container" auto-animate>
-              <mat-chip-grid #chipGrid aria-label="Wortauswahl" class="chip-list">
-                @for (word of words.controls; track word; let i = $index) {
-                  <mat-chip-row [removable]="true" (removed)="removeWord(i)">
-                    {{ word.value }}
-                    <button matChipRemove aria-label="Wort entfernen">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                  </mat-chip-row>
-                }
-                <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
-                  [attr.spellcheck]="true" autocomplete="off" #wordInput placeholder="Neues Wort..."
-                  [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                  (matChipInputTokenEnd)="addWordFromInput($event)">
-              </mat-chip-grid>
-            </div>
-            @if (form.get('words')?.errors?.['required']) {
-              <mat-error>
-                Bitte fügen Sie mindestens ein Wort hinzu
-              </mat-error>
-            }
-          </mat-form-field>
+        <div class="input-mode-container">
+          <h3>Wortquelle</h3>
+          <mat-button-toggle-group
+            [value]="inputMode()"
+            (change)="onInputModeChange($event.value)"
+            class="input-mode-toggle"
+            aria-label="Wortquelle auswählen">
+            <mat-button-toggle value="manual">
+              <mat-icon>edit</mat-icon>
+              <span>Manuelle Eingabe</span>
+            </mat-button-toggle>
+            <mat-button-toggle value="file">
+              <mat-icon>upload_file</mat-icon>
+              <span>Aus Datei</span>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
         </div>
+
+        @if (inputMode() === 'manual') {
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Wortliste (Erforderlich)</mat-label>
+              <div class="chip-list-container" auto-animate>
+                <mat-chip-grid #chipGrid aria-label="Wortauswahl" class="chip-list">
+                  @for (word of words.controls; track word; let i = $index) {
+                    <mat-chip-row [removable]="true" (removed)="removeWord(i)">
+                      {{ word.value }}
+                      <button matChipRemove aria-label="Wort entfernen">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    </mat-chip-row>
+                  }
+                  <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
+                    [attr.spellcheck]="true" autocomplete="off" #wordInput placeholder="Neues Wort..."
+                    [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    (matChipInputTokenEnd)="addWordFromInput($event)">
+                </mat-chip-grid>
+              </div>
+              @if (form.get('words')?.errors?.['required']) {
+                <mat-error>
+                  Bitte fügen Sie mindestens ein Wort hinzu
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        } @else {
+          <div class="file-source-container" auto-animate>
+            <div class="source-type-grid">
+              @for (source of sourceTypes; track source.value) {
+                <button type="button" class="source-type-card"
+                  [class.selected]="sourceType() === source.value"
+                  (click)="onSourceTypeChange(source.value)">
+                  <mat-icon class="source-icon">
+                    @switch (source.value) {
+                      @case ('image') { image }
+                      @case ('pdf') { picture_as_pdf }
+                      @case ('docx') { description }
+                    }
+                  </mat-icon>
+                  <div class="source-text">
+                    <div class="source-label">{{ source.label }}</div>
+                    <div class="source-description">{{ source.description }}</div>
+                  </div>
+                </button>
+              }
+            </div>
+
+            @if (sourceType()) {
+              <div class="file-picker">
+                @if (!selectedFile()) {
+                  <label class="file-drop-zone">
+                    <input type="file"
+                      [attr.accept]="acceptForSourceType()"
+                      (change)="onFileSelected($event)"
+                      hidden>
+                    <mat-icon>cloud_upload</mat-icon>
+                    <span class="file-drop-label">Datei auswählen</span>
+                    <span class="file-drop-hint">Max. 10 MB</span>
+                  </label>
+                } @else {
+                  <div class="file-info">
+                    <mat-icon class="file-info-icon">insert_drive_file</mat-icon>
+                    <div class="file-info-text">
+                      <div class="file-name">{{ selectedFile()!.name }}</div>
+                      @switch (extractionStatus()) {
+                        @case ('extracting') {
+                          <div class="file-status">
+                            <mat-spinner diameter="14"></mat-spinner>
+                            <span>Text wird extrahiert…</span>
+                          </div>
+                        }
+                        @case ('ready') {
+                          @if (sourceType() === 'image') {
+                            <div class="file-status ready">
+                              <mat-icon>info</mat-icon>
+                              <span>Bild beim KI-Tool selbst anhängen</span>
+                            </div>
+                          } @else {
+                            <div class="file-status ready">
+                              <mat-icon>check_circle</mat-icon>
+                              <span>Text extrahiert ({{ extractedText().length }} Zeichen)</span>
+                            </div>
+                          }
+                        }
+                        @case ('error') {
+                          <div class="file-status error">
+                            <mat-icon>error</mat-icon>
+                            <span>{{ extractionError() }}</span>
+                          </div>
+                        }
+                      }
+                    </div>
+                    <button mat-icon-button type="button"
+                      (click)="clearFileSelection({ keepSourceType: true })"
+                      aria-label="Datei entfernen">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+
+                @if (extractionStatus() === 'error' && !selectedFile()) {
+                  <div class="file-error-banner">
+                    <mat-icon>error</mat-icon>
+                    <span>{{ extractionError() }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
 
         <div class="form-row context-row">
           <mat-form-field appearance="outline" class="full-width">
@@ -111,7 +215,7 @@
         </div>
 
         <div class="button-container">
-          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
             Prompt generieren
           </button>
         </div>

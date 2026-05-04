@@ -23,12 +23,28 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "mammoth",
+              "lop",
+              "bluebird/js/release/promise",
+              "base64-js",
+              "jszip",
+              "dingbat-to-unicode",
+              "xmlbuilder",
+              "@xmldom/xmldom",
+              "@xmldom/xmldom/lib/dom"
+            ],
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "pdf.worker.min.mjs",
+                "input": "node_modules/pdfjs-dist/build",
+                "output": "/"
+              }
             ],
             "styles": ["src/styles/theme.scss"],
             "scripts": []
@@ -43,8 +59,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "12kB"
                 }
               ],
               "outputHashing": "all",

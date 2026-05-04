@@ -1,5 +1,8 @@
 import { Language } from '../models/preferences.model';
-import { VocabularyExerciseType } from '../models/vocabulary.model';
+import {
+  VocabularyExerciseType,
+  VocabularySourceType,
+} from '../models/vocabulary.model';
 
 // Exercise type translations for prompt generation (not UI labels)
 export const vocabularyExerciseTypeTranslations: Record<
@@ -541,5 +544,74 @@ export const commonTemplateParts: {
       'Crea un contesto adatto per studenti adolescenti utilizzando le parole fornite.\n',
     requirementsIntro: 'Requisiti aggiuntivi:',
     dialogRequirement: 'Presenta l\'esercizio sotto forma di dialogo.',
+  },
+};
+
+// Source type translations for the prompt body
+export const vocabularySourceTypeTranslations: Record<
+  Language,
+  Record<VocabularySourceType, string>
+> = {
+  English: {
+    image: 'attached image',
+    pdf: 'PDF document',
+    docx: 'Word document',
+  },
+  français: {
+    image: 'image jointe',
+    pdf: 'document PDF',
+    docx: 'document Word',
+  },
+  español: {
+    image: 'imagen adjunta',
+    pdf: 'documento PDF',
+    docx: 'documento de Word',
+  },
+  italiano: {
+    image: 'immagine allegata',
+    pdf: 'documento PDF',
+    docx: 'documento Word',
+  },
+};
+
+// Fragments used when the teacher provides the vocab via a file instead of typing it.
+// "attachmentInstruction" is shown when no text was extracted client-side (image case):
+//   the LLM is told to extract the vocab from the file the teacher will attach.
+// "embeddedTextIntro" is shown when text was extracted client-side (pdf/docx):
+//   the extracted text is included verbatim and the LLM is told to pull the vocab from it.
+export const vocabularyFileSourceParts: {
+  [key in Language]: {
+    attachmentInstruction: string;
+    embeddedTextIntro: string;
+    embeddedTextOutro: string;
+  };
+} = {
+  English: {
+    attachmentInstruction:
+      'I will attach a [SOURCE_TYPE] to this message. Extract the target vocabulary words from it and use them as the word list for the exercise. Use every word that is clearly part of the vocabulary list and ignore unrelated text.\n',
+    embeddedTextIntro:
+      'The vocabulary words come from a [SOURCE_TYPE]. Extract the target words from the following text (delimited by triple backticks) and use them as the word list for the exercise. Use every word that is clearly part of the vocabulary list and ignore unrelated text.\n```\n',
+    embeddedTextOutro: '\n```\n',
+  },
+  français: {
+    attachmentInstruction:
+      "Je joindrai un(e) [SOURCE_TYPE] à ce message. Extrayez-en les mots de vocabulaire cibles et utilisez-les comme liste de mots pour l'exercice. Utilisez chaque mot qui fait clairement partie de la liste de vocabulaire et ignorez les textes non pertinents.\n",
+    embeddedTextIntro:
+      "Les mots de vocabulaire proviennent d'un(e) [SOURCE_TYPE]. Extrayez les mots cibles du texte suivant (délimité par trois apostrophes inverses) et utilisez-les comme liste de mots pour l'exercice. Utilisez chaque mot qui fait clairement partie de la liste de vocabulaire et ignorez les textes non pertinents.\n```\n",
+    embeddedTextOutro: '\n```\n',
+  },
+  español: {
+    attachmentInstruction:
+      'Adjuntaré un(a) [SOURCE_TYPE] a este mensaje. Extrae de él las palabras de vocabulario objetivo y úsalas como lista de palabras para el ejercicio. Utiliza cada palabra que forme claramente parte de la lista de vocabulario e ignora el texto no relacionado.\n',
+    embeddedTextIntro:
+      'Las palabras de vocabulario provienen de un(a) [SOURCE_TYPE]. Extrae las palabras objetivo del siguiente texto (delimitado por tres comillas invertidas) y úsalas como lista de palabras para el ejercicio. Utiliza cada palabra que forme claramente parte de la lista de vocabulario e ignora el texto no relacionado.\n```\n',
+    embeddedTextOutro: '\n```\n',
+  },
+  italiano: {
+    attachmentInstruction:
+      'Allegherò un(a) [SOURCE_TYPE] a questo messaggio. Estrai da esso le parole di vocabolario obiettivo e usale come elenco di parole per l\'esercizio. Usa ogni parola che fa chiaramente parte della lista di vocabolario e ignora il testo non pertinente.\n',
+    embeddedTextIntro:
+      'Le parole di vocabolario provengono da un(a) [SOURCE_TYPE]. Estrai le parole obiettivo dal seguente testo (delimitato da tre apici inversi) e usale come elenco di parole per l\'esercizio. Usa ogni parola che fa chiaramente parte della lista di vocabolario e ignora il testo non pertinente.\n```\n',
+    embeddedTextOutro: '\n```\n',
   },
 };
