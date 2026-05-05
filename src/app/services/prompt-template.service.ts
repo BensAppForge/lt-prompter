@@ -243,27 +243,19 @@ export class PromptTemplateService {
       );
     }
 
-    // Add the word source: either the manually entered list, an embedded
-    // text excerpt extracted from a PDF/DOCX, or instructions to extract
-    // the vocabulary from an attached image.
+    // Word source: the teacher either typed the words manually, or chose to
+    // attach a screenshot/PDF/Word doc in their AI tool — in which case the
+    // prompt instructs the LLM to pull the vocab from that attachment.
     const inputMode = config.inputMode ?? 'manual';
-    const fileParts = vocabularyFileSourceParts[language];
-    const sourceTypeLabels = vocabularySourceTypeTranslations[language];
-    const trimmedExtractedText = config.extractedText?.trim() ?? '';
-
     if (inputMode === 'file' && config.sourceType) {
-      const sourceTypeLabel = sourceTypeLabels[config.sourceType];
-      if (trimmedExtractedText) {
-        parts.push(
-          fileParts.embeddedTextIntro.replace('[SOURCE_TYPE]', sourceTypeLabel) +
-          trimmedExtractedText +
-          fileParts.embeddedTextOutro
-        );
-      } else {
-        parts.push(
-          fileParts.attachmentInstruction.replace('[SOURCE_TYPE]', sourceTypeLabel)
-        );
-      }
+      const sourceTypeLabel =
+        vocabularySourceTypeTranslations[language][config.sourceType];
+      parts.push(
+        vocabularyFileSourceParts[language].attachmentInstruction.replace(
+          '[SOURCE_TYPE]',
+          sourceTypeLabel
+        )
+      );
     } else {
       parts.push(
         templateParts.wordListIntro,

@@ -70,26 +70,22 @@ export type VocabularySourceType = 'image' | 'pdf' | 'docx';
 export const VOCABULARY_SOURCE_TYPES: {
   value: VocabularySourceType;
   label: string;
-  accept: string;
   description: string;
 }[] = [
   {
     value: 'image',
     label: 'Screenshot / Bild',
-    accept: 'image/*',
-    description: 'Die KI extrahiert die Wörter aus dem angehängten Bild',
+    description: 'Sie hängen das Bild im KI-Tool an die Nachricht an',
   },
   {
     value: 'pdf',
     label: 'PDF',
-    accept: 'application/pdf',
-    description: 'Text wird im Browser extrahiert und in den Prompt eingebettet',
+    description: 'Sie hängen die PDF-Datei im KI-Tool an die Nachricht an',
   },
   {
     value: 'docx',
     label: 'Word-Dokument',
-    accept: '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    description: 'Text wird im Browser extrahiert und in den Prompt eingebettet',
+    description: 'Sie hängen das Word-Dokument im KI-Tool an die Nachricht an',
   },
 ];
 
@@ -103,5 +99,4 @@ export interface VocabularyPromptConfig {
   isDialog?: boolean;
   inputMode?: VocabularyInputMode;
   sourceType?: VocabularySourceType;
-  extractedText?: string;
 }

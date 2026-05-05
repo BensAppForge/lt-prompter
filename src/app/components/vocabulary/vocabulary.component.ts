@@ -22,7 +22,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -41,13 +40,8 @@ import {
   VOCABULARY_SOURCE_TYPES,
 } from '../../models/vocabulary.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
-import { FileExtractionService } from '../../services/file-extraction.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { BaseExerciseComponent } from '../shared/base-exercise.component';
-
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-
-type ExtractionStatus = 'idle' | 'extracting' | 'ready' | 'error';
 
 @Component({
   selector: 'app-vocabulary',
@@ -63,7 +57,6 @@ type ExtractionStatus = 'idle' | 'extracting' | 'ready' | 'error';
     MatButtonToggleModule,
     MatIconModule,
     MatChipsModule,
-    MatProgressSpinnerModule,
     MatSlideToggleModule,
     MatCheckboxModule,
     MatSnackBarModule,
@@ -77,7 +70,6 @@ type ExtractionStatus = 'idle' | 'extracting' | 'ready' | 'error';
 })
 export class VocabularyComponent extends BaseExerciseComponent implements OnInit {
   private readonly promptTemplateService = inject(PromptTemplateService);
-  private readonly fileExtractionService = inject(FileExtractionService);
   private readonly fb = inject(NonNullableFormBuilder);
 
   readonly copySuccess = signal(false);
@@ -107,17 +99,6 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
 
   readonly inputMode = signal<VocabularyInputMode>('manual');
   readonly sourceType = signal<VocabularySourceType | null>(null);
-  readonly selectedFile = signal<File | null>(null);
-  readonly extractedText = signal<string>('');
-  readonly extractionStatus = signal<ExtractionStatus>('idle');
-  readonly extractionError = signal<string>('');
-
-  readonly fileReady = computed(() => {
-    const type = this.sourceType();
-    if (!type) return false;
-    if (type === 'image') return this.selectedFile() !== null;
-    return this.extractionStatus() === 'ready' && this.extractedText().length > 0;
-  });
 
   readonly canSubmit = computed(() => {
     if (this.inputMode() === 'manual') {
@@ -127,7 +108,7 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
       this.form.get('targetLanguage')!.valid &&
       this.form.get('cefr')!.valid &&
       this.form.get('exerciseTypes')!.valid &&
-      this.fileReady()
+      this.sourceType() !== null
     );
   });
 
@@ -179,7 +160,8 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
     this.inputMode.set(mode);
     this.form.patchValue({ inputMode: mode });
     if (mode === 'manual') {
-      this.clearFileSelection();
+      this.sourceType.set(null);
+      this.form.patchValue({ sourceType: null });
       this.words.setValidators([Validators.required, Validators.minLength(1)]);
     } else {
       this.words.clearValidators();
@@ -188,72 +170,8 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
   }
 
   onSourceTypeChange(type: VocabularySourceType): void {
-    if (this.sourceType() === type) return;
     this.sourceType.set(type);
     this.form.patchValue({ sourceType: type });
-    this.clearFileSelection({ keepSourceType: true });
-  }
-
-  acceptForSourceType(): string {
-    const type = this.sourceType();
-    if (!type) return '';
-    return this.sourceTypes.find(s => s.value === type)?.accept ?? '';
-  }
-
-  async onFileSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      this.extractionStatus.set('error');
-      this.extractionError.set('Datei ist zu groß (max. 10 MB)');
-      return;
-    }
-
-    this.selectedFile.set(file);
-    this.extractedText.set('');
-    this.extractionError.set('');
-
-    const type = this.sourceType();
-    if (type === 'image') {
-      this.extractionStatus.set('ready');
-      return;
-    }
-
-    this.extractionStatus.set('extracting');
-    try {
-      const result =
-        type === 'pdf'
-          ? await this.fileExtractionService.extractFromPdf(file)
-          : await this.fileExtractionService.extractFromDocx(file);
-      if (!result.text) {
-        throw new Error('Keine Textinhalte gefunden');
-      }
-      this.extractedText.set(result.text);
-      this.extractionStatus.set('ready');
-    } catch (error: unknown) {
-      console.error('Failed to extract text from file:', error);
-      this.extractionStatus.set('error');
-      this.extractionError.set(
-        error instanceof Error
-          ? `Datei konnte nicht gelesen werden: ${error.message}`
-          : 'Datei konnte nicht gelesen werden'
-      );
-      this.selectedFile.set(null);
-    }
-  }
-
-  clearFileSelection(options: { keepSourceType?: boolean } = {}): void {
-    this.selectedFile.set(null);
-    this.extractedText.set('');
-    this.extractionStatus.set('idle');
-    this.extractionError.set('');
-    if (!options.keepSourceType) {
-      this.sourceType.set(null);
-      this.form.patchValue({ sourceType: null });
-    }
   }
 
   ngOnInit(): void {}
@@ -276,7 +194,6 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
       isDialog: formValue.situationalContextIsDialog,
       inputMode: mode,
       sourceType: mode === 'file' ? this.sourceType() ?? undefined : undefined,
-      extractedText: mode === 'file' ? this.extractedText() : undefined,
     };
 
     this._generatedPrompt.set(
@@ -301,14 +218,13 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
   saveToLibrary(): void {
     const formValue = this.form.getRawValue();
     const mode = this.inputMode();
+    const sourceLabel = mode === 'manual'
+      ? formValue.words.join(', ')
+      : this.sourceTypes.find(s => s.value === this.sourceType())?.label ?? 'Datei';
 
     const tags = mode === 'manual'
       ? formValue.words
       : [this.sourceType() ?? 'file'];
-
-    const sourceLabel = mode === 'manual'
-      ? formValue.words.join(', ')
-      : this.selectedFile()?.name ?? this.sourceType() ?? 'Datei';
 
     const description = mode === 'manual'
       ? `Vokabelübung für ${formValue.targetLanguage} (${formValue.cefr}) mit ${

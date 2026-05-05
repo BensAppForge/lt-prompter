@@ -182,6 +182,17 @@ export class VersionService {
         • Neuer Umschalter zwischen manueller Eingabe und Datei-Upload
       `.trim(),
     },
+    {
+      id: 16,
+      versionNumber: '1.5.1',
+      releaseDate: new Date('2026-05-05'),
+      shortDescription: 'Vokabeln aus Datei: vereinfachter Ablauf',
+      longDescription: `
+        • Datei-Upload in der App entfernt – die Datei wird wie bei den anderen Editoren direkt im KI-Tool an die Nachricht angehängt
+        • Auswahl der Quelle (Screenshot, PDF, Word-Dokument) genügt; der generierte Prompt weist die KI an, die Vokabeln aus der angehängten Datei zu extrahieren
+        • Schlankere App ohne lokale PDF-/DOCX-Textextraktion
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

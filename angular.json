@@ -23,28 +23,12 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "allowedCommonJsDependencies": [
-              "mammoth",
-              "lop",
-              "bluebird/js/release/promise",
-              "base64-js",
-              "jszip",
-              "dingbat-to-unicode",
-              "xmlbuilder",
-              "@xmldom/xmldom",
-              "@xmldom/xmldom/lib/dom"
-            ],
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/assets",
-              {
-                "glob": "pdf.worker.min.mjs",
-                "input": "node_modules/pdfjs-dist/build",
-                "output": "/"
-              }
+              "src/assets"
             ],
             "styles": ["src/styles/theme.scss"],
             "scripts": []

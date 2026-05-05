@@ -12,8 +12,7 @@
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js",
-          "/pdf.worker.min.mjs"
+          "/*.js"
         ]
       }
     },
