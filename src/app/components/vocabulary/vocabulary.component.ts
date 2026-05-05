@@ -3,7 +3,6 @@ import {
   Component,
   inject,
   signal,
-  computed,
   OnInit,
 } from '@angular/core';
 
@@ -100,7 +99,7 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
   readonly inputMode = signal<VocabularyInputMode>('manual');
   readonly sourceType = signal<VocabularySourceType | null>(null);
 
-  readonly canSubmit = computed(() => {
+  canSubmit(): boolean {
     if (this.inputMode() === 'manual') {
       return this.form.valid;
     }
@@ -110,7 +109,7 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
       this.form.get('exerciseTypes')!.valid &&
       this.sourceType() !== null
     );
-  });
+  }
 
   get selectedExerciseTypes(): VocabularyExerciseType[] {
     return this.form.get('exerciseTypes')?.value || [];
