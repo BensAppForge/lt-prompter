@@ -262,9 +262,11 @@
       }
 
       .source-icon {
+        flex-shrink: 0;
         font-size: 28px;
         width: 28px;
         height: 28px;
+        line-height: 28px;
         color: var(--text-secondary);
       }
 

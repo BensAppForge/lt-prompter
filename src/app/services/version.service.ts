@@ -193,6 +193,15 @@ export class VersionService {
         • Schlankere App ohne lokale PDF-/DOCX-Textextraktion
       `.trim(),
     },
+    {
+      id: 17,
+      versionNumber: '1.5.2',
+      releaseDate: new Date('2026-05-07'),
+      shortDescription: 'Darstellungsfehler bei Quellen-Symbolen behoben',
+      longDescription: `
+        • Symbole der Quellenauswahl (Bild, PDF, Word) werden nicht mehr abgeschnitten dargestellt
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {
