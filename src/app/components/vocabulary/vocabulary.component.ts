@@ -195,7 +195,7 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
       sourceType: mode === 'file' ? this.sourceType() ?? undefined : undefined,
     };
 
-    this._generatedPrompt.set(
+    this.commitGeneratedPrompt(
       this.promptTemplateService.generateVocabularyPrompt(config)
     );
   }

@@ -66,7 +66,7 @@
             </button>
           </div>
 
-          @if (form.get('phenomena')?.hasError('required') || form.get('phenomena')?.hasError('minLength')) {
+          @if (form.get('phenomena')?.hasError('required') || form.get('phenomena')?.hasError('minlength')) {
             <mat-error>Bitte fügen Sie mindestens ein grammatisches Phänomen hinzu</mat-error>
           }
 
@@ -116,7 +116,7 @@
             <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
             <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
           </button>
-          <button mat-button (click)="copyToClipboard(displayedPrompt())" class="copy-button"
+          <button mat-button (click)="copyToClipboard(currentPromptText())" class="copy-button"
             [class.success]="copyStatus() === 'success'" [class.error]="copyStatus() === 'error'"
             [attr.aria-label]="'Prompt in die Zwischenablage kopieren'">
             <mat-icon>

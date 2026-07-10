@@ -116,6 +116,26 @@ export abstract class BaseExerciseComponent {
     );
   }
 
+  /**
+   * Commit a freshly generated prompt: discards any previous edit and
+   * re-enables saving, so regeneration never shows stale edited text.
+   */
+  protected commitGeneratedPrompt(prompt: string): void {
+    this._generatedPrompt.set(prompt);
+    this._editedPrompt.set(null);
+    this.editablePrompt = '';
+    this._isEditMode.set(false);
+    this._isSavedToLibrary.set(false);
+  }
+
+  /**
+   * The prompt text as the user currently sees it — including uncommitted
+   * textarea changes while edit mode is active.
+   */
+  currentPromptText(): string {
+    return this.isEditMode() ? this.editablePrompt : this.displayedPrompt();
+  }
+
   // --- Edit mode ---
   toggleEditMode(): void {
     const currentEditMode = this._isEditMode();
@@ -142,7 +162,7 @@ export abstract class BaseExerciseComponent {
       width: '600px',
       data: {
         ...data,
-        content: this.displayedPrompt(),
+        content: this.currentPromptText(),
       },
     });
 
@@ -159,7 +179,7 @@ export abstract class BaseExerciseComponent {
               category: data.category,
               targetLanguage: data.targetLanguage,
               cefr: data.cefr,
-              content: this.displayedPrompt(),
+              content: this.currentPromptText(),
               name: result.name,
               description: result.description,
               tags: result.tags || [],

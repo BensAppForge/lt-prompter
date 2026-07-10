@@ -94,10 +94,9 @@ export class WordfieldComponent extends BaseExerciseComponent {
         outputType: formValue.outputType!,
       };
 
-      this._generatedPrompt.set(
+      this.commitGeneratedPrompt(
         this.promptService.generateWordfieldPrompt(config)
       );
-      this._isSavedToLibrary.set(false);
     }
   }
 

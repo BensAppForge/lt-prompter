@@ -74,10 +74,9 @@ export class KorrekturComponent extends BaseExerciseComponent {
         sourceType: formValue.sourceType!,
       };
 
-      this._generatedPrompt.set(
+      this.commitGeneratedPrompt(
         this.promptService.generateKorrekturPrompt(config)
       );
-      this._isSavedToLibrary.set(false);
     }
   }
 

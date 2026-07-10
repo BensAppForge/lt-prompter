@@ -78,8 +78,7 @@ export class CloneComponent extends BaseExerciseComponent {
         newContext: formValue.newContext,
       };
 
-      this._generatedPrompt.set(this.promptService.generateClonePrompt(config));
-      this._isSavedToLibrary.set(false);
+      this.commitGeneratedPrompt(this.promptService.generateClonePrompt(config));
     }
   }
 

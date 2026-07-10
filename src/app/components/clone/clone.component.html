@@ -78,7 +78,7 @@
             <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
             <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
           </button>
-          <button mat-button (click)="copyToClipboard(displayedPrompt())" class="copy-button"
+          <button mat-button (click)="copyToClipboard(currentPromptText())" class="copy-button"
             aria-label="In die Zwischenablage kopieren">
             <mat-icon>content_copy</mat-icon>
             <span class="button-text">Kopieren</span>

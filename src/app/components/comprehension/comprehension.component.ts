@@ -127,10 +127,9 @@ export class ComprehensionComponent extends BaseExerciseComponent {
         isDialog: formValue.situationalContextIsDialog,
       };
 
-      this._generatedPrompt.set(
+      this.commitGeneratedPrompt(
         this.promptService.generateComprehensionPrompt(config)
       );
-      this._isSavedToLibrary.set(false);
     }
   }
 

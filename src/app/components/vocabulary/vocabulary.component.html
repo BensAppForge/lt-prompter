@@ -61,7 +61,7 @@
               </mat-checkbox>
             }
           </div>
-          @if (form.get('exerciseTypes')?.errors?.['required'] || form.get('exerciseTypes')?.errors?.['minLength']) {
+          @if (form.get('exerciseTypes')?.errors?.['required'] || form.get('exerciseTypes')?.errors?.['minlength']) {
             <mat-error class="exercise-type-error">
               Bitte wählen Sie mindestens einen Übungstyp aus
             </mat-error>
@@ -170,7 +170,7 @@
             <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
             <span>{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
           </button>
-          <button mat-button (click)="copyToClipboard(displayedPrompt())" class="copy-button"
+          <button mat-button (click)="copyToClipboard(currentPromptText())" class="copy-button"
             [class.success]="copySuccess()" [class.error]="copyError()"
             [attr.aria-label]="'In die Zwischenablage kopieren'">
             <mat-icon>{{ copySuccess() ? 'check' : (copyError() ? 'error' : 'content_copy') }}</mat-icon>

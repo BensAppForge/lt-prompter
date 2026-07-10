@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -35,6 +36,7 @@ import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.
     MatChipsModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatTooltipModule,
     FormsModule,
     ReactiveFormsModule,
     AutoAnimateDirective,
@@ -65,6 +67,7 @@ export class LibraryComponent implements OnInit {
     'comprehension',
     'clone',
     'wordfield',
+    'korrektur',
   ];
   languages: Language[] = ['English', 'español', 'français', 'italiano'];
   cefrLevels: CEFRLevel[] = [
@@ -77,6 +80,8 @@ export class LibraryComponent implements OnInit {
     'B2',
     'B2+',
     'C1',
+    'C1+',
+    'C2',
   ];
   readonly selectedPrompt = signal<LibraryPrompt | null>(null);
   readonly isEditMode = signal(false);
@@ -85,15 +90,6 @@ export class LibraryComponent implements OnInit {
   readonly copyError = signal(false);
   readonly filteredPrompts = signal<LibraryPrompt[]>([]);
   editablePrompt: string = '';
-
-  constructor() {
-    this.searchForm = this.fb.group({
-      category: [null],
-      targetLanguage: [null],
-      cefr: [null],
-      searchTerm: [''],
-    });
-  }
 
   ngOnInit(): void {
     this.loadPrompts();
@@ -191,6 +187,12 @@ export class LibraryComponent implements OnInit {
           this.editedPrompt() || this.selectedPrompt()?.content || '';
       }
     }
+  }
+
+  /** Prompt text as currently visible, including uncommitted edits. */
+  currentPromptText(): string {
+    if (this.isEditMode()) return this.editablePrompt;
+    return this.editedPrompt() || this.selectedPrompt()?.content || '';
   }
 
   private copyFeedbackTimer?: ReturnType<typeof setTimeout>;

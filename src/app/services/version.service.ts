@@ -202,6 +202,21 @@ export class VersionService {
         • Symbole der Quellenauswahl (Bild, PDF, Word) werden nicht mehr abgeschnitten dargestellt
       `.trim(),
     },
+    {
+      id: 18,
+      versionNumber: '1.5.3',
+      releaseDate: new Date('2026-07-10'),
+      shortDescription: 'Fehlerbehebungen bei Prompt-Erzeugung und Bibliothek',
+      longDescription: `
+        • Korrektur-Prompts enthalten jetzt das CEFR-Niveau auch im Abschnitt zur Korrekturstrenge (vorher stand dort ein Platzhalter)
+        • Nach dem Bearbeiten eines Prompts zeigt "Prompt generieren" wieder den neu erzeugten Prompt statt der alten bearbeiteten Fassung
+        • "Kopieren" und "In Bibliothek speichern" übernehmen im Bearbeitungsmodus jetzt den aktuellen Textstand
+        • Vokabelübung: Nach dem Speichern in der Bibliothek kann ein neu generierter Prompt wieder gespeichert werden
+        • Vokabelübung: Bei mehreren Übungstypen werden die angekündigten Anweisungen pro Übungstyp jetzt tatsächlich ausgegeben
+        • Textverständnis: Hinweis "mindestens 2 Übungstypen" wird jetzt korrekt angezeigt
+        • Bibliothek: Filter um Kategorie "Korrektur" sowie Niveaus C1+ und C2 ergänzt; Tooltips der Aktions-Buttons funktionieren wieder
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

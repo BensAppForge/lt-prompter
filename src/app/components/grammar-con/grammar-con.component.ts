@@ -128,8 +128,7 @@ export class GrammarConComponent extends BaseExerciseComponent {
         config,
         formValue.targetLanguage
       );
-      this._generatedPrompt.set(prompt);
-      this._isSavedToLibrary.set(false);
+      this.commitGeneratedPrompt(prompt);
     }
   }
 

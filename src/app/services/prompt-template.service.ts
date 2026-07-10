@@ -234,12 +234,20 @@ export class PromptTemplateService {
       const exerciseContent = getExerciseTypeContent(language, exerciseTypes[0]);
       parts.push(formattedBaseIntro + exerciseContent.intro);
     } else {
-      // Multiple exercise types - create combined intro
+      // Multiple exercise types - create combined intro, followed by the
+      // per-type instruction lines the intro announces
       const exerciseTypesText = exerciseTypeLabels.join(', ');
+      const instructionLines = exerciseTypes
+        .map((type, index) => {
+          const content = getExerciseTypeContent(language, type);
+          return `- ${exerciseTypeLabels[index]}: ${content.instructions}`;
+        })
+        .join('\n');
       parts.push(
         formattedBaseIntro +
         multipleTypesIntro[language] + exerciseTypesText + '.\n' +
-        multipleTypesInstruction[language]
+        multipleTypesInstruction[language] +
+        instructionLines + '\n'
       );
     }
 
@@ -518,8 +526,9 @@ export class PromptTemplateService {
         config.sourceType
       ];
 
+    // [CEFR] appears twice in the intro (level display + strictness section)
     return template.intro
-      .replace('[KORREKTUR_SOURCE_TYPE]', localizedSourceType)
-      .replace('[CEFR]', config.cefr);
+      .replaceAll('[KORREKTUR_SOURCE_TYPE]', localizedSourceType)
+      .replaceAll('[CEFR]', config.cefr);
   }
 }
