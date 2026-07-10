@@ -22,6 +22,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -52,6 +53,7 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatSliderModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatIconModule,
@@ -98,6 +100,40 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
 
   readonly inputMode = signal<VocabularyInputMode>('manual');
   readonly sourceType = signal<VocabularySourceType | null>(null);
+
+  // Optional per-exercise-type item counts
+  readonly DEFAULT_ITEM_COUNT = 4;
+  readonly specifyCounts = signal(false);
+  readonly itemCounts = signal<Partial<Record<VocabularyExerciseType, number>>>({});
+
+  /** Selected types that can take an explicit count: all in file mode; in
+   * manual mode only those whose count isn't dictated by the word list. */
+  countableSelectedTypes(): typeof VOCABULARY_EXERCISE_TYPES {
+    const selected = this.selectedExerciseTypes;
+    return this.exerciseTypes.filter(
+      (t) =>
+        selected.includes(t.value) &&
+        (this.inputMode() === 'file' || !t.countBoundToWords)
+    );
+  }
+
+  /** True when the hint about word-list-bound types should be shown. */
+  hasWordBoundSelection(): boolean {
+    return (
+      this.inputMode() === 'manual' &&
+      this.exerciseTypes.some(
+        (t) => t.countBoundToWords && this.selectedExerciseTypes.includes(t.value)
+      )
+    );
+  }
+
+  getCount(type: VocabularyExerciseType): number {
+    return this.itemCounts()[type] ?? this.DEFAULT_ITEM_COUNT;
+  }
+
+  onCountChange(type: VocabularyExerciseType, value: number): void {
+    this.itemCounts.update((counts) => ({ ...counts, [type]: value }));
+  }
 
   canSubmit(): boolean {
     if (this.inputMode() === 'manual') {
@@ -193,6 +229,14 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
       isDialog: formValue.situationalContextIsDialog,
       inputMode: mode,
       sourceType: mode === 'file' ? this.sourceType() ?? undefined : undefined,
+      itemCounts: this.specifyCounts()
+        ? Object.fromEntries(
+            this.countableSelectedTypes().map((t) => [
+              t.value,
+              this.getCount(t.value),
+            ])
+          )
+        : undefined,
     };
 
     this.commitGeneratedPrompt(

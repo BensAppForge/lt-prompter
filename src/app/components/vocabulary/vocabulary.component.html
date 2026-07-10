@@ -68,6 +68,35 @@
           }
         </div>
 
+        @if (selectedExerciseTypes.length > 0) {
+          <div class="item-count-section" auto-animate>
+            <mat-slide-toggle
+              [checked]="specifyCounts()"
+              (change)="specifyCounts.set($event.checked)"
+              color="primary">
+              Anzahl der Aufgaben pro Übungstyp festlegen (optional)
+            </mat-slide-toggle>
+            @if (specifyCounts()) {
+              @for (type of countableSelectedTypes(); track type.value) {
+                <div class="count-row">
+                  <span class="count-label">{{ type.label }}</span>
+                  <mat-slider min="2" max="10" step="1" discrete class="count-slider">
+                    <input matSliderThumb [value]="getCount(type.value)"
+                      (valueChange)="onCountChange(type.value, $event)" />
+                  </mat-slider>
+                  <span class="count-value">{{ getCount(type.value) }}</span>
+                </div>
+              }
+              @if (hasWordBoundSelection()) {
+                <p class="count-hint">
+                  Bei manueller Eingabe richtet sich die Anzahl bei Lückentext,
+                  Zuordnung und Kategorisierung nach der Wortliste.
+                </p>
+              }
+            }
+          </div>
+        }
+
         <div class="input-mode-container">
           <h3>Wortquelle</h3>
           <mat-button-toggle-group

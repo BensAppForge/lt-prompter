@@ -4,6 +4,9 @@
 // Import local fonts
 @import "fonts";
 
+// Shared item-count slider styles (vocabulary + comprehension)
+@import "item-count";
+
 // Define CSS custom properties for theming
 :root {
   // Light theme colors

@@ -60,6 +60,29 @@
           }
         </div>
 
+        @if (selectedExercises().length > 0) {
+          <div class="item-count-section">
+            <mat-slide-toggle
+              [checked]="specifyCounts()"
+              (change)="specifyCounts.set($event.checked)"
+              color="primary">
+              Anzahl der Aufgaben pro Übungstyp festlegen (optional)
+            </mat-slide-toggle>
+            @if (specifyCounts()) {
+              @for (type of selectedExercises(); track type) {
+                <div class="count-row">
+                  <span class="count-label">{{ getExerciseTypeTranslation(type) }}</span>
+                  <mat-slider min="2" max="10" step="1" discrete class="count-slider">
+                    <input matSliderThumb [value]="getCount(type)"
+                      (valueChange)="onCountChange(type, $event)" />
+                  </mat-slider>
+                  <span class="count-value">{{ getCount(type) }}</span>
+                </div>
+              }
+            }
+          </div>
+        }
+
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Quellentyp</mat-label>

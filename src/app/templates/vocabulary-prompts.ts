@@ -503,6 +503,50 @@ export function getExerciseTypeContent(
   return exerciseTypeContent[language][exerciseType];
 }
 
+// Per-exercise-type item-count requirements ([COUNT] placeholder).
+// Appended to a type's requirements when the teacher sets an explicit count.
+export const itemCountRequirements: Record<
+  Language,
+  Record<VocabularyExerciseType, string>
+> = {
+  English: {
+    'gap-filling':
+      'Use exactly [COUNT] words from the source; the text must contain exactly [COUNT] gaps.',
+    matching: 'Include exactly [COUNT] pairs to match.',
+    'multiple-choice': 'Include exactly [COUNT] sentences.',
+    'word-formation': 'Include exactly [COUNT] sentences.',
+    categorization: 'Include exactly [COUNT] words to sort.',
+    'odd-one-out': 'Include exactly [COUNT] groups.',
+  },
+  français: {
+    'gap-filling':
+      'Utilisez exactement [COUNT] mots de la source ; le texte doit contenir exactement [COUNT] trous.',
+    matching: 'Incluez exactement [COUNT] paires à associer.',
+    'multiple-choice': 'Incluez exactement [COUNT] phrases.',
+    'word-formation': 'Incluez exactement [COUNT] phrases.',
+    categorization: 'Incluez exactement [COUNT] mots à classer.',
+    'odd-one-out': 'Incluez exactement [COUNT] groupes.',
+  },
+  español: {
+    'gap-filling':
+      'Utiliza exactamente [COUNT] palabras de la fuente; el texto debe contener exactamente [COUNT] huecos.',
+    matching: 'Incluye exactamente [COUNT] parejas para relacionar.',
+    'multiple-choice': 'Incluye exactamente [COUNT] frases.',
+    'word-formation': 'Incluye exactamente [COUNT] frases.',
+    categorization: 'Incluye exactamente [COUNT] palabras para clasificar.',
+    'odd-one-out': 'Incluye exactamente [COUNT] grupos.',
+  },
+  italiano: {
+    'gap-filling':
+      'Utilizza esattamente [COUNT] parole dalla fonte; il testo deve contenere esattamente [COUNT] spazi vuoti.',
+    matching: 'Includi esattamente [COUNT] coppie da abbinare.',
+    'multiple-choice': 'Includi esattamente [COUNT] frasi.',
+    'word-formation': 'Includi esattamente [COUNT] frasi.',
+    categorization: 'Includi esattamente [COUNT] parole da classificare.',
+    'odd-one-out': 'Includi esattamente [COUNT] gruppi.',
+  },
+};
+
 // Common template parts
 export const commonTemplateParts: {
   [key in Language]: {

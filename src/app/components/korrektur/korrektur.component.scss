@@ -210,3 +210,18 @@
     }
   }
 }
+
+.feedback-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 16px;
+
+  .criteria-checkbox {
+    margin-left: 24px;
+  }
+
+  .criteria-select {
+    margin: 8px 0 8px 24px;
+  }
+}

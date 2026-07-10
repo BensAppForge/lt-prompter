@@ -217,6 +217,19 @@ export class VersionService {
         • Bibliothek: Filter um Kategorie "Korrektur" sowie Niveaus C1+ und C2 ergänzt; Tooltips der Aktions-Buttons funktionieren wieder
       `.trim(),
     },
+    {
+      id: 19,
+      versionNumber: '1.6.0',
+      releaseDate: new Date('2026-07-10'),
+      shortDescription:
+        'Aufgabenanzahl pro Übungstyp und schriftliches Feedback bei Korrektur',
+      longDescription: `
+        • Vokabeln & Textverständnis: Neue optionale Einstellung, um die Anzahl der Aufgaben pro ausgewähltem Übungstyp per Schieberegler festzulegen (z.B. 4 Richtig-Falsch-Aussagen, 6 Multiple-Choice-Fragen)
+        • Vokabeln: Bei manueller Eingabe richtet sich die Anzahl bei Lückentext, Zuordnung und Kategorisierung weiterhin nach der Wortliste; im Datei-Modus bestimmt der Regler, wie viele Wörter die KI aus dem Anhang verwendet
+        • Korrektur: Neue Option für schriftliches Feedback zu Struktur und Inhalt – in der Zielsprache, an das CEFR-Niveau angepasst
+        • Korrektur: Optional können Bewertungskriterien oder eine Musterlösung als Anhang (Screenshot, TXT, Word, PDF) angekündigt werden; das Feedback stützt sich dann auf diese Kriterien
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {

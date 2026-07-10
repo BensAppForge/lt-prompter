@@ -1,8 +1,44 @@
 import { Language } from '../models/preferences.model';
+import { KorrekturCriteriaSourceType } from '../models/korrektur.model';
 
 export interface KorrekturPromptTemplate {
   intro: string;
+  /** Optional written feedback on structure and content, appended on request. */
+  feedbackSection: string;
+  /** Note that assessment criteria / a sample solution will be attached
+   * ([CRITERIA_SOURCE_TYPE] placeholder). */
+  criteriaNote: string;
 }
+
+export const korrekturCriteriaSourceTypeTranslations: Record<
+  Language,
+  Record<KorrekturCriteriaSourceType, string>
+> = {
+  English: {
+    screenshot: 'screenshot',
+    txt: 'text file (TXT)',
+    docx: 'Word document',
+    pdf: 'PDF document',
+  },
+  français: {
+    screenshot: "capture d'écran",
+    txt: 'fichier texte (TXT)',
+    docx: 'document Word',
+    pdf: 'document PDF',
+  },
+  español: {
+    screenshot: 'captura de pantalla',
+    txt: 'archivo de texto (TXT)',
+    docx: 'documento de Word',
+    pdf: 'documento PDF',
+  },
+  italiano: {
+    screenshot: 'screenshot',
+    txt: 'file di testo (TXT)',
+    docx: 'documento Word',
+    pdf: 'documento PDF',
+  },
+};
 
 export type KorrekturPromptTemplates = {
   [key in Language]: KorrekturPromptTemplate;
@@ -180,17 +216,61 @@ La tua severità nella correzione dipende dal livello QCER dell'autore ([CEFR]):
 - Ai livelli intermedi (B1-B2): Includi la precisione grammaticale e l'appropriatezza del vocabolario
 - Ai livelli superiori (C1-C2): Includi suggerimenti stilistici e uso sfumato della lingua`;
 
+const englishFeedbackSection = `**Written feedback on structure and content:**
+Add a separate feedback section below the summary section with written feedback on the structure and content of the text (independent of the language corrections):
+- Structure: comment on the organisation of the text, paragraphing, coherence and the use of connectors
+- Content: comment on task fulfilment, relevance and how well the ideas are developed
+- Name concrete strengths first, then give specific suggestions for improvement
+- Write the feedback in English, address the student directly, and phrase it so that a learner at [CEFR] level can easily understand it (use very simple language at lower levels)`;
+
+const frenchFeedbackSection = `**Feedback écrit sur la structure et le contenu :**
+Ajoutez une section de feedback séparée sous la section récapitulative, avec un retour écrit sur la structure et le contenu du texte (indépendamment des corrections linguistiques) :
+- Structure : commentez l'organisation du texte, la division en paragraphes, la cohérence et l'utilisation des connecteurs
+- Contenu : commentez le respect de la consigne, la pertinence et le développement des idées
+- Nommez d'abord des points forts concrets, puis donnez des suggestions d'amélioration précises
+- Rédigez le feedback en français, adressez-vous directement à l'élève et formulez-le de manière qu'un apprenant de niveau [CEFR] puisse le comprendre facilement (utilisez un langage très simple aux niveaux inférieurs)`;
+
+const spanishFeedbackSection = `**Feedback escrito sobre estructura y contenido:**
+Añade una sección de feedback separada debajo de la sección de resumen, con comentarios escritos sobre la estructura y el contenido del texto (independientemente de las correcciones lingüísticas):
+- Estructura: comenta la organización del texto, la división en párrafos, la coherencia y el uso de conectores
+- Contenido: comenta el cumplimiento de la tarea, la relevancia y el desarrollo de las ideas
+- Nombra primero puntos fuertes concretos y después da sugerencias de mejora específicas
+- Escribe el feedback en español, dirígete directamente al estudiante y formúlalo de manera que un estudiante de nivel [CEFR] pueda entenderlo fácilmente (usa un lenguaje muy sencillo en los niveles inferiores)`;
+
+const italianFeedbackSection = `**Feedback scritto su struttura e contenuto:**
+Aggiungi una sezione di feedback separata sotto la sezione riepilogativa, con un commento scritto sulla struttura e sul contenuto del testo (indipendentemente dalle correzioni linguistiche):
+- Struttura: commenta l'organizzazione del testo, la divisione in paragrafi, la coerenza e l'uso dei connettivi
+- Contenuto: commenta il rispetto della consegna, la pertinenza e lo sviluppo delle idee
+- Indica prima i punti di forza concreti, poi dai suggerimenti di miglioramento specifici
+- Scrivi il feedback in italiano, rivolgiti direttamente allo studente e formulalo in modo che uno studente di livello [CEFR] possa capirlo facilmente (usa un linguaggio molto semplice ai livelli inferiori)`;
+
+const englishCriteriaNote = `I will also attach the assessment criteria or a sample solution as a [CRITERIA_SOURCE_TYPE]. Base your feedback on structure and content primarily on these criteria.`;
+
+const frenchCriteriaNote = `Je joindrai également les critères d'évaluation ou un corrigé sous forme de [CRITERIA_SOURCE_TYPE]. Basez votre feedback sur la structure et le contenu principalement sur ces critères.`;
+
+const spanishCriteriaNote = `También adjuntaré los criterios de evaluación o una solución modelo como [CRITERIA_SOURCE_TYPE]. Basa tu feedback sobre estructura y contenido principalmente en estos criterios.`;
+
+const italianCriteriaNote = `Allegherò anche i criteri di valutazione o una soluzione modello come [CRITERIA_SOURCE_TYPE]. Basa il tuo feedback su struttura e contenuto principalmente su questi criteri.`;
+
 export const korrekturPromptTemplates: KorrekturPromptTemplates = {
   English: {
     intro: englishIntro,
+    feedbackSection: englishFeedbackSection,
+    criteriaNote: englishCriteriaNote,
   },
   français: {
     intro: frenchIntro,
+    feedbackSection: frenchFeedbackSection,
+    criteriaNote: frenchCriteriaNote,
   },
   español: {
     intro: spanishIntro,
+    feedbackSection: spanishFeedbackSection,
+    criteriaNote: spanishCriteriaNote,
   },
   italiano: {
     intro: italianIntro,
+    feedbackSection: italianFeedbackSection,
+    criteriaNote: italianCriteriaNote,
   },
 };

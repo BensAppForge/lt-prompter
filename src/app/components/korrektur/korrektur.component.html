@@ -63,8 +63,30 @@
           </mat-form-field>
         </div>
 
+        <div class="feedback-section">
+          <mat-checkbox formControlName="includeFeedback" color="primary">
+            Schriftliches Feedback zu Struktur und Inhalt anfordern
+          </mat-checkbox>
+          @if (form.get('includeFeedback')?.value) {
+            <mat-checkbox formControlName="providesCriteria" color="primary" class="criteria-checkbox">
+              Ich stelle Bewertungskriterien oder eine Musterlösung als Anhang bereit
+            </mat-checkbox>
+            @if (form.get('providesCriteria')?.value) {
+              <mat-form-field appearance="outline" class="full-width criteria-select">
+                <mat-label>Format des Kriterien-Anhangs</mat-label>
+                <mat-select formControlName="criteriaSourceType" required>
+                  @for (type of criteriaSourceTypes; track type.value) {
+                    <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>Sie hängen die Datei im KI-Tool zusätzlich zum Schülertext an die Nachricht an</mat-hint>
+              </mat-form-field>
+            }
+          }
+        </div>
+
         <div class="button-row">
-          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">
             Prompt generieren
           </button>
         </div>

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  signal,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import {
   NonNullableFormBuilder,
@@ -39,6 +42,8 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
+    MatSliderModule,
+    MatSlideToggleModule,
     ReactiveFormsModule,
     FormsModule,
     MatDialogModule,
@@ -97,6 +102,27 @@ export class ComprehensionComponent extends BaseExerciseComponent {
     return exercises?.includes(type) ?? false;
   }
 
+  // Optional per-exercise-type item counts
+  readonly DEFAULT_ITEM_COUNT = 4;
+  readonly specifyCounts = signal(false);
+  readonly itemCounts = signal<
+    Partial<Record<ComprehensionExerciseType, number>>
+  >({});
+
+  selectedExercises(): ComprehensionExerciseType[] {
+    return (
+      (this.form.get('exercises')?.value as ComprehensionExerciseType[]) || []
+    );
+  }
+
+  getCount(type: ComprehensionExerciseType): number {
+    return this.itemCounts()[type] ?? this.DEFAULT_ITEM_COUNT;
+  }
+
+  onCountChange(type: ComprehensionExerciseType, value: number): void {
+    this.itemCounts.update((counts) => ({ ...counts, [type]: value }));
+  }
+
   onExerciseTypeChange(
     event: { checked: boolean },
     type: ComprehensionExerciseType
@@ -125,6 +151,14 @@ export class ComprehensionComponent extends BaseExerciseComponent {
         sourceType: formValue.sourceType!,
         situationalContext: formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
+        itemCounts: this.specifyCounts()
+          ? Object.fromEntries(
+              this.selectedExercises().map((type) => [
+                type,
+                this.getCount(type),
+              ])
+            )
+          : undefined,
       };
 
       this.commitGeneratedPrompt(

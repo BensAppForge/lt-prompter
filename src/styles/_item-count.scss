@@ -1,0 +1,36 @@
+// Shared styles for the optional per-exercise-type item-count sliders
+// (used by the vocabulary and comprehension components)
+.item-count-section {
+  margin: 8px 0 16px;
+
+  .count-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 480px;
+    margin-top: 4px;
+
+    .count-label {
+      flex: 1;
+      min-width: 140px;
+      color: var(--text-color);
+    }
+
+    .count-slider {
+      flex: 2;
+    }
+
+    .count-value {
+      width: 24px;
+      text-align: right;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+  }
+
+  .count-hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 8px 0 0;
+  }
+}

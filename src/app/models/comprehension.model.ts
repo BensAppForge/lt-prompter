@@ -33,4 +33,7 @@ export interface ComprehensionPromptConfig {
   sourceType: ComprehensionSourceType;
   situationalContext?: string;
   isDialog?: boolean;
+  /** Optional per-exercise-type item counts; only present for types the user
+   * explicitly set via the count sliders. */
+  itemCounts?: Partial<Record<ComprehensionExerciseType, number>>;
 }

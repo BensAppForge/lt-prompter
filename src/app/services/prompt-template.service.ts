@@ -10,6 +10,7 @@ import {
   vocabularyExerciseTypeTranslations,
   vocabularySourceTypeTranslations,
   vocabularyFileSourceParts,
+  itemCountRequirements,
 } from '../templates/vocabulary-prompts';
 import { grammarPromptTemplates } from '../templates/grammar-con-prompts';
 import { GrammarPromptConfig } from '../models/grammar.model';
@@ -23,6 +24,7 @@ import {
   exerciseTypeDescriptions,
   exerciseTypeInstructions,
   exerciseTypeTranslations,
+  itemCountInstructions,
 } from '../templates/comprehension-prompts';
 import { ClonePromptConfig, CloneSourceType } from '../models/clone.model';
 import { clonePromptTemplates } from '../templates/clone-prompts';
@@ -41,7 +43,10 @@ import {
   KorrekturPromptConfig,
   KorrekturSourceType,
 } from '../models/korrektur.model';
-import { korrekturPromptTemplates } from '../templates/korrektur-prompts';
+import {
+  korrekturPromptTemplates,
+  korrekturCriteriaSourceTypeTranslations,
+} from '../templates/korrektur-prompts';
 
 @Injectable({
   providedIn: 'root',
@@ -289,22 +294,42 @@ export class PromptTemplateService {
     // Add requirements for each exercise type
     parts.push('', templateParts.requirementsIntro);
     
+    // Explicit item count set by the teacher for a type, as a requirement line
+    const countRequirement = (type: VocabularyExerciseType): string | null => {
+      const count = config.itemCounts?.[type];
+      if (!count) return null;
+      return itemCountRequirements[language][type].replaceAll(
+        '[COUNT]',
+        String(count)
+      );
+    };
+
     if (exerciseTypes.length === 1) {
       // Single exercise type - simple requirements list
       const exerciseContent = getExerciseTypeContent(language, exerciseTypes[0]);
       exerciseContent.requirements.forEach((req, index) => {
         parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
       });
+      const countReq = countRequirement(exerciseTypes[0]);
+      if (countReq) {
+        parts.push(`${exerciseContent.requirements.length + 1}. ${countReq}`);
+      }
     } else {
       // Multiple exercise types - group requirements by type
       exerciseTypes.forEach((exerciseType, typeIndex) => {
         const exerciseContent = getExerciseTypeContent(language, exerciseType);
         const typeLabel = vocabularyExerciseTypeTranslations[language]?.[exerciseType] || exerciseType;
-        
+
         parts.push(`\n${typeLabel}:`);
         exerciseContent.requirements.forEach((req, index) => {
           parts.push(`  ${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
         });
+        const countReq = countRequirement(exerciseType);
+        if (countReq) {
+          parts.push(
+            `  ${exerciseContent.requirements.length + 1}. ${countReq}`
+          );
+        }
       });
     }
 
@@ -410,7 +435,14 @@ export class PromptTemplateService {
       const translatedType =
         exerciseTypeTranslations[config.targetLanguage][exerciseType];
       if (description) {
-        parts.push(`\n${translatedType}:\n${description}`);
+        const count = config.itemCounts?.[exerciseType];
+        const countInstruction = count
+          ? ' ' +
+            itemCountInstructions[config.targetLanguage][
+              exerciseType
+            ].replaceAll('[COUNT]', String(count))
+          : '';
+        parts.push(`\n${translatedType}:\n${description}${countInstruction}`);
       }
     });
 
@@ -527,8 +559,32 @@ export class PromptTemplateService {
       ];
 
     // [CEFR] appears twice in the intro (level display + strictness section)
-    return template.intro
-      .replaceAll('[KORREKTUR_SOURCE_TYPE]', localizedSourceType)
-      .replaceAll('[CEFR]', config.cefr);
+    const parts: string[] = [
+      template.intro
+        .replaceAll('[KORREKTUR_SOURCE_TYPE]', localizedSourceType)
+        .replaceAll('[CEFR]', config.cefr),
+    ];
+
+    if (config.includeFeedback) {
+      parts.push(
+        '',
+        template.feedbackSection.replaceAll('[CEFR]', config.cefr)
+      );
+      if (config.criteriaSourceType) {
+        const criteriaLabel =
+          korrekturCriteriaSourceTypeTranslations[config.targetLanguage][
+            config.criteriaSourceType
+          ];
+        parts.push(
+          '',
+          template.criteriaNote.replaceAll(
+            '[CRITERIA_SOURCE_TYPE]',
+            criteriaLabel
+          )
+        );
+      }
+    }
+
+    return parts.join('\n');
   }
 }

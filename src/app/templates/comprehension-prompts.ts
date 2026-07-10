@@ -126,6 +126,38 @@ export const exerciseTypeInstructions: Record<
   italiano: italianExerciseTypeInstructions,
 };
 
+// Per-exercise-type item-count instructions ([COUNT] placeholder).
+// Appended to a type's formatting instructions when the teacher sets a count.
+export const itemCountInstructions: Record<
+  Language,
+  ExerciseTypeInstruction
+> = {
+  English: {
+    'true-false': 'Include exactly [COUNT] statements.',
+    'multiple-choice': 'Include exactly [COUNT] questions.',
+    matching: 'Include exactly [COUNT] pairs to match.',
+    'gapped-summary': 'The summary must contain exactly [COUNT] gaps.',
+  },
+  français: {
+    'true-false': 'Incluez exactement [COUNT] énoncés.',
+    'multiple-choice': 'Incluez exactement [COUNT] questions.',
+    matching: 'Incluez exactement [COUNT] paires à associer.',
+    'gapped-summary': 'Le résumé doit contenir exactement [COUNT] trous.',
+  },
+  español: {
+    'true-false': 'Incluye exactamente [COUNT] enunciados.',
+    'multiple-choice': 'Incluye exactamente [COUNT] preguntas.',
+    matching: 'Incluye exactamente [COUNT] parejas para relacionar.',
+    'gapped-summary': 'El resumen debe contener exactamente [COUNT] huecos.',
+  },
+  italiano: {
+    'true-false': 'Includi esattamente [COUNT] affermazioni.',
+    'multiple-choice': 'Includi esattamente [COUNT] domande.',
+    matching: 'Includi esattamente [COUNT] coppie da abbinare.',
+    'gapped-summary': 'Il riassunto deve contenere esattamente [COUNT] spazi vuoti.',
+  },
+};
+
 // Exercise type translations for each language
 export const exerciseTypeTranslations: Record<
   Language,

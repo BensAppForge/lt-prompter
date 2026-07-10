@@ -14,6 +14,9 @@ export const VOCABULARY_EXERCISE_TYPES: {
   description: string;
   supportsContext: boolean;
   supportsDialog: boolean;
+  /** True when the item count is determined by the word list in manual mode
+   * (e.g. one gap per word) — no count slider is offered there. */
+  countBoundToWords: boolean;
 }[] = [
   {
     value: 'gap-filling',
@@ -21,6 +24,7 @@ export const VOCABULARY_EXERCISE_TYPES: {
     description: 'Text mit Lücken, die mit den vorgegebenen Wörtern gefüllt werden',
     supportsContext: true,
     supportsDialog: true,
+    countBoundToWords: true,
   },
   {
     value: 'matching',
@@ -28,6 +32,7 @@ export const VOCABULARY_EXERCISE_TYPES: {
     description: 'Wörter mit Definitionen, Synonymen oder Übersetzungen verbinden',
     supportsContext: false,
     supportsDialog: false,
+    countBoundToWords: true,
   },
   {
     value: 'multiple-choice',
@@ -35,6 +40,7 @@ export const VOCABULARY_EXERCISE_TYPES: {
     description: 'Das richtige Wort aus mehreren Optionen auswählen',
     supportsContext: true,
     supportsDialog: false,
+    countBoundToWords: false,
   },
   {
     value: 'word-formation',
@@ -42,6 +48,7 @@ export const VOCABULARY_EXERCISE_TYPES: {
     description: 'Wörter in andere Wortarten umwandeln (z.B. Verb → Nomen)',
     supportsContext: true,
     supportsDialog: false,
+    countBoundToWords: false,
   },
   {
     value: 'categorization',
@@ -49,6 +56,7 @@ export const VOCABULARY_EXERCISE_TYPES: {
     description: 'Wörter in thematische Kategorien einordnen',
     supportsContext: false,
     supportsDialog: false,
+    countBoundToWords: true,
   },
   {
     value: 'odd-one-out',
@@ -56,6 +64,7 @@ export const VOCABULARY_EXERCISE_TYPES: {
     description: 'Das Wort identifizieren, das nicht zur Gruppe gehört',
     supportsContext: false,
     supportsDialog: false,
+    countBoundToWords: false,
   },
 ];
 
@@ -99,4 +108,7 @@ export interface VocabularyPromptConfig {
   isDialog?: boolean;
   inputMode?: VocabularyInputMode;
   sourceType?: VocabularySourceType;
+  /** Optional per-exercise-type item counts; only present for types the user
+   * explicitly set via the count sliders. */
+  itemCounts?: Partial<Record<VocabularyExerciseType, number>>;
 }
