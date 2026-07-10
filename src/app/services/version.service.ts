@@ -230,6 +230,17 @@ export class VersionService {
         • Korrektur: Optional können Bewertungskriterien oder eine Musterlösung als Anhang (Screenshot, TXT, Word, PDF) angekündigt werden; das Feedback stützt sich dann auf diese Kriterien
       `.trim(),
     },
+    {
+      id: 20,
+      versionNumber: '1.6.1',
+      releaseDate: new Date('2026-07-10'),
+      shortDescription: 'Hilfeseite aktualisiert',
+      longDescription: `
+        • Hilfe: Abschnitt zur Korrektur-Funktion ergänzt, inklusive schriftlichem Feedback und Kriterien-Anhang
+        • Hilfe: Beschreibung von Textverständnis korrigiert (Richtig/Falsch, Multiple-Choice, Zuordnung, Lückentext-Zusammenfassung) und die neue Aufgabenanzahl-Option dokumentiert
+        • Hilfe: Datei-Modus der Vokabelübung dokumentiert
+      `.trim(),
+    },
   ];
 
   constructor(private snackBar: MatSnackBar) {
