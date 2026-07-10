@@ -25,18 +25,21 @@ interface DashboardCard {
     <div class="dashboard-container">
       <div class="cards-grid">
         @for (card of cards; track card.route) {
-          <mat-card
+          <a
+            class="card-link"
             [routerLink]="card.disabled ? null : card.route"
-            [class.disabled]="card.disabled"
+            [attr.aria-disabled]="card.disabled || null"
           >
-            <mat-card-header>
-              <mat-icon mat-card-avatar class="card-icon">{{
-                card.icon
-              }}</mat-icon>
-              <mat-card-title>{{ card.title }}</mat-card-title>
-              <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
-            </mat-card-header>
-          </mat-card>
+            <mat-card [class.disabled]="card.disabled">
+              <mat-card-header>
+                <mat-icon mat-card-avatar class="card-icon">{{
+                  card.icon
+                }}</mat-icon>
+                <mat-card-title>{{ card.title }}</mat-card-title>
+                <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
+              </mat-card-header>
+            </mat-card>
+          </a>
         }
       </div>
       <div class="footer-space"></div>
@@ -57,8 +60,21 @@ interface DashboardCard {
         max-width: 1200px;
       }
 
+      .card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border-radius: 4px;
+
+        &:focus-visible {
+          outline: 2px solid var(--primary-color);
+          outline-offset: 2px;
+        }
+      }
+
       mat-card {
         cursor: pointer;
+        height: 100%;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         background-color: var(--surface-color);
 

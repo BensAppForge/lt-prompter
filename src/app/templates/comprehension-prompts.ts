@@ -40,7 +40,7 @@ const frenchExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Créez un tableau avec deux colonnes : une pour les énoncés et une pour les réponses possibles. Les élèves doivent associer les énoncés de gauche avec les bonnes réponses de droite.',
   'gapped-summary':
-    'Rédigez un résumé cohérent du texte en laissant des trous pour les informations clés. Assurez-vous que les mots manquants sont essentiels à la compréhension. N’inclus pas plus de deux trous par phrase ni plus d’un trou tous les cinq mots.',
+    'Rédigez un résumé cohérent du texte en laissant des trous pour les informations clés. Assurez-vous que les mots manquants sont essentiels à la compréhension. N’incluez pas plus d’un trou par phrase ni plus d’un trou tous les cinq mots.',
 };
 
 const spanishExerciseTypeDescription: ExerciseTypeDescription = {
@@ -51,7 +51,7 @@ const spanishExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Crea una tabla con dos columnas: una para los enunciados y otra para las respuestas posibles. Los estudiantes deben relacionar los enunciados de la izquierda con las respuestas correctas de la derecha.',
   'gapped-summary':
-    'Escribe un resumen coherente del texto dejando huecos para la información clave. Asegúrate de que las palabras omitidas sean esenciales para la comprensión. No incluyas más de dos huecos por oración ni más de uno cada cinco palabras.',
+    'Escribe un resumen coherente del texto dejando huecos para la información clave. Asegúrate de que las palabras omitidas sean esenciales para la comprensión. No incluyas más de un hueco por oración ni más de uno cada cinco palabras.',
 };
 
 const italianExerciseTypeDescription: ExerciseTypeDescription = {
@@ -62,7 +62,7 @@ const italianExerciseTypeDescription: ExerciseTypeDescription = {
   matching:
     'Crea una tabella con due colonne: una per le affermazioni e una per le risposte possibili. Gli studenti devono abbinare le affermazioni a sinistra con le risposte corrette a destra.',
   'gapped-summary':
-    'Scrivi un riassunto coerente del testo lasciando spazi vuoti per le informazioni chiave. Assicurati che le parole mancanti siano essenziali per la comprensione. Non inserire più di due spazi per frase né più di uno ogni cinque parole.',
+    'Scrivi un riassunto coerente del testo lasciando spazi vuoti per le informazioni chiave. Assicurati che le parole mancanti siano essenziali per la comprensione. Non inserire più di uno spazio vuoto per frase né più di uno ogni cinque parole.',
 };
 
 export const exerciseTypeDescriptions: Record<
@@ -164,28 +164,28 @@ export const exerciseTypeTranslations: Record<
   Record<ComprehensionExerciseType, string>
 > = {
   English: {
-    'true-false': 'true-false',
-    'multiple-choice': 'multiple-choice',
+    'true-false': 'true/false',
+    'multiple-choice': 'multiple choice',
     matching: 'matching',
-    'gapped-summary': 'gapped-summary',
+    'gapped-summary': 'gapped summary',
   },
   français: {
-    'true-false': 'vrai-faux',
-    'multiple-choice': 'choix-multiple',
+    'true-false': 'vrai ou faux',
+    'multiple-choice': 'choix multiple',
     matching: 'appariement',
-    'gapped-summary': 'texte-à-trous',
+    'gapped-summary': 'résumé à trous',
   },
   español: {
-    'true-false': 'verdadero-falso',
-    'multiple-choice': 'opción-múltiple',
+    'true-false': 'verdadero o falso',
+    'multiple-choice': 'opción múltiple',
     matching: 'emparejamiento',
-    'gapped-summary': 'texto-con-huecos',
+    'gapped-summary': 'resumen con huecos',
   },
   italiano: {
-    'true-false': 'vero-falso',
-    'multiple-choice': 'scelta-multipla',
+    'true-false': 'vero o falso',
+    'multiple-choice': 'scelta multipla',
     matching: 'abbinamento',
-    'gapped-summary': 'testo-con-spazi',
+    'gapped-summary': 'riassunto con spazi vuoti',
   },
 };
 
@@ -210,7 +210,7 @@ frenchIntro +=
 frenchIntro +=
   'Je fournirai le texte source sous la forme suivante : [COMPREHENSION_SOURCE_TYPE].\n';
 let spanishIntro: string =
-  'Eres un experto en la enseñanza de [TARGET_LANGUAGE] como lengua extranjera.\n';
+  'Eres un experto en la enseñanza del [TARGET_LANGUAGE] como lengua extranjera.\n';
 spanishIntro += 'Tus estudiantes son adolescentes alemanes.\n';
 spanishIntro += 'Su nivel del MCER es [CEFR].\n';
 spanishIntro +=
@@ -220,7 +220,7 @@ spanishIntro +=
 spanishIntro +=
   'Proporcionaré el texto fuente en el siguiente formato: [COMPREHENSION_SOURCE_TYPE].\n';
 let italianIntro: string =
-  'Sei un esperto nell’insegnamento di [TARGET_LANGUAGE] come lingua straniera.\n';
+  'Sei un esperto nell’insegnamento dell’[TARGET_LANGUAGE] come lingua straniera.\n';
 italianIntro += 'I tuoi studenti sono adolescenti tedeschi.\n';
 italianIntro += 'Il loro livello QCER è [CEFR].\n';
 italianIntro +=
@@ -278,7 +278,7 @@ export const comprehensionPromptTemplates: ComprehensionPromptTemplates = {
       'Assicurati che gli esercizi valutino la comprensione anziché la semplice memoria o conoscenze generali.',
       'Evita le ridondanze variando i formati e i contenuti delle domande.',
       'Fornisci istruzioni chiare e non ambigue.',
-      'Includi un soluzione alla fine.',
+      'Includi una chiave di soluzione alla fine.',
     ],
     formatInstructionsHeader:
       'Istruzioni di formattazione per tipo di esercizio:',

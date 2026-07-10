@@ -1,5 +1,4 @@
-import { Injectable, signal } from '@angular/core';
-import { effect } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 
 export enum ThemePreference {
   Light = 'light',
@@ -21,9 +20,20 @@ const DEFAULT_SETTINGS: AppSettings = {
 export class SettingsService {
   private readonly STORAGE_KEY = 'lt-prompter-settings';
   private settings = signal<AppSettings>(this.loadSettings());
-  
-  // Store the handler reference so we can properly remove it
-  private systemThemeHandler: ((e: MediaQueryListEvent) => void) | null = null;
+
+  /** Tracks the OS color-scheme preference reactively. */
+  private readonly systemPrefersDark = signal(
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
+
+  /** Single source of truth for the effective theme. */
+  readonly isDarkMode = computed(() => {
+    const preference = this.settings().themePreference;
+    if (preference === ThemePreference.System) {
+      return this.systemPrefersDark();
+    }
+    return preference === ThemePreference.Dark;
+  });
 
   constructor() {
     // Automatically save settings when they change
@@ -31,19 +41,27 @@ export class SettingsService {
       this.saveSettings(this.settings());
     });
 
-    // Listen for system theme changes if using system preference
-    if (this.settings().themePreference === ThemePreference.System) {
-      this.setupSystemThemeListener();
-    }
+    // Keep systemPrefersDark in sync with the OS; the service lives for the
+    // whole app lifetime, so the listener is never removed.
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', (e) => this.systemPrefersDark.set(e.matches));
   }
 
   private loadSettings(): AppSettings {
     const stored = localStorage.getItem(this.STORAGE_KEY);
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          Object.values(ThemePreference).includes(parsed.themePreference)
+        ) {
+          return parsed;
+        }
       } catch {
-        return DEFAULT_SETTINGS;
+        // fall through to defaults
       }
     }
     return DEFAULT_SETTINGS;
@@ -53,59 +71,14 @@ export class SettingsService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
   }
 
-  private applyThemeFromMediaQuery(e: MediaQueryListEvent | MediaQueryList): void {
-    document.body.classList.remove('dark-theme', 'light-theme');
-    document.body.classList.add(e.matches ? 'dark-theme' : 'light-theme');
-  }
-
-  private setupSystemThemeListener(): void {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    // Create the handler and store reference for later removal
-    this.systemThemeHandler = (e: MediaQueryListEvent) => {
-      this.applyThemeFromMediaQuery(e);
-    };
-
-    mediaQuery.addEventListener('change', this.systemThemeHandler);
-    this.applyThemeFromMediaQuery(mediaQuery); // Initial check
-  }
-
-  private removeSystemThemeListener(): void {
-    if (this.systemThemeHandler) {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      mediaQuery.removeEventListener('change', this.systemThemeHandler);
-      this.systemThemeHandler = null;
-    }
-  }
-
   getSettings() {
     return this.settings;
   }
 
   updateThemePreference(preference: ThemePreference) {
-    // Remove system theme listener if switching away from system preference
-    if (this.settings().themePreference === ThemePreference.System) {
-      this.removeSystemThemeListener();
-    }
-
     this.settings.update(current => ({
       ...current,
       themePreference: preference
     }));
-
-    // Apply theme based on preference
-    switch (preference) {
-      case ThemePreference.Light:
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-        break;
-      case ThemePreference.Dark:
-        document.body.classList.remove('light-theme');
-        document.body.classList.add('dark-theme');
-        break;
-      case ThemePreference.System:
-        this.setupSystemThemeListener();
-        break;
-    }
   }
 }

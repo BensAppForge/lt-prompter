@@ -98,7 +98,6 @@ export abstract class BaseExerciseComponent {
 
   // --- Language ---
   getLanguageCode(language: Language | null | undefined): string {
-    if (!language) return 'en-EN';
     return this.languageService.getSpellcheckCode(language);
   }
 

@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Version } from '../models/version.model';
 
@@ -241,9 +241,27 @@ export class VersionService {
         • Hilfe: Datei-Modus der Vokabelübung dokumentiert
       `.trim(),
     },
+    {
+      id: 21,
+      versionNumber: '1.6.2',
+      releaseDate: new Date('2026-07-10'),
+      shortDescription:
+        'Sprachliche Prompt-Korrekturen, bessere Bedienbarkeit, Aufräumarbeiten',
+      longDescription: `
+        • Prompts: Zahlreiche sprachliche Korrekturen in allen vier Zielsprachen – Artikel (z.B. "dell'italiano", "del español"), einheitliche Anrede, Tippfehler und vereinheitlichte Regeln (max. ein Loch pro Satz bei Lückentext-Zusammenfassungen)
+        • Prompts: Übungstyp-Namen erscheinen als natürliche Begriffe statt technischer Kürzel; Wortfeld-Tabellen haben jetzt eine eindeutige Spaltenstruktur
+        • Vokabeln: Die Dialogform gilt bei mehreren Übungstypen nur noch für den Lückentext
+        • Design "Systemeinstellung" reagiert sofort auf Änderungen des Betriebssystem-Designs
+        • Dashboard ist vollständig per Tastatur bedienbar
+        • Grammatik: Enter im Phänomen-Feld fügt das Phänomen hinzu, statt das Formular abzusenden
+        • Intern: Nicht genutzte Datenbank-Stores, Dienste und toter Code entfernt
+      `.trim(),
+    },
   ];
 
-  constructor(private snackBar: MatSnackBar) {
+  private readonly snackBar = inject(MatSnackBar);
+
+  constructor() {
     this.initializeVersion();
   }
 

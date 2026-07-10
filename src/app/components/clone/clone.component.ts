@@ -47,12 +47,6 @@ export class CloneComponent extends BaseExerciseComponent {
   private readonly promptService = inject(PromptTemplateService);
 
   form: FormGroup;
-  readonly sourceTypes: CloneSourceType[] = [
-    'screenshot',
-    'docx',
-    'pdf',
-    'copied-text',
-  ];
 
   constructor() {
     super();

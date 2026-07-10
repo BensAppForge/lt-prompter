@@ -16,6 +16,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ClipboardService } from '../../services/clipboard.service';
+import { LanguageService } from '../../services/language.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LibraryService } from '../../services/library.service';
 import { LibraryPrompt, PromptCategory } from '../../models/library.model';
@@ -51,6 +52,7 @@ export class LibraryComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly clipboardService = inject(ClipboardService);
+  private readonly languageService = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -210,14 +212,7 @@ export class LibraryComponent implements OnInit {
   }
 
   getLanguageCode(language: Language | null | undefined): string {
-    const languageMap: Record<Language, string> = {
-      English: 'en-EN',
-      français: 'fr-FR',
-      español: 'es-ES',
-      italiano: 'it-IT',
-    };
-    if (!language) return 'en-EN';
-    return languageMap[language] || 'en-EN';
+    return this.languageService.getSpellcheckCode(language);
   }
 
   editPrompt(prompt: LibraryPrompt): void {

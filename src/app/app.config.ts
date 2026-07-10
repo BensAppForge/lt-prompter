@@ -12,65 +12,12 @@ import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 
 const DB_NAME = 'LT_Prompter_DB';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 const dbConfig: DBConfig = {
   name: DB_NAME,
   version: DB_VERSION,
   objectStoresMeta: [
-    {
-      store: 'preferences',
-      storeConfig: { keyPath: 'id', autoIncrement: true },
-      storeSchema: [
-        { name: 'language', keypath: 'language', options: { unique: false } },
-        { name: 'level', keypath: 'level', options: { unique: false } },
-        { name: 'theme', keypath: 'theme', options: { unique: false } },
-      ],
-    },
-    {
-      store: 'templates',
-      storeConfig: { keyPath: 'id', autoIncrement: true },
-      storeSchema: [
-        { name: 'name', keypath: 'name', options: { unique: false } },
-        { name: 'content', keypath: 'content', options: { unique: false } },
-        {
-          name: 'exerciseType',
-          keypath: 'exerciseType',
-          options: { unique: false },
-        },
-        { name: 'language', keypath: 'language', options: { unique: false } },
-        { name: 'cefrLevel', keypath: 'cefrLevel', options: { unique: false } },
-        { name: 'createdAt', keypath: 'createdAt', options: { unique: false } },
-        { name: 'updatedAt', keypath: 'updatedAt', options: { unique: false } },
-        { name: 'isDefault', keypath: 'isDefault', options: { unique: false } },
-      ],
-    },
-    {
-      store: 'versions',
-      storeConfig: { keyPath: 'id', autoIncrement: true },
-      storeSchema: [
-        {
-          name: 'versionNumber',
-          keypath: 'versionNumber',
-          options: { unique: true },
-        },
-        {
-          name: 'releaseDate',
-          keypath: 'releaseDate',
-          options: { unique: false },
-        },
-        {
-          name: 'shortDescription',
-          keypath: 'shortDescription',
-          options: { unique: false },
-        },
-        {
-          name: 'longDescription',
-          keypath: 'longDescription',
-          options: { unique: false },
-        },
-      ],
-    },
     {
       store: 'library',
       storeConfig: { keyPath: 'id', autoIncrement: true },
@@ -97,19 +44,17 @@ const dbConfig: DBConfig = {
     },
   ],
   migrationFactory: () => {
-    // Helper function to clear versions store during migrations
-    const clearVersionsStore = (_db: IDBDatabase, transaction: IDBTransaction) => {
-      const versionsStore = transaction.objectStore('versions');
-      versionsStore.clear();
-    };
-    
     return {
-      1: clearVersionsStore,
-      2: clearVersionsStore,
-      3: clearVersionsStore,
-      4: clearVersionsStore,
-      5: clearVersionsStore,
-      6: clearVersionsStore,
+      // v7: only 'library' is used — preferences moved to localStorage and
+      // the changelog is shipped in code, so drop the abandoned stores.
+      // Guarded so fresh installs (which never had them) migrate cleanly.
+      7: (db: IDBDatabase) => {
+        for (const store of ['preferences', 'templates', 'versions']) {
+          if (db.objectStoreNames.contains(store)) {
+            db.deleteObjectStore(store);
+          }
+        }
+      },
     };
   },
 };

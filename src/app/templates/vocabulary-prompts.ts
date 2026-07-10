@@ -51,15 +51,6 @@ export interface BasePromptTemplate {
   dialogRequirement?: string;
 }
 
-export interface VocabularyPromptTemplate extends BasePromptTemplate {
-  wordListIntro: string;
-  requirementsIntro: string;
-}
-
-export type PromptTemplates = {
-  [key in Language]: VocabularyPromptTemplate;
-};
-
 export type ExerciseTypeIntros = {
   [key in Language]: {
     [type in VocabularyExerciseType]: {
@@ -82,7 +73,7 @@ const baseIntros: { [key in Language]: string } = {
     'Leur niveau CECR est [CEFR].\n',
   español:
     'Eres un experto en la enseñanza del [TARGET_LANGUAGE] como lengua extranjera.\n' +
-    'Tus estudiantes son alemanes.\n' +
+    'Tus estudiantes son adolescentes alemanes.\n' +
     'Su nivel MCER es [CEFR].\n',
   italiano:
     "Sei un esperto nell'insegnamento dell'[TARGET_LANGUAGE] come lingua straniera.\n" +
@@ -446,50 +437,6 @@ export const exerciseTypeContent: ExerciseTypeIntros = {
   },
 };
 
-// Legacy export for backward compatibility - uses gap-filling as default
-export const vocabularyPromptTemplates: PromptTemplates = {
-  English: {
-    intro: baseIntros.English + exerciseTypeContent.English['gap-filling'].intro,
-    wordListIntro: 'Use the following words:\n',
-    contextIntro: 'Context:\n',
-    autoContextIntro:
-      'Create a context that is appropriate for teenage students and incorporates the provided words.\n',
-    requirementsIntro: 'Additional requirements:',
-    requirements: exerciseTypeContent.English['gap-filling'].requirements,
-    dialogRequirement: 'Present the exercise in the form of a dialogue.',
-  },
-  français: {
-    intro: baseIntros.français + exerciseTypeContent.français['gap-filling'].intro,
-    wordListIntro: 'Utilisez les mots suivants :\n',
-    contextIntro: 'Contexte :\n',
-    autoContextIntro:
-      'Créez un contexte approprié pour des élèves adolescents en utilisant les mots fournis.\n',
-    requirementsIntro: 'Exigences supplémentaires :',
-    requirements: exerciseTypeContent.français['gap-filling'].requirements,
-    dialogRequirement: 'Présentez l\'exercice sous la forme d\'un dialogue.',
-  },
-  español: {
-    intro: baseIntros.español + exerciseTypeContent.español['gap-filling'].intro,
-    wordListIntro: 'Utiliza las siguientes palabras:\n',
-    contextIntro: 'Contexto:\n',
-    autoContextIntro:
-      'Crea un contexto apropiado para estudiantes adolescentes utilizando las palabras proporcionadas.\n',
-    requirementsIntro: 'Requisitos adicionales:',
-    requirements: exerciseTypeContent.español['gap-filling'].requirements,
-    dialogRequirement: 'Presenta el ejercicio en forma de diálogo.',
-  },
-  italiano: {
-    intro: baseIntros.italiano + exerciseTypeContent.italiano['gap-filling'].intro,
-    wordListIntro: 'Usa le seguenti parole:\n',
-    contextIntro: 'Contesto:\n',
-    autoContextIntro:
-      'Crea un contesto adatto per studenti adolescenti utilizzando le parole fornite.\n',
-    requirementsIntro: 'Requisiti aggiuntivi:',
-    requirements: exerciseTypeContent.italiano['gap-filling'].requirements,
-    dialogRequirement: 'Presenta l\'esercizio sotto forma di dialogo.',
-  },
-};
-
 // Helper to get base intro for a language
 export function getBaseIntro(language: Language): string {
   return baseIntros[language];
@@ -597,22 +544,22 @@ export const vocabularySourceTypeTranslations: Record<
   Record<VocabularySourceType, string>
 > = {
   English: {
-    image: 'attached image',
+    image: 'image',
     pdf: 'PDF document',
     docx: 'Word document',
   },
   français: {
-    image: 'image jointe',
+    image: 'image',
     pdf: 'document PDF',
     docx: 'document Word',
   },
   español: {
-    image: 'imagen adjunta',
+    image: 'imagen',
     pdf: 'documento PDF',
     docx: 'documento de Word',
   },
   italiano: {
-    image: 'immagine allegata',
+    image: 'immagine',
     pdf: 'documento PDF',
     docx: 'documento Word',
   },
@@ -628,18 +575,18 @@ export const vocabularyFileSourceParts: {
 } = {
   English: {
     attachmentInstruction:
-      'I will attach a [SOURCE_TYPE] to this message. Extract the target vocabulary words from it and use them as the word list for the exercise. Use every word that is clearly part of the vocabulary list and ignore unrelated text.\n',
+      'I will attach a file ([SOURCE_TYPE]) to this message. Extract the target vocabulary words from it and use them as the word list for the exercise. Use every word that is clearly part of the vocabulary list and ignore unrelated text.\n',
   },
   français: {
     attachmentInstruction:
-      "Je joindrai un(e) [SOURCE_TYPE] à ce message. Extrayez-en les mots de vocabulaire cibles et utilisez-les comme liste de mots pour l'exercice. Utilisez chaque mot qui fait clairement partie de la liste de vocabulaire et ignorez les textes non pertinents.\n",
+      "Je joindrai un fichier ([SOURCE_TYPE]) à ce message. Extrayez-en les mots de vocabulaire cibles et utilisez-les comme liste de mots pour l'exercice. Utilisez chaque mot qui fait clairement partie de la liste de vocabulaire et ignorez les textes non pertinents.\n",
   },
   español: {
     attachmentInstruction:
-      'Adjuntaré un(a) [SOURCE_TYPE] a este mensaje. Extrae de él las palabras de vocabulario objetivo y úsalas como lista de palabras para el ejercicio. Utiliza cada palabra que forme claramente parte de la lista de vocabulario e ignora el texto no relacionado.\n',
+      'Adjuntaré un archivo ([SOURCE_TYPE]) a este mensaje. Extrae de él las palabras de vocabulario objetivo y úsalas como lista de palabras para el ejercicio. Utiliza cada palabra que forme claramente parte de la lista de vocabulario e ignora el texto no relacionado.\n',
   },
   italiano: {
     attachmentInstruction:
-      'Allegherò un(a) [SOURCE_TYPE] a questo messaggio. Estrai da esso le parole di vocabolario obiettivo e usale come elenco di parole per l\'esercizio. Usa ogni parola che fa chiaramente parte della lista di vocabolario e ignora il testo non pertinente.\n',
+      'Allegherò un file ([SOURCE_TYPE]) a questo messaggio. Estrai da esso le parole di vocabolario obiettivo e usale come elenco di parole per l\'esercizio. Usa ogni parola che fa chiaramente parte della lista di vocabolario e ignora il testo non pertinente.\n',
   },
 };

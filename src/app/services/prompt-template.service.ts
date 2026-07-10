@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { Language } from '../models/preferences.model';
 import { VocabularyPromptConfig, VocabularyExerciseType } from '../models/vocabulary.model';
 import {
-  VocabularyPromptTemplate,
-  vocabularyPromptTemplates,
   getBaseIntro,
   getExerciseTypeContent,
   commonTemplateParts,
@@ -31,9 +29,7 @@ import { clonePromptTemplates } from '../templates/clone-prompts';
 import {
   WordfieldPromptConfig,
   WordfieldSourceType,
-  WORDFIELD_SOURCE_TYPES,
   WordfieldOutputType,
-  WORDFIELD_OUTPUT_TYPES,
 } from '../models/wordfield.model';
 import {
   WordfieldPromptTemplate,
@@ -124,11 +120,11 @@ export class PromptTemplateService {
     },
     français: {
       table: 'tableau',
-      markdown: 'markdown pour applications de cartographie',
+      markdown: 'markdown pour applications de cartes mentales',
     },
     italiano: {
       table: 'tabella',
-      markdown: 'markdown per applicazioni di mappatura',
+      markdown: 'markdown per applicazioni di mappe mentali',
     },
   };
   private comprehensionSourceTypeTranslations: Record<
@@ -185,14 +181,6 @@ export class PromptTemplateService {
       'copied-text': 'testo copiato',
     },
   };
-
-  private getVocabularyTemplate(language: Language): VocabularyPromptTemplate {
-    const template = vocabularyPromptTemplates[language];
-    if (!template) {
-      throw new Error(`No template found for language: ${language}`);
-    }
-    return template;
-  }
 
   generateVocabularyPrompt(config: VocabularyPromptConfig): string {
     const language = config.targetLanguage;
@@ -285,9 +273,11 @@ export class PromptTemplateService {
       parts.push('', templateParts.autoContextIntro);
     }
 
-    // Add dialog requirement if requested and gap-filling is selected
+    // Add dialog requirement if requested and gap-filling is selected.
+    // With multiple exercise types the dialog only applies to gap-filling,
+    // so it is added to that type's requirement block below instead.
     const hasGapFilling = exerciseTypes.includes('gap-filling');
-    if (config.isDialog && hasGapFilling) {
+    if (config.isDialog && hasGapFilling && exerciseTypes.length === 1) {
       parts.push('', templateParts.dialogRequirement);
     }
 
@@ -324,11 +314,14 @@ export class PromptTemplateService {
         exerciseContent.requirements.forEach((req, index) => {
           parts.push(`  ${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
         });
+        let extraIndex = exerciseContent.requirements.length + 1;
         const countReq = countRequirement(exerciseType);
         if (countReq) {
-          parts.push(
-            `  ${exerciseContent.requirements.length + 1}. ${countReq}`
-          );
+          parts.push(`  ${extraIndex}. ${countReq}`);
+          extraIndex++;
+        }
+        if (config.isDialog && exerciseType === 'gap-filling') {
+          parts.push(`  ${extraIndex}. ${templateParts.dialogRequirement}`);
         }
       });
     }

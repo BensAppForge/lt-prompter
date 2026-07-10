@@ -46,14 +46,16 @@
               <input matInput #phenomenonInput placeholder="z.B. Präsens Perfekt"
                 aria-label="Grammatisches Phänomen eingeben"
                 [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"
-                autocomplete="off">
+                autocomplete="off"
+                (keydown.enter)="addPhenomenonFromInputs($event, phenomenonInput, hintInput)">
               <mat-hint>Beschreiben Sie das grammatische Phänomen</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="hint-input">
               <mat-label>Hinweis (Optional)</mat-label>
               <input matInput #hintInput placeholder="z.B. mit 'haben' oder 'sein'"
-                aria-label="Optionaler Hinweis zum grammatischen Phänomen">
+                aria-label="Optionaler Hinweis zum grammatischen Phänomen"
+                (keydown.enter)="addPhenomenonFromInputs($event, phenomenonInput, hintInput)">
               <mat-hint>Fügen Sie einen hilfreichen Hinweis hinzu</mat-hint>
             </mat-form-field>
 

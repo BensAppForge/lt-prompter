@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, effect } from '@angular/core';
 
 import { RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -76,35 +76,22 @@ export class AppComponent {
   private settingsService = inject(SettingsService);
   private pwaUpdateService = inject(PwaUpdateService);
 
-  isDarkMode = computed(() => {
-    const settings = this.settingsService.getSettings()();
-    if (settings.themePreference === ThemePreference.System) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return settings.themePreference === ThemePreference.Dark;
-  });
+  // Reactive to both the stored preference and OS theme changes
+  readonly isDarkMode = this.settingsService.isDarkMode;
 
   constructor() {
-    // Initialize theme on startup
-    this.updateThemeClass();
-
-    // Watch for theme changes
+    // Single writer of the theme class; runs on startup and on every change
     effect(() => {
-      this.updateThemeClass();
+      document.body.classList.toggle('dark-theme', this.isDarkMode());
     });
 
     // Initialize PWA update monitoring
     this.pwaUpdateService.initialize();
   }
 
-  private updateThemeClass(): void {
-    document.body.classList.toggle('dark-theme', this.isDarkMode());
-  }
-
   toggleTheme() {
-    const currentSettings = this.settingsService.getSettings()();
-    // When toggling from the toolbar, we'll switch between light and dark,
-    // preserving the system setting if user wants to switch back in settings
+    // Toggling from the toolbar pins an explicit light/dark preference;
+    // "System" can be restored on the settings page
     const newPreference = this.isDarkMode() ? ThemePreference.Light : ThemePreference.Dark;
     this.settingsService.updateThemePreference(newPreference);
   }

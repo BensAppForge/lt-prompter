@@ -22,6 +22,7 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
       'Ensure all examples are appropriate for the [CEFR] level.',
       'Ensure the gaps are wide enough for students to write their answers.',
       'Make sure the text sounds natural and authentic.',
+      'Ensure students can infer the missing forms from the context.',
       'Include at least 3 to 4 instances of each grammatical phenomenon.',
       'Provide the solutions by filling the gaps with the correct forms in bold.',
     ],
@@ -30,7 +31,7 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
     intro:
       "Vous êtes un expert dans l'enseignement du français comme langue étrangère et vous enseignez à des adolescents allemands. Créez un exercice de grammaire en [TARGET_LANGUAGE] adapté aux apprenants de niveau [CEFR].",
     phenomenaIntro:
-      "L'exercice doit se concentrer sur la pratique des phénomènes grammaticaux suivants :",
+      "L'exercice doit se concentrer sur la pratique des phénomènes grammaticaux suivants (des indications facultatives figurent entre parenthèses) :",
     contextIntro: "L'exercice doit être basé sur le contexte suivant :",
     autoContextIntro:
       'Créez un contexte approprié qui incorpore naturellement la grammaire requise.',
@@ -50,7 +51,7 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
     intro:
       'Eres un experto en la enseñanza del español como lengua extranjera y enseñas a adolescentes alemanes. Crea un ejercicio de gramática en [TARGET_LANGUAGE] adecuado para estudiantes de nivel [CEFR].',
     phenomenaIntro:
-      'El ejercicio debe centrarse en practicar los siguientes fenómenos gramaticales:',
+      'El ejercicio debe centrarse en practicar los siguientes fenómenos gramaticales (las pistas opcionales aparecen entre paréntesis):',
     contextIntro: 'El ejercicio debe basarse en el siguiente contexto:',
     autoContextIntro:
       'Crea un contexto apropiado que incorpore naturalmente la gramática requerida.',
@@ -70,7 +71,7 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
     intro:
       "Sei un esperto nell'insegnamento dell'italiano come lingua straniera e insegni a studenti adolescenti tedeschi. Crea un esercizio di grammatica in [TARGET_LANGUAGE] adatto a studenti di livello [CEFR].",
     phenomenaIntro:
-      "L'esercizio deve concentrarsi sulla pratica dei seguenti fenomeni grammaticali:",
+      "L'esercizio deve concentrarsi sulla pratica dei seguenti fenomeni grammaticali (tra parentesi sono indicate eventuali indicazioni facoltative):",
     contextIntro: "L'esercizio deve essere basato sul seguente contesto:",
     autoContextIntro:
       'Crea un contesto appropriato che incorpori naturalmente la grammatica richiesta.',

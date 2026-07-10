@@ -106,6 +106,21 @@ export class GrammarConComponent extends BaseExerciseComponent {
     );
   }
 
+  /** Enter in the phenomenon/hint inputs adds the phenomenon instead of
+   * submitting the whole form. */
+  addPhenomenonFromInputs(
+    event: Event,
+    phenomenonInput: HTMLInputElement,
+    hintInput: HTMLInputElement
+  ): void {
+    event.preventDefault();
+    if (!phenomenonInput.value.trim()) return;
+    this.addPhenomenon(phenomenonInput.value, hintInput.value);
+    phenomenonInput.value = '';
+    hintInput.value = '';
+    phenomenonInput.focus();
+  }
+
   removePhenomenon(index: number): void {
     this.phenomena.removeAt(index);
   }

@@ -54,13 +54,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'templates',
-    loadComponent: () =>
-      import('./components/template-manager/template-manager.component').then(
-        (m) => m.TemplateManagerComponent
-      ),
-  },
-  {
     path: 'settings',
     loadComponent: () =>
       import('./components/settings/settings.component').then(

@@ -3,7 +3,6 @@ import {
   Component,
   inject,
   signal,
-  OnInit,
 } from '@angular/core';
 
 import {
@@ -69,7 +68,7 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
   styleUrls: ['./vocabulary.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VocabularyComponent extends BaseExerciseComponent implements OnInit {
+export class VocabularyComponent extends BaseExerciseComponent {
   private readonly promptTemplateService = inject(PromptTemplateService);
   private readonly fb = inject(NonNullableFormBuilder);
 
@@ -81,8 +80,6 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
   readonly form = this.fb.group({
     targetLanguage: this.fb.control<Language | null>(null, Validators.required),
     cefr: this.fb.control<CEFRLevel | null>(null, Validators.required),
-    inputMode: this.fb.control<VocabularyInputMode>('manual'),
-    sourceType: this.fb.control<VocabularySourceType | null>(null),
     exerciseTypes: this.fb.control<VocabularyExerciseType[]>([], [
       Validators.required,
       Validators.minLength(1),
@@ -193,10 +190,8 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
 
   onInputModeChange(mode: VocabularyInputMode): void {
     this.inputMode.set(mode);
-    this.form.patchValue({ inputMode: mode });
     if (mode === 'manual') {
       this.sourceType.set(null);
-      this.form.patchValue({ sourceType: null });
       this.words.setValidators([Validators.required, Validators.minLength(1)]);
     } else {
       this.words.clearValidators();
@@ -206,10 +201,7 @@ export class VocabularyComponent extends BaseExerciseComponent implements OnInit
 
   onSourceTypeChange(type: VocabularySourceType): void {
     this.sourceType.set(type);
-    this.form.patchValue({ sourceType: type });
   }
-
-  ngOnInit(): void {}
 
   onSubmit(): void {
     if (!this.canSubmit()) return;

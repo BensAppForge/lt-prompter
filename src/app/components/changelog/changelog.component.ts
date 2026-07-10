@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -232,8 +232,8 @@ export class ChangelogComponent implements OnInit {
   readonly releaseVersions = signal<Version[]>([]);
   readonly betaVersions = signal<Version[]>([]);
   readonly isLoading = signal<boolean>(true);
-  
-  constructor(private versionService: VersionService) {}
+
+  private readonly versionService = inject(VersionService);
 
   isLatestVersion(version: Version): boolean {
     const allVersions = this.versions();

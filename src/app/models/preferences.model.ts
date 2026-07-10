@@ -1,10 +1,3 @@
-export interface Preferences {
-  id?: number;
-  language: Language;
-  level: CEFRLevel;
-  theme: 'light' | 'dark';
-}
-
 export type CEFRLevel =
   | 'A1'
   | 'A1+'

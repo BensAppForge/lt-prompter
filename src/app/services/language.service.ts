@@ -13,7 +13,7 @@ export class LanguageService {
   };
 
   private readonly spellcheckCodes: Record<Language, string> = {
-    'English': 'en-EN',
+    'English': 'en-GB',
     'français': 'fr-FR',
     'español': 'es-ES',
     'italiano': 'it-IT'
@@ -24,8 +24,8 @@ export class LanguageService {
   }
 
   getSpellcheckCode(language: Language | null | undefined): string {
-    if (!language) return 'en-EN';
-    return this.spellcheckCodes[language] || 'en-EN';
+    if (!language) return 'en-GB';
+    return this.spellcheckCodes[language] || 'en-GB';
   }
 
   displayLanguage(language: Language): string {
