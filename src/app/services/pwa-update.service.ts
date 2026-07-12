@@ -91,7 +91,6 @@ export class PwaUpdateService {
         duration: 0, // Bleibt offen bis der Benutzer reagiert
         horizontalPosition: 'center',
         verticalPosition: 'bottom',
-        panelClass: ['pwa-update-snackbar'],
       }
     );
 

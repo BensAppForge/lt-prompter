@@ -28,9 +28,9 @@ export class VersionNotificationComponent implements OnInit {
       if (message) {
         const snackBarRef = this.snackBar.open(
           message,
-          'Details',
+          'Was ist neu?',
           {
-            duration: 5000,
+            duration: 6000,
             horizontalPosition: 'center',
             verticalPosition: 'bottom',
           }

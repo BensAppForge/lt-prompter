@@ -1,5 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Injectable, signal } from '@angular/core';
 import { Version } from '../models/version.model';
 
 @Injectable({
@@ -266,9 +265,18 @@ export class VersionService {
         • Zielsprachen erscheinen jetzt überall einheitlich als "English, Español, Français, Italiano" – in allen Übungseditoren sowie im Filter und auf den Karten der Bibliothek
       `.trim(),
     },
+    {
+      id: 23,
+      versionNumber: '1.6.4',
+      releaseDate: new Date('2026-07-12'),
+      shortDescription: 'Aufgeräumte Update-Benachrichtigungen',
+      longDescription: `
+        • Bei einem Update erscheint nur noch eine Benachrichtigung statt bis zu drei – im einheitlichen Standard-Design (dunkler Hintergrund, magenta Aktion)
+        • Nach der Aktualisierung heißt es korrekt "Aktualisiert auf Version X" mit der Aktion "Was ist neu?", die zum Änderungsprotokoll führt
+        • Neue Nutzerinnen und Nutzer erhalten beim ersten Besuch keine irreführende Update-Meldung mehr
+      `.trim(),
+    },
   ];
-
-  private readonly snackBar = inject(MatSnackBar);
 
   constructor() {
     this.initializeVersion();
@@ -284,49 +292,24 @@ export class VersionService {
     );
 
     if (!storedVersion || !storedVersionData) {
-      // First time user or invalid stored version
-      this.showUpdateNotification();
+      // First time user or invalid stored version — store silently, no notice
       localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
-    } else {
-      // Compare version IDs instead of strings
-      if (storedVersionData.id !== latestVersion.id) {
-        // Clear stored version if it's higher than latest (rollback case)
-        if (storedVersionData.id > latestVersion.id) {
-          localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
-        } else {
-          // Normal update case
-          this.showUpdateNotification();
-          localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
-        }
+    } else if (storedVersionData.id !== latestVersion.id) {
+      if (storedVersionData.id > latestVersion.id) {
+        // Rollback case: just realign the stored version
+        localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
+      } else {
+        // App was updated since the last visit: let the
+        // VersionNotificationComponent point to the changelog
+        this.announceUpdate(latestVersion.versionNumber);
+        localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
       }
     }
   }
 
-  private showUpdateNotification(): void {
-    try {
-      this.hasUpdate.set(true);
-      const latestVersion =
-        this.LATEST_VERSIONS[this.LATEST_VERSIONS.length - 1];
-      if (!latestVersion) return;
-
-      const message = `Eine neue Version ist verfügbar: ${latestVersion.versionNumber}`;
-      this.updateMessage.set(message);
-
-      // Wrap in try-catch to handle any timing issues
-      setTimeout(() => {
-        try {
-          this.snackBar.open(message, 'OK', {
-            duration: 5000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-          });
-        } catch (error) {
-          console.error('Error showing snackbar:', error);
-        }
-      });
-    } catch (error) {
-      console.error('Error in showUpdateNotification:', error);
-    }
+  private announceUpdate(versionNumber: string): void {
+    this.hasUpdate.set(true);
+    this.updateMessage.set(`Aktualisiert auf Version ${versionNumber}`);
   }
 
   getAllVersions(): Version[] {

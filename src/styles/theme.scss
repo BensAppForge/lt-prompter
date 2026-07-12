@@ -588,22 +588,3 @@ body {
 }
 
 // PWA Update Snackbar styles
-.pwa-update-snackbar {
-  .mdc-snackbar__surface {
-    background-color: var(--primary-color) !important;
-  }
-
-  .mdc-snackbar__label {
-    color: white !important;
-    font-weight: 500;
-  }
-
-  .mat-mdc-snack-bar-action {
-    color: #ffeb3b !important; // Yellow for high visibility
-    font-weight: 600;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-  }
-}
