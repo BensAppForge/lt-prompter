@@ -258,53 +258,19 @@ export class VersionService {
     },
     {
       id: 22,
-      versionNumber: '1.6.3',
-      releaseDate: new Date('2026-07-12'),
-      shortDescription: 'Einheitliche Sprachnamen in allen Auswahlfeldern',
-      longDescription: `
-        • Zielsprachen erscheinen jetzt überall einheitlich als "English, Español, Français, Italiano" – in allen Übungseditoren sowie im Filter und auf den Karten der Bibliothek
-      `.trim(),
-    },
-    {
-      id: 23,
-      versionNumber: '1.6.4',
-      releaseDate: new Date('2026-07-12'),
-      shortDescription: 'Aufgeräumte Update-Benachrichtigungen',
-      longDescription: `
-        • Bei einem Update erscheint nur noch eine Benachrichtigung statt bis zu drei – im einheitlichen Standard-Design (dunkler Hintergrund, magenta Aktion)
-        • Nach der Aktualisierung heißt es korrekt "Aktualisiert auf Version X" mit der Aktion "Was ist neu?", die zum Änderungsprotokoll führt
-        • Neue Nutzerinnen und Nutzer erhalten beim ersten Besuch keine irreführende Update-Meldung mehr
-      `.trim(),
-    },
-    {
-      id: 24,
-      versionNumber: '1.6.5',
-      releaseDate: new Date('2026-07-12'),
-      shortDescription: 'Gewichtung der Übungstypen auf einen Blick',
-      longDescription: `
-        • Textverständnis: Unter den Aufgabenanzahl-Reglern zeigt eine Zusammenfassung jetzt die Gesamtzahl und das prozentuale Verhältnis der Übungstypen (z.B. "Gesamt: 8 Aufgaben · Verhältnis 25 % : 75 %")
-        • Textverständnis & Vokabeln: Neuer Hinweis, dass KI-Modelle sich in der Regel, aber nicht garantiert, exakt an die Anzahl-Vorgaben halten
-      `.trim(),
-    },
-    {
-      id: 25,
-      versionNumber: '1.7.0',
-      releaseDate: new Date('2026-07-12'),
-      shortDescription: 'Feinsteuerung für Grammatik, Klonen und Wortfelder',
-      longDescription: `
-        • Grammatik: Optional die Anzahl der Beispiele pro grammatischem Phänomen festlegen (statt der Standardvorgabe "3 bis 4")
-        • Übung klonen: Optional eine eigene Aufgabenanzahl angeben – ohne Angabe behält die neue Übung wie bisher die Länge der Vorlage
-        • Wortfelder: Optional die Anzahl der Wörter im Wortfeld festlegen (10–40)
-        • Vokabeln: Gesamtzahl und Verhältnis der Übungstypen werden jetzt auch hier angezeigt, wenn alle gewählten Übungstypen Regler haben (z.B. im Datei-Modus)
-      `.trim(),
-    },
-    {
-      id: 26,
       versionNumber: '1.7.1',
       releaseDate: new Date('2026-07-12'),
-      shortDescription: 'Sortierung des Änderungsprotokolls korrigiert',
+      shortDescription:
+        'Feinsteuerung der Übungen, einheitliche Sprachnamen und Detailverbesserungen',
       longDescription: `
-        • Änderungsprotokoll: Bei mehreren Veröffentlichungen am selben Tag steht jetzt immer die neueste Version oben
+        • Textverständnis & Vokabeln: Zusammenfassung unter den Aufgabenanzahl-Reglern zeigt Gesamtzahl und prozentuales Verhältnis der Übungstypen (z.B. "Gesamt: 8 Aufgaben · Verhältnis 25 % : 75 %")
+        • Grammatik: Optional die Anzahl der Beispiele pro grammatischem Phänomen festlegen (statt der Standardvorgabe "3 bis 4")
+        • Übung klonen: Optional eine eigene Aufgabenanzahl angeben – ohne Angabe behält die neue Übung die Länge der Vorlage
+        • Wortfelder: Optional die Anzahl der Wörter im Wortfeld festlegen (10–40)
+        • Neuer Hinweis, dass KI-Modelle sich in der Regel, aber nicht garantiert, exakt an die Anzahl-Vorgaben halten
+        • Zielsprachen erscheinen überall einheitlich als "English, Español, Français, Italiano"
+        • Bei einem Update erscheint nur noch eine Benachrichtigung statt bis zu drei, mit korrekter Formulierung und der Aktion "Was ist neu?"; keine irreführende Meldung mehr beim ersten Besuch
+        • Änderungsprotokoll: Die neueste Version steht immer oben
       `.trim(),
     },
   ];
@@ -322,8 +288,13 @@ export class VersionService {
       (v) => v.versionNumber === storedVersion
     );
 
-    if (!storedVersion || !storedVersionData) {
-      // First time user or invalid stored version — store silently, no notice
+    if (!storedVersion) {
+      // First time user — store silently, no notice
+      localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
+    } else if (!storedVersionData) {
+      // Stored version is no longer in the list (e.g. entries were merged):
+      // the user is on some older build, so announce the update
+      this.announceUpdate(latestVersion.versionNumber);
       localStorage.setItem(this.VERSION_KEY, latestVersion.versionNumber);
     } else if (storedVersionData.id !== latestVersion.id) {
       if (storedVersionData.id > latestVersion.id) {
