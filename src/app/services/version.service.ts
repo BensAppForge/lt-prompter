@@ -257,6 +257,15 @@ export class VersionService {
         • Intern: Nicht genutzte Datenbank-Stores, Dienste und toter Code entfernt
       `.trim(),
     },
+    {
+      id: 22,
+      versionNumber: '1.6.3',
+      releaseDate: new Date('2026-07-12'),
+      shortDescription: 'Einheitliche Sprachnamen in allen Auswahlfeldern',
+      longDescription: `
+        • Zielsprachen erscheinen jetzt überall einheitlich als "English, Español, Français, Italiano" – in allen Übungseditoren sowie im Filter und auf den Karten der Bibliothek
+      `.trim(),
+    },
   ];
 
   private readonly snackBar = inject(MatSnackBar);

@@ -19,7 +19,7 @@
             <mat-select formControlName="targetLanguage" required>
               @for (lang of languages; track lang) {
                 <mat-option [value]="lang">
-                  {{ lang }}
+                  {{ displayLanguage(lang) }}
                 </mat-option>
               }
             </mat-select>

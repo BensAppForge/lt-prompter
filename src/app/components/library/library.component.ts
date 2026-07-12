@@ -215,6 +215,10 @@ export class LibraryComponent implements OnInit {
     return this.languageService.getSpellcheckCode(language);
   }
 
+  displayLanguage(language: Language): string {
+    return this.languageService.displayLanguage(language);
+  }
+
   editPrompt(prompt: LibraryPrompt): void {
     this.selectedPrompt.set(prompt);
     this.editedPrompt.set(null);

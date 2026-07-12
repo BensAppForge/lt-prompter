@@ -18,7 +18,7 @@
             <mat-label>Zielsprache</mat-label>
             <mat-select formControlName="targetLanguage" required>
               @for (lang of languages; track lang) {
-                <mat-option [value]="lang">{{ lang }}</mat-option>
+                <mat-option [value]="lang">{{ displayLanguage(lang) }}</mat-option>
               }
             </mat-select>
             @if (form.get('targetLanguage')?.hasError('required')) {

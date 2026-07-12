@@ -32,7 +32,7 @@
                             <mat-option [value]="null">Alle Sprachen</mat-option>
                             @for (lang of languages; track lang) {
                                 <mat-option [value]="lang">
-                                    {{ lang }}
+                                    {{ displayLanguage(lang) }}
                                 </mat-option>
                             }
                         </mat-select>
@@ -72,7 +72,7 @@
                                 <h3>{{ prompt.name }}</h3>
                                 <div class="prompt-meta">
                                     <span class="category">{{ getCategoryLabel(prompt.category) }}</span>
-                                    <span class="language">{{ prompt.targetLanguage }}</span>
+                                    <span class="language">{{ displayLanguage(prompt.targetLanguage) }}</span>
                                     <span class="cefr">{{ prompt.cefr }}</span>
                                 </div>
                             </div>
