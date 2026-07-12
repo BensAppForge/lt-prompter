@@ -2,6 +2,14 @@
 
 How to drive the running app to verify changes end-to-end.
 
+## Quick start: committed smoke suite
+
+`npm run e2e` runs the Playwright suite in `e2e/smoke.spec.ts` (starts the
+dev server itself, uses system Chrome locally, ~1 min). It covers one
+generate-flow per editor, placeholder-token guards, library save/reopen,
+and settings defaults. CI runs it on every push (`.github/workflows/e2e.yml`).
+For change-specific verification beyond the suite, use the recipe below.
+
 ## Launch
 
 ```bash
