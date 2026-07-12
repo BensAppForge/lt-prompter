@@ -66,6 +66,27 @@
                         }
                     </mat-form-field>
                 </div>
+                <div class="item-count-section">
+                    <mat-slide-toggle [checked]="specifyWordCount()"
+                        (change)="specifyWordCount.set($event.checked)" color="primary">
+                        Anzahl der Wörter festlegen (optional)
+                    </mat-slide-toggle>
+                    @if (specifyWordCount()) {
+                        <div class="count-row">
+                            <span class="count-label">Anzahl der Wörter</span>
+                            <mat-slider min="10" max="40" step="1" discrete class="count-slider">
+                                <input matSliderThumb [value]="wordCount()"
+                                    (valueChange)="wordCount.set($event)" />
+                            </mat-slider>
+                            <span class="count-value">{{ wordCount() }}</span>
+                        </div>
+                        <p class="count-hint">
+                            Hinweis: KI-Modelle halten sich in der Regel, aber nicht garantiert,
+                            exakt an diese Vorgaben. Prüfen Sie das Ergebnis vor der Verwendung.
+                        </p>
+                    }
+                </div>
+
                 <div class="button-container">
                     <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
                         Prompt generieren

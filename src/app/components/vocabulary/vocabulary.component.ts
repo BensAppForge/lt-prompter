@@ -132,6 +132,29 @@ export class VocabularyComponent extends BaseExerciseComponent {
     this.itemCounts.update((counts) => ({ ...counts, [type]: value }));
   }
 
+  /** True when every selected type has a slider, so the total/ratio summary
+   * is meaningful (file mode, or manual mode without word-bound types). */
+  allSelectedTypesCountable(): boolean {
+    const selectedCount = this.selectedExerciseTypes.length;
+    return (
+      selectedCount > 0 &&
+      this.countableSelectedTypes().length === selectedCount
+    );
+  }
+
+  /** Live summary like "Gesamt: 8 Aufgaben · Verhältnis 25 % : 75 %". */
+  countSummary(): string {
+    const types = this.countableSelectedTypes();
+    const total = types.reduce((sum, t) => sum + this.getCount(t.value), 0);
+    if (types.length < 2) {
+      return `Gesamt: ${total} Aufgaben`;
+    }
+    const ratio = types
+      .map((t) => `${Math.round((this.getCount(t.value) / total) * 100)} %`)
+      .join(' : ');
+    return `Gesamt: ${total} Aufgaben · Verhältnis ${ratio}`;
+  }
+
   canSubmit(): boolean {
     if (this.inputMode() === 'manual') {
       return this.form.valid;

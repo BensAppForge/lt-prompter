@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  version: '1.6.5', // Current app version - update this when releasing new versions
+  version: '1.7.0', // Current app version - update this when releasing new versions
   appName: 'LT Prompter',
   // Add other environment-specific configuration here
 } as const;

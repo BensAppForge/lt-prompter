@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  signal,
 } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +11,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import {
   NonNullableFormBuilder,
@@ -40,6 +43,8 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
+    MatSliderModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatDialogModule,
     ReactiveFormsModule,
@@ -57,6 +62,10 @@ export class WordfieldComponent extends BaseExerciseComponent {
 
   readonly sourceTypes = WORDFIELD_SOURCE_TYPES;
   readonly outputTypes = WORDFIELD_OUTPUT_TYPES;
+
+  // Optional explicit number of word-field entries
+  readonly specifyWordCount = signal(false);
+  readonly wordCount = signal(20);
 
   // German translations for source types
   private readonly sourceTypeTranslations: Record<WordfieldSourceType, string> =
@@ -92,6 +101,7 @@ export class WordfieldComponent extends BaseExerciseComponent {
         cefr: formValue.cefr!,
         sourceType: formValue.sourceType!,
         outputType: formValue.outputType!,
+        wordCount: this.specifyWordCount() ? this.wordCount() : undefined,
       };
 
       this.commitGeneratedPrompt(

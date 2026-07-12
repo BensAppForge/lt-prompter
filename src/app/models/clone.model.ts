@@ -8,4 +8,6 @@ export interface ClonePromptConfig {
   sourceType: CloneSourceType;
   situationalContext?: string;
   isDialog?: boolean;
+  /** Exact number of items for the new exercise; unset = same length as source. */
+  itemCount?: number;
 }

@@ -56,6 +56,17 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Anzahl der Aufgaben (optional)</mat-label>
+            <input matInput type="number" min="1" max="50" formControlName="itemCount">
+            <mat-hint>Leer lassen = gleiche Länge wie die Vorlage. KI-Modelle halten sich nicht garantiert exakt daran.</mat-hint>
+            @if (form.get('itemCount')?.invalid) {
+              <mat-error>Bitte einen Wert zwischen 1 und 50 angeben</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Neuer Kontext (optional)</mat-label>
             <textarea matInput formControlName="newContext" rows="4"
               placeholder="Geben Sie einen neuen Kontext ein, falls gewünscht"

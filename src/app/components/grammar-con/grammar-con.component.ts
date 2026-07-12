@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -57,6 +58,7 @@ interface PhenomenonForm {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatSliderModule,
     MatSlideToggleModule,
     AutoAnimateDirective,
     MatDialogModule,
@@ -93,6 +95,10 @@ export class GrammarConComponent extends BaseExerciseComponent {
   get phenomena(): FormArray {
     return this.form.get('phenomena') as FormArray;
   }
+
+  // Optional exact number of instances per phenomenon
+  readonly specifyInstances = signal(false);
+  readonly instancesPerPhenomenon = signal(3);
 
   addPhenomenon(description: string, hint: string = ''): void {
     const trimmedDescription = description.trim();
@@ -137,6 +143,9 @@ export class GrammarConComponent extends BaseExerciseComponent {
         })),
         situationalContext: formValue.situationalContext,
         situationalContextIsDialog: formValue.situationalContextIsDialog,
+        instancesPerPhenomenon: this.specifyInstances()
+          ? this.instancesPerPhenomenon()
+          : undefined,
       };
 
       const prompt = this.promptService.generateGrammarPrompt(

@@ -87,6 +87,29 @@
               </li>
             }
           </ul>
+
+          @if (phenomena.length > 0) {
+            <div class="item-count-section">
+              <mat-slide-toggle [checked]="specifyInstances()"
+                (change)="specifyInstances.set($event.checked)" color="primary">
+                Anzahl der Beispiele festlegen (optional)
+              </mat-slide-toggle>
+              @if (specifyInstances()) {
+                <div class="count-row">
+                  <span class="count-label">Beispiele pro Phänomen</span>
+                  <mat-slider min="2" max="10" step="1" discrete class="count-slider">
+                    <input matSliderThumb [value]="instancesPerPhenomenon()"
+                      (valueChange)="instancesPerPhenomenon.set($event)" />
+                  </mat-slider>
+                  <span class="count-value">{{ instancesPerPhenomenon() }}</span>
+                </div>
+                <p class="count-hint">
+                  Hinweis: KI-Modelle halten sich in der Regel, aber nicht garantiert,
+                  exakt an diese Vorgaben. Prüfen Sie das Ergebnis vor der Verwendung.
+                </p>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-row context-row">

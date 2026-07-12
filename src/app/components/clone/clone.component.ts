@@ -54,6 +54,7 @@ export class CloneComponent extends BaseExerciseComponent {
       targetLanguage: ['', Validators.required],
       cefr: ['', Validators.required],
       sourceType: ['', Validators.required],
+      itemCount: [null, [Validators.min(1), Validators.max(50)]],
       newContext: [''],
       situationalContext: [''],
       situationalContextIsDialog: [false],
@@ -70,6 +71,9 @@ export class CloneComponent extends BaseExerciseComponent {
         situationalContext: formValue.situationalContext,
         isDialog: formValue.situationalContextIsDialog,
         newContext: formValue.newContext,
+        itemCount: formValue.itemCount
+          ? Number(formValue.itemCount)
+          : undefined,
       };
 
       this.commitGeneratedPrompt(this.promptService.generateClonePrompt(config));

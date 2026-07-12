@@ -87,6 +87,9 @@
                   <span class="count-value">{{ getCount(type.value) }}</span>
                 </div>
               }
+              @if (allSelectedTypesCountable()) {
+                <p class="count-summary">{{ countSummary() }}</p>
+              }
               @if (hasWordBoundSelection()) {
                 <p class="count-hint">
                   Bei manueller Eingabe richtet sich die Anzahl bei Lückentext,

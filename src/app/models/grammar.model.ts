@@ -11,4 +11,6 @@ export interface GrammarPromptConfig {
   phenomena: GrammarPhenomenon[];
   situationalContext?: string;
   situationalContextIsDialog?: boolean;
+  /** Exact number of instances per phenomenon; unset = "at least 3 to 4". */
+  instancesPerPhenomenon?: number;
 }

@@ -4,6 +4,8 @@ export interface WordfieldPromptTemplate {
   intro: string;
   requirementsIntro: string;
   requirements: string[];
+  /** Appended when the teacher sets an explicit entry count ([COUNT]). */
+  wordCountRequirement: string;
 }
 export type WordfieldPromptTemplates = {
   [key in Language]: WordfieldPromptTemplate;
@@ -51,6 +53,8 @@ export const wordfieldPromptTemplates: WordfieldPromptTemplates = {
   English: {
     intro: englishIntro,
     requirementsIntro: 'Additional requirements:',
+    wordCountRequirement:
+      'The word field must contain exactly [COUNT] entries.',
     requirements: [
       'The output should contain the most important thematically relevant words or phrases.',
       "The word field should match the students' CEFR level: [CEFR].",
@@ -61,6 +65,8 @@ export const wordfieldPromptTemplates: WordfieldPromptTemplates = {
   français: {
     intro: frenchIntro,
     requirementsIntro: 'Exigences supplémentaires :',
+    wordCountRequirement:
+      'Le champ lexical doit contenir exactement [COUNT] entrées.',
     requirements: [
       'La sortie doit contenir les mots ou expressions thématiques les plus importants.',
       'Le champ lexical doit correspondre au niveau CECR des élèves : [CEFR].',
@@ -71,6 +77,8 @@ export const wordfieldPromptTemplates: WordfieldPromptTemplates = {
   español: {
     intro: spanishIntro,
     requirementsIntro: 'Requisitos adicionales:',
+    wordCountRequirement:
+      'El campo léxico debe contener exactamente [COUNT] entradas.',
     requirements: [
       'La salida debe contener las palabras o frases temáticas más importantes.',
       'El campo léxico debe coincidir con el nivel del MCER de los alumnos: [CEFR].',
@@ -81,6 +89,8 @@ export const wordfieldPromptTemplates: WordfieldPromptTemplates = {
   italiano: {
     intro: italianIntro,
     requirementsIntro: 'Requisiti aggiuntivi:',
+    wordCountRequirement:
+      'Il campo lessicale deve contenere esattamente [COUNT] voci.',
     requirements: [
       'L’output deve contenere le parole o le espressioni tematiche più importanti.',
       'Il campo lessicale deve corrispondere al livello QCER degli studenti: [CEFR].',

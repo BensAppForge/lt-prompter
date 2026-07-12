@@ -20,4 +20,6 @@ export interface WordfieldPromptConfig {
   cefr: CEFRLevel;
   sourceType: WordfieldSourceType;
   outputType: WordfieldOutputType;
+  /** Exact number of entries for the word field; unset = AI decides. */
+  wordCount?: number;
 }

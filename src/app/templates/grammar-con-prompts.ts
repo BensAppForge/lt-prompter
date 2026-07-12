@@ -4,6 +4,10 @@ import { BasePromptTemplate } from './vocabulary-prompts';
 export interface GrammarPromptTemplate extends BasePromptTemplate {
   phenomenaIntro: string;
   requirementsIntro?: string;
+  /** Default requirement: rough number of instances per phenomenon. */
+  instancesRequirement: string;
+  /** Used instead when the teacher sets an exact count ([COUNT]). */
+  instancesRequirementExact: string;
 }
 
 export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
@@ -23,9 +27,12 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
       'Ensure the gaps are wide enough for students to write their answers.',
       'Make sure the text sounds natural and authentic.',
       'Ensure students can infer the missing forms from the context.',
-      'Include at least 3 to 4 instances of each grammatical phenomenon.',
       'Provide the solutions by filling the gaps with the correct forms in bold.',
     ],
+    instancesRequirement:
+      'Include at least 3 to 4 instances of each grammatical phenomenon.',
+    instancesRequirementExact:
+      'Include exactly [COUNT] instances of each grammatical phenomenon.',
   },
   français: {
     intro:
@@ -43,9 +50,12 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
       'Assurez-vous que les espaces soient suffisamment larges pour que les élèves puissent écrire leurs réponses.',
       'Le texte doit sembler naturel et authentique.',
       'Assurez-vous que les élèves puissent déduire les mots manquants à partir du contexte.',
-      'Incluez au moins 3 à 4 occurrences de chaque phénomène grammatical.',
       'Fournissez les solutions en remplissant les espaces avec les formes correctes en gras.',
     ],
+    instancesRequirement:
+      'Incluez au moins 3 à 4 occurrences de chaque phénomène grammatical.',
+    instancesRequirementExact:
+      'Incluez exactement [COUNT] occurrences de chaque phénomène grammatical.',
   },
   español: {
     intro:
@@ -63,9 +73,12 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
       'Asegúrate de que los espacios sean lo suficientemente amplios para que los estudiantes puedan escribir sus respuestas.',
       'El texto debe sonar natural y auténtico.',
       'Asegúrate de que los estudiantes puedan deducir las palabras faltantes a partir del contexto.',
-      'Incluye al menos de 3 a 4 ejemplos de cada fenómeno gramatical.',
       'Proporciona las soluciones rellenando los espacios con las formas correctas en negrita.',
     ],
+    instancesRequirement:
+      'Incluye al menos de 3 a 4 ejemplos de cada fenómeno gramatical.',
+    instancesRequirementExact:
+      'Incluye exactamente [COUNT] ejemplos de cada fenómeno gramatical.',
   },
   italiano: {
     intro:
@@ -83,8 +96,11 @@ export const grammarPromptTemplates: Record<Language, GrammarPromptTemplate> = {
       'Assicurati che gli spazi siano abbastanza ampi per permettere agli studenti di scrivere le risposte.',
       'Il testo deve sembrare naturale e autentico.',
       'Assicurati che gli studenti possano dedurre le parole mancanti dal contesto.',
-      'Includi almeno 3 o 4 esempi di ciascun fenomeno grammaticale.',
       'Fornisci le soluzioni riempiendo gli spazi con le forme corrette in grassetto.',
     ],
+    instancesRequirement:
+      'Includi almeno 3 o 4 esempi di ciascun fenomeno grammaticale.',
+    instancesRequirementExact:
+      'Includi esattamente [COUNT] esempi di ciascun fenomeno grammaticale.',
   },
 };

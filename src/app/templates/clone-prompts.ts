@@ -5,6 +5,10 @@ export interface ClonePromptTemplate {
   autoContextIntro: string;
   requirementsIntro: string;
   requirements: string[];
+  /** Default requirement: keep the source length. */
+  sameLengthRequirement: string;
+  /** Used instead when the teacher sets an explicit item count ([COUNT]). */
+  itemCountRequirement: string;
 }
 export type ClonePromptTemplates = {
   [key in Language]: ClonePromptTemplate;
@@ -48,8 +52,10 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     contextIntro: 'Context:\n',
     autoContextIntro: 'Keep the context used in the source.\n',
     requirementsIntro: 'Additional requirements:',
+    sameLengthRequirement: 'Keep the same length as the source.',
+    itemCountRequirement:
+      'The new exercise must contain exactly [COUNT] items, regardless of the length of the source.',
     requirements: [
-      'Keep the same length as the source.',
       'Mimic the layout of the source exercise. Output as a printable and editable document, not as a webpage.',
       'Adjust the complexity to match the [CEFR] level.',
       'Provide a solution key.',
@@ -61,8 +67,10 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     contextIntro: 'Contexte :\n',
     autoContextIntro: 'Conservez le contexte utilisé dans la source.\n',
     requirementsIntro: 'Exigences supplémentaires :',
+    sameLengthRequirement: 'Gardez la même longueur que la source.',
+    itemCountRequirement:
+      "Le nouvel exercice doit contenir exactement [COUNT] éléments, indépendamment de la longueur de la source.",
     requirements: [
-      'Gardez la même longueur que la source.',
       "Imitez la mise en page de l'exercice source. Produisez un document imprimable et modifiable, pas une page web.",
       'Adaptez la complexité au niveau [CEFR].',
       'Fournissez un corrigé.',
@@ -74,8 +82,10 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     contextIntro: 'Contexto:\n',
     autoContextIntro: 'Mantén el contexto utilizado en la fuente.\n',
     requirementsIntro: 'Requisitos adicionales:',
+    sameLengthRequirement: 'Mantén la misma longitud que la fuente.',
+    itemCountRequirement:
+      'El nuevo ejercicio debe contener exactamente [COUNT] elementos, independientemente de la longitud de la fuente.',
     requirements: [
-      'Mantén la misma longitud que la fuente.',
       'Imita el diseño del ejercicio original. Genera un documento imprimible y editable, no una página web.',
       'Ajusta la complejidad al nivel [CEFR].',
       'Proporciona una clave de respuestas.',
@@ -87,8 +97,10 @@ export const clonePromptTemplates: ClonePromptTemplates = {
     contextIntro: 'Contesto:\n',
     autoContextIntro: 'Mantieni il contesto usato nella fonte.\n',
     requirementsIntro: 'Requisiti aggiuntivi:',
+    sameLengthRequirement: 'Mantieni la stessa lunghezza della fonte.',
+    itemCountRequirement:
+      "Il nuovo esercizio deve contenere esattamente [COUNT] elementi, indipendentemente dalla lunghezza della fonte.",
     requirements: [
-      'Mantieni la stessa lunghezza della fonte.',
       "Imita il layout dell'esercizio originale. Produci un documento stampabile e modificabile, non una pagina web.",
       'Adatta la complessità al livello [CEFR].',
       'Fornisci una chiave di soluzione.',

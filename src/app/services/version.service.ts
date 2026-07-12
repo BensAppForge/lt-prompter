@@ -286,6 +286,18 @@ export class VersionService {
         • Textverständnis & Vokabeln: Neuer Hinweis, dass KI-Modelle sich in der Regel, aber nicht garantiert, exakt an die Anzahl-Vorgaben halten
       `.trim(),
     },
+    {
+      id: 25,
+      versionNumber: '1.7.0',
+      releaseDate: new Date('2026-07-12'),
+      shortDescription: 'Feinsteuerung für Grammatik, Klonen und Wortfelder',
+      longDescription: `
+        • Grammatik: Optional die Anzahl der Beispiele pro grammatischem Phänomen festlegen (statt der Standardvorgabe "3 bis 4")
+        • Übung klonen: Optional eine eigene Aufgabenanzahl angeben – ohne Angabe behält die neue Übung wie bisher die Länge der Vorlage
+        • Wortfelder: Optional die Anzahl der Wörter im Wortfeld festlegen (10–40)
+        • Vokabeln: Gesamtzahl und Verhältnis der Übungstypen werden jetzt auch hier angezeigt, wenn alle gewählten Übungstypen Regler haben (z.B. im Datei-Modus)
+      `.trim(),
+    },
   ];
 
   constructor() {

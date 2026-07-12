@@ -378,10 +378,20 @@ export class PromptTemplateService {
       parts.push('', template.dialogRequirement);
     }
 
-    // Add requirements
+    // Add requirements, with the instances-per-phenomenon requirement
+    // (default "at least 3 to 4" or the teacher's exact count) before the
+    // final solutions requirement
     if (template.requirementsIntro) {
       parts.push('', template.requirementsIntro);
-      template.requirements.forEach((req) => {
+      const requirements = [...template.requirements];
+      const instancesLine = config.instancesPerPhenomenon
+        ? template.instancesRequirementExact.replaceAll(
+            '[COUNT]',
+            String(config.instancesPerPhenomenon)
+          )
+        : template.instancesRequirement;
+      requirements.splice(requirements.length - 1, 0, instancesLine);
+      requirements.forEach((req) => {
         parts.push(`- ${req.replace('[CEFR]', config.cefr)}`);
       });
     }
@@ -479,6 +489,13 @@ export class PromptTemplateService {
     }
 
     prompt += template.requirementsIntro + '\n';
+    const lengthRequirement = config.itemCount
+      ? template.itemCountRequirement.replaceAll(
+          '[COUNT]',
+          String(config.itemCount)
+        )
+      : template.sameLengthRequirement;
+    prompt += '- ' + lengthRequirement + '\n';
     template.requirements.forEach((req) => {
       prompt += '- ' + req.replace('[CEFR]', config.cefr) + '\n';
     });
@@ -527,6 +544,14 @@ export class PromptTemplateService {
         template.requirements.forEach((req) => {
           prompt += '\n- ' + req.replace('[CEFR]', config.cefr);
         });
+        if (config.wordCount) {
+          prompt +=
+            '\n- ' +
+            template.wordCountRequirement.replaceAll(
+              '[COUNT]',
+              String(config.wordCount)
+            );
+        }
       }
 
       return prompt;
