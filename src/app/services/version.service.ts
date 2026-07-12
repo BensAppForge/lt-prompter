@@ -298,6 +298,15 @@ export class VersionService {
         • Vokabeln: Gesamtzahl und Verhältnis der Übungstypen werden jetzt auch hier angezeigt, wenn alle gewählten Übungstypen Regler haben (z.B. im Datei-Modus)
       `.trim(),
     },
+    {
+      id: 26,
+      versionNumber: '1.7.1',
+      releaseDate: new Date('2026-07-12'),
+      shortDescription: 'Sortierung des Änderungsprotokolls korrigiert',
+      longDescription: `
+        • Änderungsprotokoll: Bei mehreren Veröffentlichungen am selben Tag steht jetzt immer die neueste Version oben
+      `.trim(),
+    },
   ];
 
   constructor() {
@@ -335,9 +344,12 @@ export class VersionService {
   }
 
   getAllVersions(): Version[] {
+    // Newest first; same-day releases are ordered by id so the latest
+    // release always tops the changelog
     return [...this.LATEST_VERSIONS].sort(
       (a, b) =>
-        new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+        new Date(b.releaseDate).getTime() -
+          new Date(a.releaseDate).getTime() || b.id - a.id
     );
   }
 }
