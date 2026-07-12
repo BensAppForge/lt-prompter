@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -28,6 +29,10 @@ export interface SaveToLibraryDialogData {
   name?: string;
   description?: string;
   tags?: string[];
+  /** Preselected collection name. */
+  collection?: string;
+  /** Existing collection names for the autocomplete. */
+  collections?: string[];
 }
 
 @Component({
@@ -39,6 +44,7 @@ export interface SaveToLibraryDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
     MatChipsModule,
     MatIconModule,
     FormsModule,
@@ -71,6 +77,22 @@ export interface SaveToLibraryDialogData {
               rows="3"
               placeholder="Beschreiben Sie den Prompt"
             ></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Sammlung (optional)</mat-label>
+            <input
+              matInput
+              formControlName="collection"
+              placeholder="z.B. Klasse 8b, Unit 3 …"
+              [matAutocomplete]="collectionAuto"
+            />
+            <mat-autocomplete #collectionAuto="matAutocomplete">
+              @for (option of filteredCollections(); track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
+            </mat-autocomplete>
+            <mat-hint>Gruppieren Sie Prompts z.B. nach Klasse oder Unterrichtseinheit</mat-hint>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -198,18 +220,28 @@ export class SaveToLibraryDialogComponent {
   form = this.fb.group({
     name: [this.data.name || '', Validators.required],
     description: [this.data.description || ''],
+    collection: [this.data.collection || ''],
   });
 
   constructor() {
     this.tags = this.data.tags || [];
   }
 
+  filteredCollections(): string[] {
+    const value = (this.form.get('collection')?.value || '').toLowerCase();
+    return (this.data.collections ?? []).filter((c) =>
+      c.toLowerCase().includes(value)
+    );
+  }
+
   onSubmit(): void {
     if (this.form.valid) {
+      const collection = this.form.get('collection')?.value?.trim();
       const result: Partial<LibraryPrompt> = {
         name: this.form.get('name')?.value ?? undefined,
         description: this.form.get('description')?.value ?? undefined,
         tags: this.tags,
+        collection: collection || undefined,
       };
       this.dialogRef.close(result);
     }

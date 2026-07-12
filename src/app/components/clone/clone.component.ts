@@ -59,6 +59,20 @@ export class CloneComponent extends BaseExerciseComponent {
       situationalContext: [''],
       situationalContextIsDialog: [false],
     });
+    const editorState = this.consumeEditorConfig();
+    if (editorState) {
+      this.applyEditorState(editorState);
+    } else {
+      this.applyDefaultPreferences(this.form);
+    }
+  }
+
+  private captureEditorState(): Record<string, unknown> {
+    return { form: this.form.getRawValue() };
+  }
+
+  private applyEditorState(state: Record<string, unknown>): void {
+    this.form.patchValue((state['form'] ?? {}) as Record<string, unknown>);
   }
 
   onSubmit(): void {
@@ -84,6 +98,7 @@ export class CloneComponent extends BaseExerciseComponent {
     const formValue = this.form.getRawValue();
     this.openSaveDialog({
       category: 'clone',
+      editorConfig: { route: '/clone', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
       cefr: formValue.cefr,
       name: `Klonübung - ${formValue.sourceType}`,

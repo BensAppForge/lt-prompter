@@ -91,6 +91,28 @@ export class WordfieldComponent extends BaseExerciseComponent {
       sourceType: ['', Validators.required],
       outputType: ['', Validators.required],
     });
+    const editorState = this.consumeEditorConfig();
+    if (editorState) {
+      this.applyEditorState(editorState);
+    } else {
+      this.applyDefaultPreferences(this.form);
+    }
+  }
+
+  private captureEditorState(): Record<string, unknown> {
+    return {
+      form: this.form.getRawValue(),
+      specifyWordCount: this.specifyWordCount(),
+      wordCount: this.wordCount(),
+    };
+  }
+
+  private applyEditorState(state: Record<string, unknown>): void {
+    this.form.patchValue((state['form'] ?? {}) as Record<string, unknown>);
+    this.specifyWordCount.set(!!state['specifyWordCount']);
+    if (typeof state['wordCount'] === 'number') {
+      this.wordCount.set(state['wordCount']);
+    }
   }
 
   onSubmit(): void {
@@ -123,6 +145,7 @@ export class WordfieldComponent extends BaseExerciseComponent {
     const formValue = this.form.getRawValue();
     this.openSaveDialog({
       category: 'wordfield',
+      editorConfig: { route: '/wordfield', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
       cefr: formValue.cefr,
       name: `Wortfeld - ${this.getSourceTypeTranslation(formValue.sourceType)} (${this.getOutputTypeTranslation(formValue.outputType)})`,

@@ -1,4 +1,5 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
+import { CEFRLevel, Language } from '../models/preferences.model';
 
 export enum ThemePreference {
   Light = 'light',
@@ -8,10 +9,16 @@ export enum ThemePreference {
 
 interface AppSettings {
   themePreference: ThemePreference;
+  /** Prefilled as Zielsprache in all exercise editors; null = no default. */
+  defaultTargetLanguage: Language | null;
+  /** Prefilled as CEFR-Niveau in all exercise editors; null = no default. */
+  defaultCefr: CEFRLevel | null;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  themePreference: ThemePreference.System
+  themePreference: ThemePreference.System,
+  defaultTargetLanguage: null,
+  defaultCefr: null
 };
 
 @Injectable({
@@ -58,7 +65,8 @@ export class SettingsService {
           typeof parsed === 'object' &&
           Object.values(ThemePreference).includes(parsed.themePreference)
         ) {
-          return parsed;
+          // Merge so settings stored by older versions gain new fields
+          return { ...DEFAULT_SETTINGS, ...parsed };
         }
       } catch {
         // fall through to defaults
@@ -79,6 +87,20 @@ export class SettingsService {
     this.settings.update(current => ({
       ...current,
       themePreference: preference
+    }));
+  }
+
+  updateDefaultTargetLanguage(language: Language | null) {
+    this.settings.update(current => ({
+      ...current,
+      defaultTargetLanguage: language
+    }));
+  }
+
+  updateDefaultCefr(cefr: CEFRLevel | null) {
+    this.settings.update(current => ({
+      ...current,
+      defaultCefr: cefr
     }));
   }
 }

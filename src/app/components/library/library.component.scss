@@ -249,3 +249,22 @@
     }
   }
 }
+
+.library-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.prompt-meta .collection {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--text-secondary);
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+}

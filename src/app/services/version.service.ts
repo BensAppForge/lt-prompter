@@ -273,6 +273,20 @@ export class VersionService {
         • Änderungsprotokoll: Die neueste Version steht immer oben
       `.trim(),
     },
+    {
+      id: 23,
+      versionNumber: '1.8.0',
+      releaseDate: new Date('2026-07-12'),
+      shortDescription:
+        'Standardwerte, Sammlungen, Bibliothek-Backup und Wortlisten-Einfügen',
+      longDescription: `
+        • Einstellungen: Standard-Zielsprache und Standard-Niveau festlegen – sie werden in allen Übungseditoren vorausgefüllt
+        • Bibliothek: Prompts lassen sich beim Speichern einer frei benennbaren Sammlung zuordnen (z.B. "Klasse 8b", "Unit 3") und danach filtern
+        • Bibliothek: "Im Editor öffnen" lädt einen gespeicherten Prompt mit allen Einstellungen zurück in seinen Editor – anpassen und neu generieren statt nur kopieren
+        • Bibliothek: Export als Datei und Import – für Backups, Gerätewechsel oder zum Teilen mit dem Kollegium
+        • Vokabeln: Eingefügte Wortlisten (durch Kommas, Semikolons oder Zeilenumbrüche getrennt) werden automatisch in einzelne Wörter aufgeteilt
+      `.trim(),
+    },
   ];
 
   constructor() {

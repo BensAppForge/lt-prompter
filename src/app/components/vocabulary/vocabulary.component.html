@@ -139,7 +139,8 @@
                   <input matInput [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)"
                     [attr.spellcheck]="true" autocomplete="off" #wordInput placeholder="Neues Wort..."
                     [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                    (matChipInputTokenEnd)="addWordFromInput($event)">
+                    (matChipInputTokenEnd)="addWordFromInput($event)"
+                    (paste)="onWordsPaste($event)">
                 </mat-chip-grid>
               </div>
               @if (form.get('words')?.errors?.['required']) {

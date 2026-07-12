@@ -15,6 +15,7 @@ import {
   NonNullableFormBuilder,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ClipboardService } from '../../services/clipboard.service';
 import { LanguageService } from '../../services/language.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -60,6 +61,7 @@ export class LibraryComponent implements OnInit {
     category: [null],
     targetLanguage: [null],
     cefr: [null],
+    collection: [null],
     searchTerm: [''],
   });
   prompts: LibraryPrompt[] = [];
@@ -91,6 +93,7 @@ export class LibraryComponent implements OnInit {
   readonly copySuccess = signal(false);
   readonly copyError = signal(false);
   readonly filteredPrompts = signal<LibraryPrompt[]>([]);
+  readonly collections = signal<string[]>([]);
   editablePrompt: string = '';
 
   ngOnInit(): void {
@@ -104,6 +107,13 @@ export class LibraryComponent implements OnInit {
         next: (prompts: LibraryPrompt[]) => {
           this.prompts = prompts;
           this.filteredPrompts.set(prompts);
+          this.collections.set(
+            [...new Set(
+              prompts
+                .map((p) => p.collection)
+                .filter((c): c is string => !!c)
+            )].sort((a, b) => a.localeCompare(b, 'de'))
+          );
         },
         error: (error: unknown) => {
           console.error('Error loading prompts:', error);
@@ -115,13 +125,14 @@ export class LibraryComponent implements OnInit {
   }
 
   onSearch(): void {
-    const { category, targetLanguage, cefr, searchTerm } =
+    const { category, targetLanguage, cefr, collection, searchTerm } =
       this.searchForm.value;
     this.libraryService
       .searchPrompts({
         category: category || undefined,
         targetLanguage: targetLanguage || undefined,
         cefr: cefr || undefined,
+        collection: collection || undefined,
         searchTerm: searchTerm || undefined,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -148,6 +159,150 @@ export class LibraryComponent implements OnInit {
     this.selectedPrompt.set(prompt);
     this.editedPrompt.set(null);
     this.isEditMode.set(false);
+  }
+
+  /** Download the whole library as a JSON backup file. */
+  exportLibrary(): void {
+    this.libraryService
+      .getAllPrompts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((prompts) => {
+        if (!prompts.length) {
+          this.snackBar.open('Keine Prompts zum Exportieren vorhanden', 'Schließen', {
+            duration: 3000,
+          });
+          return;
+        }
+        const payload = {
+          app: 'lt-prompter',
+          type: 'library-export',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          prompts,
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `lt-prompter-bibliothek-${new Date()
+          .toISOString()
+          .slice(0, 10)}.json`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+        this.snackBar.open(
+          `${prompts.length} Prompts exportiert`,
+          'Schließen',
+          { duration: 3000 }
+        );
+      });
+  }
+
+  onImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    file
+      .text()
+      .then((text) => this.importLibrary(text))
+      .catch(() => {
+        this.snackBar.open('Die Datei konnte nicht gelesen werden', 'Schließen', {
+          duration: 3000,
+        });
+      });
+  }
+
+  private importLibrary(text: string): void {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      this.snackBar.open('Ungültige Datei: kein gültiges JSON', 'Schließen', {
+        duration: 3000,
+      });
+      return;
+    }
+    const rawPrompts = Array.isArray(parsed)
+      ? parsed
+      : (parsed as { prompts?: unknown })?.prompts;
+    const candidates = Array.isArray(rawPrompts) ? rawPrompts : [];
+    const valid = candidates.filter(
+      (p): p is LibraryPrompt =>
+        !!p &&
+        typeof p.name === 'string' &&
+        typeof p.content === 'string' &&
+        !!p.category &&
+        !!p.targetLanguage &&
+        !!p.cefr
+    );
+    if (!valid.length) {
+      this.snackBar.open(
+        'Keine gültigen Prompts in der Datei gefunden',
+        'Schließen',
+        { duration: 3000 }
+      );
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Bibliothek importieren?',
+        message: `${valid.length} Prompt(s) gefunden. Sie werden zusätzlich zu Ihrer bestehenden Bibliothek angelegt.`,
+        confirmText: 'Importieren',
+        cancelText: 'Abbrechen',
+      },
+    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        forkJoin(
+          valid.map((p) =>
+            this.libraryService.addPrompt({
+              name: p.name,
+              description: p.description,
+              category: p.category,
+              targetLanguage: p.targetLanguage,
+              cefr: p.cefr,
+              content: p.content,
+              tags: p.tags ?? [],
+              collection: p.collection,
+              editorConfig: p.editorConfig,
+            })
+          )
+        )
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.snackBar.open(
+                `${valid.length} Prompts importiert`,
+                'Schließen',
+                { duration: 3000 }
+              );
+              this.loadPrompts();
+            },
+            error: (error: unknown) => {
+              console.error('Error importing prompts:', error);
+              this.snackBar.open(
+                'Fehler beim Importieren der Prompts',
+                'Schließen',
+                { duration: 3000 }
+              );
+            },
+          });
+      });
+  }
+
+  /** Reopen the prompt's saved editor configuration for regeneration. */
+  openInEditor(prompt: LibraryPrompt): void {
+    if (!prompt.editorConfig) return;
+    this.router.navigate([prompt.editorConfig.route], {
+      state: { editorConfig: prompt.editorConfig },
+    });
   }
 
   closePrompt(): void {

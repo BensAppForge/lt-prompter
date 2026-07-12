@@ -4,9 +4,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SettingsService, ThemePreference } from '../../services/settings.service';
+import { LanguageService } from '../../services/language.service';
+import { CEFRLevel, Language } from '../../models/preferences.model';
 
 @Component({
   selector: 'app-settings',
@@ -16,6 +20,8 @@ import { SettingsService, ThemePreference } from '../../services/settings.servic
     MatIconModule,
     MatButtonModule,
     MatRadioModule,
+    MatFormFieldModule,
+    MatSelectModule,
     FormsModule,
     RouterModule
   ],
@@ -72,6 +78,39 @@ import { SettingsService, ThemePreference } from '../../services/settings.servic
                   </div>
                 </mat-radio-button>
               </mat-radio-group>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h2>Standardwerte für neue Prompts</h2>
+            <p class="section-description">
+              Diese Werte werden in allen Übungseditoren vorausgefüllt und können dort
+              jederzeit geändert werden.
+            </p>
+            <div class="defaults-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Standard-Zielsprache</mat-label>
+                <mat-select
+                  [value]="settingsService.getSettings()().defaultTargetLanguage"
+                  (selectionChange)="onDefaultLanguageChange($event.value)">
+                  <mat-option [value]="null">Keine Vorgabe</mat-option>
+                  @for (lang of languages; track lang) {
+                    <mat-option [value]="lang">{{ displayLanguage(lang) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Standard-Niveau (CEFR)</mat-label>
+                <mat-select
+                  [value]="settingsService.getSettings()().defaultCefr"
+                  (selectionChange)="onDefaultCefrChange($event.value)">
+                  <mat-option [value]="null">Keine Vorgabe</mat-option>
+                  @for (level of cefrLevels; track level) {
+                    <mat-option [value]="level">{{ level }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             </div>
           </section>
         </mat-card-content>
@@ -144,14 +183,51 @@ import { SettingsService, ThemePreference } from '../../services/settings.servic
       color: var(--text-secondary);
       font-size: 0.9rem;
     }
+
+    .section-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0 0 16px;
+    }
+
+    .defaults-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      mat-form-field {
+        flex: 1;
+        min-width: 220px;
+      }
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
   settingsService = inject(SettingsService);
+  private readonly languageService = inject(LanguageService);
   ThemePreference = ThemePreference;
+
+  readonly languages: Language[] = ['English', 'español', 'français', 'italiano'];
+  readonly cefrLevels: CEFRLevel[] = [
+    'A1', 'A1+', 'A2', 'A2+',
+    'B1', 'B1+', 'B2', 'B2+',
+    'C1', 'C1+', 'C2',
+  ];
+
+  displayLanguage(language: Language): string {
+    return this.languageService.displayLanguage(language);
+  }
 
   onThemeChange(preference: ThemePreference) {
     this.settingsService.updateThemePreference(preference);
+  }
+
+  onDefaultLanguageChange(language: Language | null) {
+    this.settingsService.updateDefaultTargetLanguage(language);
+  }
+
+  onDefaultCefrChange(cefr: CEFRLevel | null) {
+    this.settingsService.updateDefaultCefr(cefr);
   }
 }

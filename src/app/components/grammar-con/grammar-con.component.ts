@@ -90,6 +90,37 @@ export class GrammarConComponent extends BaseExerciseComponent {
       situationalContext: [''],
       situationalContextIsDialog: [false],
     });
+    const editorState = this.consumeEditorConfig();
+    if (editorState) {
+      this.applyEditorState(editorState);
+    } else {
+      this.applyDefaultPreferences(this.form);
+    }
+  }
+
+  private captureEditorState(): Record<string, unknown> {
+    return {
+      form: this.form.getRawValue(),
+      specifyInstances: this.specifyInstances(),
+      instancesPerPhenomenon: this.instancesPerPhenomenon(),
+    };
+  }
+
+  private applyEditorState(state: Record<string, unknown>): void {
+    const f = (state['form'] ?? {}) as Record<string, unknown>;
+    ((f['phenomena'] as PhenomenonForm[]) ?? []).forEach((p) =>
+      this.addPhenomenon(p.description, p.hint ?? '')
+    );
+    this.form.patchValue({
+      targetLanguage: f['targetLanguage'] ?? '',
+      cefr: f['cefr'] ?? '',
+      situationalContext: f['situationalContext'] ?? '',
+      situationalContextIsDialog: !!f['situationalContextIsDialog'],
+    });
+    this.specifyInstances.set(!!state['specifyInstances']);
+    if (typeof state['instancesPerPhenomenon'] === 'number') {
+      this.instancesPerPhenomenon.set(state['instancesPerPhenomenon']);
+    }
   }
 
   get phenomena(): FormArray {
@@ -172,6 +203,7 @@ export class GrammarConComponent extends BaseExerciseComponent {
 
     this.openSaveDialog({
       category: 'grammar',
+      editorConfig: { route: '/grammar', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
       cefr: formValue.cefr,
       name: `Grammatik - ${phenomena}`,

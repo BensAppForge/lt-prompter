@@ -95,6 +95,53 @@ export class VocabularyComponent extends BaseExerciseComponent {
   readonly exerciseTypes = VOCABULARY_EXERCISE_TYPES;
   readonly sourceTypes = VOCABULARY_SOURCE_TYPES;
 
+  constructor() {
+    super();
+    const editorState = this.consumeEditorConfig();
+    if (editorState) {
+      this.applyEditorState(editorState);
+    } else {
+      this.applyDefaultPreferences(this.form);
+    }
+  }
+
+  private captureEditorState(): Record<string, unknown> {
+    return {
+      form: this.form.getRawValue(),
+      inputMode: this.inputMode(),
+      sourceType: this.sourceType(),
+      specifyCounts: this.specifyCounts(),
+      itemCounts: this.itemCounts(),
+    };
+  }
+
+  private applyEditorState(state: Record<string, unknown>): void {
+    if (state['inputMode']) {
+      this.onInputModeChange(state['inputMode'] as VocabularyInputMode);
+    }
+    if (state['sourceType']) {
+      this.sourceType.set(state['sourceType'] as VocabularySourceType);
+    }
+    const f = (state['form'] ?? {}) as Record<string, unknown>;
+    this.words.clear();
+    ((f['words'] as string[]) ?? []).forEach((word) =>
+      this.words.push(this.fb.control(word))
+    );
+    this.form.patchValue({
+      targetLanguage: (f['targetLanguage'] as Language) ?? null,
+      cefr: (f['cefr'] as CEFRLevel) ?? null,
+      exerciseTypes: (f['exerciseTypes'] as VocabularyExerciseType[]) ?? [],
+      situationalContext: (f['situationalContext'] as string) ?? '',
+      situationalContextIsDialog: !!f['situationalContextIsDialog'],
+    });
+    this.specifyCounts.set(!!state['specifyCounts']);
+    this.itemCounts.set(
+      (state['itemCounts'] as Partial<
+        Record<VocabularyExerciseType, number>
+      >) ?? {}
+    );
+  }
+
   readonly inputMode = signal<VocabularyInputMode>('manual');
   readonly sourceType = signal<VocabularySourceType | null>(null);
 
@@ -207,6 +254,22 @@ export class VocabularyComponent extends BaseExerciseComponent {
     event.chipInput!.clear();
   }
 
+  /** Pasted word lists (comma-, semicolon-, tab- or newline-separated, e.g.
+   * from a textbook PDF or spreadsheet) are split into individual chips. */
+  onWordsPaste(event: ClipboardEvent): void {
+    const text = event.clipboardData?.getData('text') ?? '';
+    if (!/[,;\t\n]/.test(text)) {
+      return; // single word: keep default paste behaviour
+    }
+    event.preventDefault();
+    text
+      .split(/[,;\t\n]+/)
+      .map((word) => word.trim())
+      .filter(Boolean)
+      .forEach((word) => this.words.push(this.fb.control(word)));
+    (event.target as HTMLInputElement).value = '';
+  }
+
   removeWord(index: number): void {
     this.words.removeAt(index);
   }
@@ -294,6 +357,7 @@ export class VocabularyComponent extends BaseExerciseComponent {
 
     this.openSaveDialog({
       category: 'vocabulary',
+      editorConfig: { route: '/vocabulary', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage!,
       cefr: formValue.cefr!,
       name: `Vokabelübung - ${sourceLabel}`,

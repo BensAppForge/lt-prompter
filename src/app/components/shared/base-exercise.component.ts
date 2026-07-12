@@ -14,10 +14,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CEFRLevel, Language } from '../../models/preferences.model';
-import { LibraryPrompt, PromptCategory } from '../../models/library.model';
+import {
+  EditorConfig,
+  LibraryPrompt,
+  PromptCategory,
+} from '../../models/library.model';
 import { ClipboardService } from '../../services/clipboard.service';
 import { LibraryService } from '../../services/library.service';
 import { LanguageService } from '../../services/language.service';
+import { SettingsService } from '../../services/settings.service';
 import { ScrollService } from '../../shared/services/scroll.service';
 import { SaveToLibraryDialogComponent } from './save-to-library-dialog/save-to-library-dialog.component';
 
@@ -38,6 +43,7 @@ export abstract class BaseExerciseComponent {
   protected readonly clipboardService = inject(ClipboardService);
   protected readonly libraryService = inject(LibraryService);
   protected readonly languageService = inject(LanguageService);
+  protected readonly settingsService = inject(SettingsService);
   protected readonly scrollService = inject(ScrollService);
 
   // --- Shared state ---
@@ -89,6 +95,39 @@ export abstract class BaseExerciseComponent {
         onCleanup(() => clearTimeout(timer));
       }
     });
+  }
+
+  /**
+   * Editor state passed along when a saved prompt is opened from the library
+   * ("Im Editor öffnen"). Returns null on a normal navigation.
+   */
+  protected consumeEditorConfig(): Record<string, unknown> | null {
+    const navState =
+      this.router.getCurrentNavigation()?.extras?.state ?? history.state;
+    const config = (navState as Record<string, unknown> | undefined)?.[
+      'editorConfig'
+    ] as EditorConfig | undefined;
+    return config?.state ?? null;
+  }
+
+  /**
+   * Prefill the form's targetLanguage/cefr controls with the defaults from
+   * the settings page. Call once after building the form.
+   */
+  protected applyDefaultPreferences(form: {
+    patchValue(value: Record<string, unknown>): void;
+  }): void {
+    const settings = this.settingsService.getSettings()();
+    const patch: Record<string, unknown> = {};
+    if (settings.defaultTargetLanguage) {
+      patch['targetLanguage'] = settings.defaultTargetLanguage;
+    }
+    if (settings.defaultCefr) {
+      patch['cefr'] = settings.defaultCefr;
+    }
+    if (Object.keys(patch).length) {
+      form.patchValue(patch);
+    }
   }
 
   // --- Navigation ---
@@ -156,12 +195,32 @@ export abstract class BaseExerciseComponent {
     name: string;
     description: string;
     tags: string[];
+    editorConfig?: EditorConfig;
   }): void {
+    this.libraryService
+      .getCollections()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((collections) => this.openSaveDialogWith(data, collections));
+  }
+
+  private openSaveDialogWith(
+    data: {
+      category: PromptCategory;
+      targetLanguage: Language;
+      cefr: CEFRLevel;
+      name: string;
+      description: string;
+      tags: string[];
+      editorConfig?: EditorConfig;
+    },
+    collections: string[]
+  ): void {
     const dialogRef = this.dialog.open(SaveToLibraryDialogComponent, {
       width: '600px',
       data: {
         ...data,
         content: this.currentPromptText(),
+        collections,
       },
     });
 
@@ -182,6 +241,8 @@ export abstract class BaseExerciseComponent {
               name: result.name,
               description: result.description,
               tags: result.tags || [],
+              collection: result.collection,
+              editorConfig: data.editorConfig,
             };
 
             this.libraryService

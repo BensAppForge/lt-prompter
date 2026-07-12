@@ -94,6 +94,30 @@ export class ComprehensionComponent extends BaseExerciseComponent {
       situationalContext: [''],
       situationalContextIsDialog: [false],
     });
+    const editorState = this.consumeEditorConfig();
+    if (editorState) {
+      this.applyEditorState(editorState);
+    } else {
+      this.applyDefaultPreferences(this.form);
+    }
+  }
+
+  private captureEditorState(): Record<string, unknown> {
+    return {
+      form: this.form.getRawValue(),
+      specifyCounts: this.specifyCounts(),
+      itemCounts: this.itemCounts(),
+    };
+  }
+
+  private applyEditorState(state: Record<string, unknown>): void {
+    this.form.patchValue((state['form'] ?? {}) as Record<string, unknown>);
+    this.specifyCounts.set(!!state['specifyCounts']);
+    this.itemCounts.set(
+      (state['itemCounts'] as Partial<
+        Record<ComprehensionExerciseType, number>
+      >) ?? {}
+    );
   }
 
   isExerciseTypeSelected(type: ComprehensionExerciseType): boolean {
@@ -199,6 +223,7 @@ export class ComprehensionComponent extends BaseExerciseComponent {
 
     this.openSaveDialog({
       category: 'comprehension',
+      editorConfig: { route: '/comprehension', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
       cefr: formValue.cefr,
       name: `Textverständnis - ${this.getSourceTypeTranslation(formValue.sourceType)}`,

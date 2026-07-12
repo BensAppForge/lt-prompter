@@ -12,6 +12,19 @@
         </mat-card-header>
 
         <mat-card-content>
+            <div class="library-actions">
+                <button mat-stroked-button type="button" (click)="exportLibrary()">
+                    <mat-icon>download</mat-icon>
+                    <span>Exportieren</span>
+                </button>
+                <button mat-stroked-button type="button" (click)="importInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    <span>Importieren</span>
+                </button>
+                <input type="file" accept=".json,application/json" hidden #importInput
+                    (change)="onImportFileSelected($event)">
+            </div>
+
             <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
                 <div class="search-fields">
                     <mat-form-field>
@@ -50,6 +63,20 @@
                         </mat-select>
                     </mat-form-field>
 
+                    @if (collections().length > 0) {
+                        <mat-form-field>
+                            <mat-label>Sammlung</mat-label>
+                            <mat-select formControlName="collection">
+                                <mat-option [value]="null">Alle Sammlungen</mat-option>
+                                @for (collection of collections(); track collection) {
+                                    <mat-option [value]="collection">
+                                        {{ collection }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+
                     <mat-form-field class="search-field">
                         <mat-label>Suche</mat-label>
                         <input matInput formControlName="searchTerm"
@@ -74,6 +101,12 @@
                                     <span class="category">{{ getCategoryLabel(prompt.category) }}</span>
                                     <span class="language">{{ displayLanguage(prompt.targetLanguage) }}</span>
                                     <span class="cefr">{{ prompt.cefr }}</span>
+                                    @if (prompt.collection) {
+                                        <span class="collection">
+                                            <mat-icon inline>folder</mat-icon>
+                                            {{ prompt.collection }}
+                                        </span>
+                                    }
                                 </div>
                             </div>
                             <p class="description">{{ prompt.description }}</p>
@@ -81,6 +114,12 @@
                                 <button mat-icon-button (click)="viewPrompt(prompt)" matTooltip="Anzeigen" aria-label="Prompt anzeigen">
                                     <mat-icon>visibility</mat-icon>
                                 </button>
+                                @if (prompt.editorConfig) {
+                                    <button mat-icon-button (click)="openInEditor(prompt)" matTooltip="Im Editor öffnen"
+                                        aria-label="Prompt im Editor öffnen">
+                                        <mat-icon>tune</mat-icon>
+                                    </button>
+                                }
                                 <button mat-icon-button (click)="deletePrompt(prompt)" matTooltip="Löschen" aria-label="Prompt löschen">
                                     <mat-icon>delete</mat-icon>
                                 </button>

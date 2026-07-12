@@ -9,6 +9,7 @@ export interface SearchQuery {
   category?: PromptCategory | null;
   targetLanguage?: Language | null;
   cefr?: CEFRLevel | null;
+  collection?: string | null;
   searchTerm?: string;
 }
 
@@ -68,6 +69,19 @@ export class LibraryService {
     );
   }
 
+  /** Distinct collection names across all saved prompts, sorted. */
+  getCollections(): Observable<string[]> {
+    return this.getAllPrompts().pipe(
+      map((prompts) =>
+        [...new Set(
+          prompts
+            .map((p) => p.collection)
+            .filter((c): c is string => !!c)
+        )].sort((a, b) => a.localeCompare(b, 'de'))
+      )
+    );
+  }
+
   searchPrompts(query: SearchQuery): Observable<LibraryPrompt[]> {
     return this.getAllPrompts().pipe(
       map((prompts) => {
@@ -78,12 +92,18 @@ export class LibraryService {
             !query.targetLanguage ||
             prompt.targetLanguage === query.targetLanguage;
           const matchesCefr = !query.cefr || prompt.cefr === query.cefr;
+          const matchesCollection =
+            !query.collection || prompt.collection === query.collection;
           const matchesSearch =
             !query.searchTerm ||
             this.matchesSearchTerm(prompt, query.searchTerm);
 
           return (
-            matchesCategory && matchesLanguage && matchesCefr && matchesSearch
+            matchesCategory &&
+            matchesLanguage &&
+            matchesCefr &&
+            matchesCollection &&
+            matchesSearch
           );
         });
       })
