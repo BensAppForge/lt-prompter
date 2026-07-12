@@ -276,6 +276,16 @@ export class VersionService {
         • Neue Nutzerinnen und Nutzer erhalten beim ersten Besuch keine irreführende Update-Meldung mehr
       `.trim(),
     },
+    {
+      id: 24,
+      versionNumber: '1.6.5',
+      releaseDate: new Date('2026-07-12'),
+      shortDescription: 'Gewichtung der Übungstypen auf einen Blick',
+      longDescription: `
+        • Textverständnis: Unter den Aufgabenanzahl-Reglern zeigt eine Zusammenfassung jetzt die Gesamtzahl und das prozentuale Verhältnis der Übungstypen (z.B. "Gesamt: 8 Aufgaben · Verhältnis 25 % : 75 %")
+        • Textverständnis & Vokabeln: Neuer Hinweis, dass KI-Modelle sich in der Regel, aber nicht garantiert, exakt an die Anzahl-Vorgaben halten
+      `.trim(),
+    },
   ];
 
   constructor() {

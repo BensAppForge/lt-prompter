@@ -123,6 +123,20 @@ export class ComprehensionComponent extends BaseExerciseComponent {
     this.itemCounts.update((counts) => ({ ...counts, [type]: value }));
   }
 
+  /** Live summary of the configured counts, e.g.
+   * "Gesamt: 8 Aufgaben · Verhältnis 25 % : 75 %". */
+  countSummary(): string {
+    const types = this.selectedExercises();
+    const total = types.reduce((sum, type) => sum + this.getCount(type), 0);
+    if (types.length < 2) {
+      return `Gesamt: ${total} Aufgaben`;
+    }
+    const ratio = types
+      .map((type) => `${Math.round((this.getCount(type) / total) * 100)} %`)
+      .join(' : ');
+    return `Gesamt: ${total} Aufgaben · Verhältnis ${ratio}`;
+  }
+
   onExerciseTypeChange(
     event: { checked: boolean },
     type: ComprehensionExerciseType

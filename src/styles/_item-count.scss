@@ -28,6 +28,13 @@
     }
   }
 
+  .count-summary {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 8px 0 0;
+  }
+
   .count-hint {
     font-size: 0.85rem;
     color: var(--text-secondary);
