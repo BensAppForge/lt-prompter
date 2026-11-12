@@ -1,5 +1,6 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { CEFRLevel, Language } from '../models/preferences.model';
+import { isOutputFormat, OutputFormat } from '../models/output-format.model';
 
 export enum ThemePreference {
   Light = 'light',
@@ -13,12 +14,15 @@ interface AppSettings {
   defaultTargetLanguage: Language | null;
   /** Prefilled as CEFR-Niveau in all exercise editors; null = no default. */
   defaultCefr: CEFRLevel | null;
+  /** Preselected as "Ausgabe als Datei" in the exercise editors. */
+  defaultOutputFormat: OutputFormat;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   themePreference: ThemePreference.System,
   defaultTargetLanguage: null,
-  defaultCefr: null
+  defaultCefr: null,
+  defaultOutputFormat: 'chat'
 };
 
 @Injectable({
@@ -66,7 +70,11 @@ export class SettingsService {
           Object.values(ThemePreference).includes(parsed.themePreference)
         ) {
           // Merge so settings stored by older versions gain new fields
-          return { ...DEFAULT_SETTINGS, ...parsed };
+          const merged: AppSettings = { ...DEFAULT_SETTINGS, ...parsed };
+          if (!isOutputFormat(merged.defaultOutputFormat)) {
+            merged.defaultOutputFormat = DEFAULT_SETTINGS.defaultOutputFormat;
+          }
+          return merged;
         }
       } catch {
         // fall through to defaults
@@ -101,6 +109,13 @@ export class SettingsService {
     this.settings.update(current => ({
       ...current,
       defaultCefr: cefr
+    }));
+  }
+
+  updateDefaultOutputFormat(format: OutputFormat) {
+    this.settings.update(current => ({
+      ...current,
+      defaultOutputFormat: format
     }));
   }
 }

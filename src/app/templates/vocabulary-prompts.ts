@@ -450,46 +450,58 @@ export function getExerciseTypeContent(
   return exerciseTypeContent[language][exerciseType];
 }
 
-// Per-exercise-type item-count requirements ([COUNT] placeholder).
-// Appended to a type's requirements when the teacher sets an explicit count.
+// Per-exercise-type item-count requirements ([COUNT] placeholder), added to a
+// type's requirements when the teacher sets an explicit count.
+// Gap-filling, matching and categorization only take a count in file mode
+// (with a typed word list the list itself sets the size), so their wording
+// selects from the extracted vocabulary and makes that selection the
+// exercise's word list — keeping "use each word exactly once" consistent.
 export const itemCountRequirements: Record<
   Language,
   Record<VocabularyExerciseType, string>
 > = {
   English: {
     'gap-filling':
-      'Use exactly [COUNT] words from the source; the text must contain exactly [COUNT] gaps.',
-    matching: 'Include exactly [COUNT] pairs to match.',
+      'Select exactly [COUNT] words from the extracted vocabulary. Only these [COUNT] words form the word list for this exercise, and the text must contain exactly [COUNT] gaps.',
+    matching:
+      'Select exactly [COUNT] words from the extracted vocabulary and include exactly [COUNT] pairs to match.',
     'multiple-choice': 'Include exactly [COUNT] sentences.',
     'word-formation': 'Include exactly [COUNT] sentences.',
-    categorization: 'Include exactly [COUNT] words to sort.',
+    categorization:
+      'Select exactly [COUNT] words from the extracted vocabulary; only these [COUNT] words are to be sorted.',
     'odd-one-out': 'Include exactly [COUNT] groups.',
   },
   français: {
     'gap-filling':
-      'Utilisez exactement [COUNT] mots de la source ; le texte doit contenir exactement [COUNT] trous.',
-    matching: 'Incluez exactement [COUNT] paires à associer.',
+      'Sélectionnez exactement [COUNT] mots parmi le vocabulaire extrait. Seuls ces [COUNT] mots constituent la liste de mots de cet exercice, et le texte doit contenir exactement [COUNT] trous.',
+    matching:
+      'Sélectionnez exactement [COUNT] mots parmi le vocabulaire extrait et incluez exactement [COUNT] paires à associer.',
     'multiple-choice': 'Incluez exactement [COUNT] phrases.',
     'word-formation': 'Incluez exactement [COUNT] phrases.',
-    categorization: 'Incluez exactement [COUNT] mots à classer.',
+    categorization:
+      'Sélectionnez exactement [COUNT] mots parmi le vocabulaire extrait ; seuls ces [COUNT] mots sont à classer.',
     'odd-one-out': 'Incluez exactement [COUNT] groupes.',
   },
   español: {
     'gap-filling':
-      'Utiliza exactamente [COUNT] palabras de la fuente; el texto debe contener exactamente [COUNT] huecos.',
-    matching: 'Incluye exactamente [COUNT] parejas para relacionar.',
+      'Selecciona exactamente [COUNT] palabras del vocabulario extraído. Solo estas [COUNT] palabras forman la lista de palabras de este ejercicio, y el texto debe contener exactamente [COUNT] huecos.',
+    matching:
+      'Selecciona exactamente [COUNT] palabras del vocabulario extraído e incluye exactamente [COUNT] parejas para relacionar.',
     'multiple-choice': 'Incluye exactamente [COUNT] frases.',
     'word-formation': 'Incluye exactamente [COUNT] frases.',
-    categorization: 'Incluye exactamente [COUNT] palabras para clasificar.',
+    categorization:
+      'Selecciona exactamente [COUNT] palabras del vocabulario extraído; solo estas [COUNT] palabras deben clasificarse.',
     'odd-one-out': 'Incluye exactamente [COUNT] grupos.',
   },
   italiano: {
     'gap-filling':
-      'Utilizza esattamente [COUNT] parole dalla fonte; il testo deve contenere esattamente [COUNT] spazi vuoti.',
-    matching: 'Includi esattamente [COUNT] coppie da abbinare.',
+      'Seleziona esattamente [COUNT] parole dal vocabolario estratto. Solo queste [COUNT] parole costituiscono la lista di parole di questo esercizio, e il testo deve contenere esattamente [COUNT] spazi vuoti.',
+    matching:
+      'Seleziona esattamente [COUNT] parole dal vocabolario estratto e includi esattamente [COUNT] coppie da abbinare.',
     'multiple-choice': 'Includi esattamente [COUNT] frasi.',
     'word-formation': 'Includi esattamente [COUNT] frasi.',
-    categorization: 'Includi esattamente [COUNT] parole da classificare.',
+    categorization:
+      'Seleziona esattamente [COUNT] parole dal vocabolario estratto; solo queste [COUNT] parole devono essere classificate.',
     'odd-one-out': 'Includi esattamente [COUNT] gruppi.',
   },
 };
@@ -500,6 +512,9 @@ export const commonTemplateParts: {
     wordListIntro: string;
     contextIntro: string;
     autoContextIntro: string;
+    /** Prefix of the note naming the exercise types the context applies to;
+     * added when only some of the selected types work with a context. */
+    contextScopeIntro: string;
     requirementsIntro: string;
     dialogRequirement: string;
   };
@@ -509,6 +524,8 @@ export const commonTemplateParts: {
     contextIntro: 'Context:\n',
     autoContextIntro:
       'Create a context that is appropriate for teenage students and incorporates the provided words.\n',
+    contextScopeIntro:
+      'The context applies only to the following exercise types: ',
     requirementsIntro: 'Additional requirements:',
     dialogRequirement: 'Present the exercise in the form of a dialogue.',
   },
@@ -517,6 +534,8 @@ export const commonTemplateParts: {
     contextIntro: 'Contexte :\n',
     autoContextIntro:
       'Créez un contexte approprié pour des élèves adolescents en utilisant les mots fournis.\n',
+    contextScopeIntro:
+      "Le contexte s'applique uniquement aux types d'exercices suivants : ",
     requirementsIntro: 'Exigences supplémentaires :',
     dialogRequirement: 'Présentez l\'exercice sous la forme d\'un dialogue.',
   },
@@ -525,6 +544,8 @@ export const commonTemplateParts: {
     contextIntro: 'Contexto:\n',
     autoContextIntro:
       'Crea un contexto apropiado para estudiantes adolescentes utilizando las palabras proporcionadas.\n',
+    contextScopeIntro:
+      'El contexto se aplica únicamente a los siguientes tipos de ejercicios: ',
     requirementsIntro: 'Requisitos adicionales:',
     dialogRequirement: 'Presenta el ejercicio en forma de diálogo.',
   },
@@ -533,6 +554,8 @@ export const commonTemplateParts: {
     contextIntro: 'Contesto:\n',
     autoContextIntro:
       'Crea un contesto adatto per studenti adolescenti utilizzando le parole fornite.\n',
+    contextScopeIntro:
+      'Il contesto si applica solo ai seguenti tipi di esercizi: ',
     requirementsIntro: 'Requisiti aggiuntivi:',
     dialogRequirement: 'Presenta l\'esercizio sotto forma di dialogo.',
   },
@@ -565,28 +588,50 @@ export const vocabularySourceTypeTranslations: Record<
   },
 };
 
-// Fragment used when the teacher will attach a file (image / PDF / docx) in
+// Fragments used when the teacher will attach a file (image / PDF / docx) in
 // their AI tool instead of typing the vocabulary list. The teacher uploads
 // the file in ChatGPT/Claude/etc. — lt-prompter only generates the prompt.
 export const vocabularyFileSourceParts: {
   [key in Language]: {
+    /** Announces the attachment ([SOURCE_TYPE] placeholder). */
     attachmentInstruction: string;
+    /** Follows the announcement when no item counts are set. */
+    useAllWords: string;
+    /** Follows the announcement when the teacher set item counts — "use
+     * every word" would contradict "exactly N". */
+    useSelectedWords: string;
   };
 } = {
   English: {
     attachmentInstruction:
-      'I will attach a file ([SOURCE_TYPE]) to this message. Extract the target vocabulary words from it and use them as the word list for the exercise. Use every word that is clearly part of the vocabulary list and ignore unrelated text.\n',
+      'I will attach a file ([SOURCE_TYPE]) to this message. Extract the target vocabulary words from it and use them as the word list for the exercise. Ignore unrelated text.',
+    useAllWords:
+      'Use every word that is clearly part of the vocabulary list.',
+    useSelectedWords:
+      'You do not need to use every extracted word: the requirements below specify how many items each exercise must contain.',
   },
   français: {
     attachmentInstruction:
-      "Je joindrai un fichier ([SOURCE_TYPE]) à ce message. Extrayez-en les mots de vocabulaire cibles et utilisez-les comme liste de mots pour l'exercice. Utilisez chaque mot qui fait clairement partie de la liste de vocabulaire et ignorez les textes non pertinents.\n",
+      "Je joindrai un fichier ([SOURCE_TYPE]) à ce message. Extrayez-en les mots de vocabulaire cibles et utilisez-les comme liste de mots pour l'exercice. Ignorez les textes non pertinents.",
+    useAllWords:
+      'Utilisez chaque mot qui fait clairement partie de la liste de vocabulaire.',
+    useSelectedWords:
+      "Il n'est pas nécessaire d'utiliser tous les mots extraits : les exigences ci-dessous précisent combien d'éléments chaque exercice doit contenir.",
   },
   español: {
     attachmentInstruction:
-      'Adjuntaré un archivo ([SOURCE_TYPE]) a este mensaje. Extrae de él las palabras de vocabulario objetivo y úsalas como lista de palabras para el ejercicio. Utiliza cada palabra que forme claramente parte de la lista de vocabulario e ignora el texto no relacionado.\n',
+      'Adjuntaré un archivo ([SOURCE_TYPE]) a este mensaje. Extrae de él las palabras de vocabulario objetivo y úsalas como lista de palabras para el ejercicio. Ignora el texto no relacionado.',
+    useAllWords:
+      'Utiliza cada palabra que forme claramente parte de la lista de vocabulario.',
+    useSelectedWords:
+      'No es necesario utilizar todas las palabras extraídas: los requisitos siguientes indican cuántos elementos debe contener cada ejercicio.',
   },
   italiano: {
     attachmentInstruction:
-      'Allegherò un file ([SOURCE_TYPE]) a questo messaggio. Estrai da esso le parole di vocabolario obiettivo e usale come elenco di parole per l\'esercizio. Usa ogni parola che fa chiaramente parte della lista di vocabolario e ignora il testo non pertinente.\n',
+      "Allegherò un file ([SOURCE_TYPE]) a questo messaggio. Estrai da esso le parole di vocabolario obiettivo e usale come elenco di parole per l'esercizio. Ignora il testo non pertinente.",
+    useAllWords:
+      'Usa ogni parola che fa chiaramente parte della lista di vocabolario.',
+    useSelectedWords:
+      'Non è necessario usare tutte le parole estratte: i requisiti qui sotto indicano quanti elementi deve contenere ogni esercizio.',
   },
 };

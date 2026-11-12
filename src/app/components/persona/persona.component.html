@@ -1,0 +1,271 @@
+<div class="page-container">
+  <div class="back-button-container">
+    <button mat-icon-button (click)="navigateToDashboard()" aria-label="Zurück zum Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <mat-card class="persona-container">
+    <mat-card-header>
+      <mat-card-title>Persona-Chat</mat-card-title>
+      <mat-card-subtitle>
+        Erstellen Sie einen Prompt, mit dem ein KI-Chatbot in eine Rolle schlüpft und mit Ihren Lernenden in der
+        Zielsprache spricht
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Zielsprache</mat-label>
+            <mat-select formControlName="targetLanguage" required>
+              @for (lang of languages; track lang) {
+                <mat-option [value]="lang">{{ displayLanguage(lang) }}</mat-option>
+              }
+            </mat-select>
+            <mat-error>Bitte wählen Sie eine Zielsprache aus</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CEFR-Niveau</mat-label>
+            <mat-select formControlName="cefr" required>
+              @for (level of cefrLevels; track level) {
+                <mat-option [value]="level">{{ level }}</mat-option>
+              }
+            </mat-select>
+            <mat-error>Bitte wählen Sie ein CEFR-Niveau aus</mat-error>
+          </mat-form-field>
+        </div>
+
+        <h3 class="section-title">Persona</h3>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Art der Persona</mat-label>
+            <mat-select formControlName="personaType">
+              @for (type of personaTypes; track type.value) {
+                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Persona</mat-label>
+            <input matInput formControlName="persona" required maxlength="120" [placeholder]="personaExample()"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)">
+            <mat-hint>Wen soll die KI verkörpern?</mat-hint>
+            <mat-error>Bitte geben Sie an, wen die KI verkörpern soll</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Kurzbeschreibung (optional)</mat-label>
+            <input matInput formControlName="personaDescription" maxlength="200"
+              [placeholder]="descriptionExample()"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)">
+            <mat-hint>Wird im Prompt direkt hinter den Namen gesetzt – am besten in der Zielsprache.</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <h3 class="section-title">Inhalt</h3>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Themenschwerpunkte (optional)</mat-label>
+            <input matInput formControlName="topics" maxlength="300"
+              placeholder="z. B. Firenze, l'esilio, Beatrice, la Divina Commedia"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)">
+            <mat-hint>Worüber soll vor allem gesprochen werden?</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Rechercheziel (optional)</mat-label>
+            <textarea matInput formControlName="researchGoal" rows="3" maxlength="500"
+              placeholder="z. B. Scoprire perché Dante ha lasciato Firenze e perché ha scritto in volgare"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"></textarea>
+            <mat-hint>
+              Was sollen die Lernenden herausfinden? Die Persona hilft ihnen, das Ziel über eigene Fragen zu
+              erreichen, ohne alles auf einmal zu verraten.
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <h3 class="section-title">Gespräch und Sprache</h3>
+
+        <div class="style-section">
+          <span class="field-label" id="persona-style-label">Gesprächsform</span>
+          <mat-button-toggle-group formControlName="conversationStyle" aria-labelledby="persona-style-label">
+            @for (style of conversationStyles; track style.value) {
+              <mat-button-toggle [value]="style.value">{{ style.label }}</mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+          <p class="field-hint">{{ conversationStyleHint() }}</p>
+        </div>
+
+        <div class="item-count-section">
+          <div class="count-row">
+            <span class="count-label">Sätze pro Antwort (höchstens)</span>
+            <mat-slider [min]="sentenceLimits.min" [max]="sentenceLimits.max" step="1" discrete class="count-slider">
+              <input matSliderThumb [value]="maxSentences()" (valueChange)="maxSentences.set($event)"
+                aria-label="Höchstzahl der Sätze pro Antwort" />
+            </mat-slider>
+            <span class="count-value">{{ maxSentences() }}</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Umgang mit Sprachfehlern der Lernenden</mat-label>
+            <mat-select formControlName="errorHandling">
+              @for (option of errorHandlingOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (literaryTense(); as tense) {
+          <div class="toggle-row">
+            <mat-slide-toggle formControlName="avoidLiteraryTense" color="primary">
+              Kein {{ tense.tense }} verwenden (stattdessen {{ tense.instead }})
+            </mat-slide-toggle>
+          </div>
+        }
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Sprachliche Vorgaben (optional)</mat-label>
+            <input matInput formControlName="languageNotes" maxlength="300"
+              placeholder="z. B. Usa soprattutto il lessico dell'unità 4: città, viaggi, famiglia"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)">
+            <mat-hint>
+              Das Niveau und die Erklärung schwieriger Wörter in Klammern sind bereits berücksichtigt.
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <h3 class="section-title">Moderation und Grenzen</h3>
+
+        <p class="fixed-rules">
+          <mat-icon aria-hidden="true">verified_user</mat-icon>
+          <span>
+            Immer enthalten: altersgerechte Inhalte, beim Thema bleiben (keine Hausaufgaben, keine Übersetzungen),
+            keine persönlichen Daten erfragen, ruhiger Umgang mit Provokationen, ehrliche Auskunft, dass eine KI die
+            Rolle spielt, und der Verweis auf Lehrkraft oder Vertrauensperson, wenn es jemandem nicht gut geht.
+          </span>
+        </p>
+
+        <div class="item-count-section">
+          <mat-slide-toggle [checked]="limitTurns()" (change)="limitTurns.set($event.checked)" color="primary">
+            Gesprächslänge begrenzen (optional)
+          </mat-slide-toggle>
+          @if (limitTurns()) {
+            <div class="count-row">
+              <span class="count-label">Nachrichten der Lernenden</span>
+              <mat-slider [min]="turnLimits.min" [max]="turnLimits.max" step="1" discrete class="count-slider">
+                <input matSliderThumb [value]="turnLimit()" (valueChange)="turnLimit.set($event)"
+                  aria-label="Anzahl der Nachrichten bis zum Gesprächsende" />
+              </mat-slider>
+              <span class="count-value">{{ turnLimit() }}</span>
+            </div>
+          }
+          <p class="count-hint">
+            Hinweis: KI-Modelle halten sich in der Regel, aber nicht garantiert, exakt an Satz- und
+            Nachrichtenzahlen. Probieren Sie das Gespräch vor dem Einsatz selbst aus.
+          </p>
+        </div>
+
+        <div class="toggle-row">
+          <mat-slide-toggle formControlName="closingSummary" color="primary">
+            Zum Abschluss die wichtigsten Informationen zusammenfassen
+          </mat-slide-toggle>
+          <mat-slide-toggle formControlName="closingFeedback" color="primary">
+            Zum Abschluss kurzes Feedback zur Sprache geben
+          </mat-slide-toggle>
+          @if (hasClosing()) {
+            <p class="field-hint">
+              Die Persona verabschiedet sich und verlässt dann die Rolle.
+              @if (stopWord(); as word) {
+                Die Lernenden beenden das Gespräch mit dem Wort „{{ word }}“.
+              }
+            </p>
+          }
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Zusätzliche Regeln (optional)</mat-label>
+            <textarea matInput formControlName="extraRules" rows="2" maxlength="500"
+              placeholder="z. B. Non descrivere in dettaglio le pene dell'Inferno"
+              [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"></textarea>
+            <mat-hint>Eigene Grenzen für dieses Gespräch, etwa Themen, die ausgespart bleiben sollen.</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="button-row">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
+            Prompt generieren
+          </button>
+        </div>
+
+        <div class="info-banner">
+          <mat-icon aria-hidden="true">info</mat-icon>
+          <div>
+            <strong>Hinweise für den Einsatz im Unterricht</strong>
+            <ul>
+              <li>
+                Die Lernenden fügen den Prompt als erste Nachricht in einen KI-Chat ein. Alternativ hinterlegen Sie ihn
+                als Anweisung in einem Chatbot, den Sie in Ihrer Schul-KI für die Klasse einrichten – dann sehen die
+                Lernenden die Regeln nicht.
+              </li>
+              <li>Probieren Sie das Gespräch vorher selbst aus, auch mit provozierenden und themenfremden Fragen.</li>
+              <li>Nutzen Sie nur KI-Tools, die Ihre Schule freigegeben hat, und lassen Sie keine persönlichen Daten eingeben.</li>
+              <li>
+                Eine KI kann sich irren: Lassen Sie wichtige Fakten aus dem Gespräch mit dem Lehrwerk oder einer
+                zweiten Quelle überprüfen.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </form>
+
+      @if (generatedPrompt()) {
+        <div class="prompt-controls">
+          <button mat-button (click)="toggleEditMode()" class="edit-button" [class.active]="isEditMode()"
+            [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">
+            <mat-icon>{{ isEditMode() ? 'visibility' : 'edit' }}</mat-icon>
+            <span class="button-text">{{ isEditMode() ? 'Anzeigen' : 'Bearbeiten' }}</span>
+          </button>
+          <button mat-button (click)="copyToClipboard(currentPromptText())" class="copy-button"
+            aria-label="In die Zwischenablage kopieren">
+            <mat-icon>content_copy</mat-icon>
+            <span class="button-text">Kopieren</span>
+          </button>
+          <button mat-button (click)="saveToLibrary()" class="save-button"
+            [disabled]="isSavedToLibrary() && !isEditMode()" aria-label="In Bibliothek speichern">
+            <mat-icon>library_add</mat-icon>
+            <span class="button-text">In Bibliothek speichern</span>
+          </button>
+        </div>
+
+        <div class="prompt-container" role="region" aria-label="Generierter Prompt" #promptContainer>
+          <div class="prompt-content">
+            @if (!isEditMode()) {
+              <pre>{{ displayedPrompt() }}</pre>
+            } @else {
+              <textarea class="prompt-editor" [(ngModel)]="editablePrompt" rows="14" [placeholder]="generatedPrompt()"
+                [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true">
+              </textarea>
+            }
+          </div>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

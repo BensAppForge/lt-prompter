@@ -126,6 +126,8 @@
           </mat-slide-toggle>
         </div>
 
+        <app-output-format-field [(value)]="outputFormat" />
+
         <div class="button-container">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid || phenomena.length === 0">
             <mat-icon>auto_stories</mat-icon>

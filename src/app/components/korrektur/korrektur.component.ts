@@ -26,7 +26,10 @@ import {
   KORREKTUR_CRITERIA_SOURCE_TYPES,
 } from '../../models/korrektur.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
-import { BaseExerciseComponent } from '../shared/base-exercise.component';
+import {
+  BaseExerciseComponent,
+  SaveToLibraryData,
+} from '../shared/base-exercise.component';
 
 @Component({
   selector: 'app-korrektur',
@@ -51,6 +54,9 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
 export class KorrekturComponent extends BaseExerciseComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly promptService = inject(PromptTemplateService);
+
+  // The prompt builds its own HTML page with a PDF export
+  protected override readonly offersFileOutput = false;
 
   form: FormGroup;
   readonly sourceTypes: KorrekturSourceType[] = [
@@ -116,12 +122,13 @@ export class KorrekturComponent extends BaseExerciseComponent {
       };
 
       this.commitGeneratedPrompt(
-        this.promptService.generateKorrekturPrompt(config)
+        this.promptService.generateKorrekturPrompt(config),
+        this.buildSaveData()
       );
     }
   }
 
-  saveToLibrary(): void {
+  private buildSaveData(): SaveToLibraryData {
     const formValue = this.form.getRawValue();
     const sourceLabel =
       this.sourceTypeLabels[formValue.sourceType as KorrekturSourceType] ??
@@ -129,7 +136,7 @@ export class KorrekturComponent extends BaseExerciseComponent {
     const feedbackSuffix = formValue.includeFeedback
       ? ' mit schriftlichem Feedback zu Struktur und Inhalt'
       : '';
-    this.openSaveDialog({
+    return {
       category: 'korrektur',
       editorConfig: { route: '/korrektur', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
@@ -137,6 +144,6 @@ export class KorrekturComponent extends BaseExerciseComponent {
       name: `Korrektur - ${formValue.cefr}`,
       description: `Korrekturprompt für ${formValue.targetLanguage} (${formValue.cefr}) basierend auf ${sourceLabel}${feedbackSuffix}`,
       tags: ['korrektur', formValue.sourceType],
-    });
+    };
   }
 }

@@ -30,7 +30,11 @@ import {
   GrammarPromptConfig,
   GrammarPhenomenon,
 } from '../../models/grammar.model';
-import { BaseExerciseComponent } from '../shared/base-exercise.component';
+import {
+  BaseExerciseComponent,
+  SaveToLibraryData,
+} from '../shared/base-exercise.component';
+import { OutputFormatFieldComponent } from '../shared/output-format-field/output-format-field.component';
 import { Language, CEFRLevel } from '../../models/preferences.model';
 
 interface GrammarFormValue {
@@ -52,6 +56,7 @@ interface PhenomenonForm {
   imports: [
     ReactiveFormsModule,
     FormsModule,
+    OutputFormatFieldComponent,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -108,9 +113,19 @@ export class GrammarConComponent extends BaseExerciseComponent {
 
   private applyEditorState(state: Record<string, unknown>): void {
     const f = (state['form'] ?? {}) as Record<string, unknown>;
-    ((f['phenomena'] as PhenomenonForm[]) ?? []).forEach((p) =>
-      this.addPhenomenon(p.description, p.hint ?? '')
-    );
+    // The state may come from an imported file, so don't trust its shape
+    const savedPhenomena: unknown[] = Array.isArray(f['phenomena'])
+      ? f['phenomena']
+      : [];
+    savedPhenomena.forEach((entry) => {
+      const p = (entry ?? {}) as Partial<PhenomenonForm>;
+      if (typeof p.description === 'string') {
+        this.addPhenomenon(
+          p.description,
+          typeof p.hint === 'string' ? p.hint : ''
+        );
+      }
+    });
     this.form.patchValue({
       targetLanguage: f['targetLanguage'] ?? '',
       cefr: f['cefr'] ?? '',
@@ -183,7 +198,7 @@ export class GrammarConComponent extends BaseExerciseComponent {
         config,
         formValue.targetLanguage
       );
-      this.commitGeneratedPrompt(prompt);
+      this.commitGeneratedPrompt(prompt, this.buildSaveData());
     }
   }
 
@@ -197,11 +212,11 @@ export class GrammarConComponent extends BaseExerciseComponent {
     this.copyFeedbackTimer = setTimeout(() => this._copyStatus.set('idle'), 2000);
   }
 
-  saveToLibrary(): void {
+  private buildSaveData(): SaveToLibraryData {
     const formValue = this.form.getRawValue() as GrammarFormValue;
     const phenomena = formValue.phenomena.map((p) => p.description).join(', ');
 
-    this.openSaveDialog({
+    return {
       category: 'grammar',
       editorConfig: { route: '/grammar', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
@@ -218,6 +233,6 @@ export class GrammarConComponent extends BaseExerciseComponent {
         'grammar',
         ...formValue.phenomena.map((p) => p.description.toLowerCase()),
       ],
-    });
+    };
   }
 }

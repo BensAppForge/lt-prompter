@@ -30,7 +30,11 @@ import {
   ComprehensionPromptConfig,
 } from '../../models/comprehension.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
-import { BaseExerciseComponent } from '../shared/base-exercise.component';
+import {
+  BaseExerciseComponent,
+  SaveToLibraryData,
+} from '../shared/base-exercise.component';
+import { OutputFormatFieldComponent } from '../shared/output-format-field/output-format-field.component';
 
 @Component({
   selector: 'app-comprehension',
@@ -46,6 +50,7 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
     MatSlideToggleModule,
     ReactiveFormsModule,
     FormsModule,
+    OutputFormatFieldComponent,
     MatDialogModule,
     MatSnackBarModule,
   ],
@@ -200,7 +205,8 @@ export class ComprehensionComponent extends BaseExerciseComponent {
       };
 
       this.commitGeneratedPrompt(
-        this.promptService.generateComprehensionPrompt(config)
+        this.promptService.generateComprehensionPrompt(config),
+        this.buildSaveData()
       );
     }
   }
@@ -213,7 +219,7 @@ export class ComprehensionComponent extends BaseExerciseComponent {
     return this.exerciseTypeTranslations[type] || type;
   }
 
-  saveToLibrary(): void {
+  private buildSaveData(): SaveToLibraryData {
     const formValue = this.form.getRawValue();
     const exercises = formValue.exercises
       .map((ex: ComprehensionExerciseType) =>
@@ -221,7 +227,7 @@ export class ComprehensionComponent extends BaseExerciseComponent {
       )
       .join(', ');
 
-    this.openSaveDialog({
+    return {
       category: 'comprehension',
       editorConfig: { route: '/comprehension', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
@@ -229,6 +235,6 @@ export class ComprehensionComponent extends BaseExerciseComponent {
       name: `Textverständnis - ${this.getSourceTypeTranslation(formValue.sourceType)}`,
       description: `Textverständnisübung für ${formValue.targetLanguage} (${formValue.cefr}) mit ${exercises}. Quelle: ${this.getSourceTypeTranslation(formValue.sourceType)}${formValue.situationalContext ? `. Kontext: ${formValue.situationalContext}` : ''}`,
       tags: ['comprehension', formValue.sourceType, ...formValue.exercises],
-    });
+    };
   }
 }

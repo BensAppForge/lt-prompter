@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,8 +29,24 @@ import { ClipboardService } from '../../services/clipboard.service';
 import { LanguageService } from '../../services/language.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LibraryService } from '../../services/library.service';
-import { LibraryPrompt, PromptCategory } from '../../models/library.model';
-import { Language, CEFRLevel } from '../../models/preferences.model';
+import {
+  ImportablePrompt,
+  parseLibraryImport,
+  promptFingerprint,
+} from '../../services/library-import';
+import {
+  LibraryPrompt,
+  PROMPT_CATEGORIES,
+  PROMPT_CATEGORY_LABELS,
+  PromptCategory,
+} from '../../models/library.model';
+import {
+  CEFR_LEVELS,
+  CEFRLevel,
+  LANGUAGES,
+  Language,
+} from '../../models/preferences.model';
+import { ScrollService } from '../../shared/services/scroll.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 
@@ -55,38 +80,26 @@ export class LibraryComponent implements OnInit {
   private readonly clipboardService = inject(ClipboardService);
   private readonly languageService = inject(LanguageService);
   private readonly router = inject(Router);
+  private readonly scrollService = inject(ScrollService);
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Fixed toolbar height plus some breathing room, so the viewer is not
+   * scrolled underneath the toolbar. */
+  private readonly VIEWER_SCROLL_OFFSET = 80;
+
+  @ViewChild('promptViewer', { read: ElementRef })
+  promptViewer?: ElementRef<HTMLElement>;
+
   searchForm = this.fb.group({
-    category: [null],
-    targetLanguage: [null],
-    cefr: [null],
-    collection: [null],
-    searchTerm: [''],
+    category: this.fb.control<PromptCategory | null>(null),
+    targetLanguage: this.fb.control<Language | null>(null),
+    cefr: this.fb.control<CEFRLevel | null>(null),
+    collection: this.fb.control<string | null>(null),
+    searchTerm: this.fb.control(''),
   });
-  prompts: LibraryPrompt[] = [];
-  categories: PromptCategory[] = [
-    'vocabulary',
-    'grammar',
-    'comprehension',
-    'clone',
-    'wordfield',
-    'korrektur',
-  ];
-  languages: Language[] = ['English', 'español', 'français', 'italiano'];
-  cefrLevels: CEFRLevel[] = [
-    'A1',
-    'A1+',
-    'A2',
-    'A2+',
-    'B1',
-    'B1+',
-    'B2',
-    'B2+',
-    'C1',
-    'C1+',
-    'C2',
-  ];
+  readonly categories = PROMPT_CATEGORIES;
+  readonly languages = LANGUAGES;
+  readonly cefrLevels = CEFR_LEVELS;
   readonly selectedPrompt = signal<LibraryPrompt | null>(null);
   readonly isEditMode = signal(false);
   readonly editedPrompt = signal<string | null>(null);
@@ -97,22 +110,47 @@ export class LibraryComponent implements OnInit {
   editablePrompt: string = '';
 
   ngOnInit(): void {
-    this.loadPrompts();
+    this.refresh();
   }
 
-  private loadPrompts(): void {
-    this.libraryService.getAllPrompts()
+  /**
+   * Reloads the library and re-applies the filters currently set in the
+   * search form, so the list stays filtered after deleting, editing or
+   * importing prompts.
+   */
+  private refresh(): void {
+    this.libraryService
+      .getAllPrompts()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (prompts: LibraryPrompt[]) => {
-          this.prompts = prompts;
-          this.filteredPrompts.set(prompts);
-          this.collections.set(
-            [...new Set(
-              prompts
-                .map((p) => p.collection)
-                .filter((c): c is string => !!c)
-            )].sort((a, b) => a.localeCompare(b, 'de'))
+          const collections = [
+            ...new Set(
+              prompts.map((p) => p.collection).filter((c): c is string => !!c)
+            ),
+          ].sort((a, b) => a.localeCompare(b, 'de'));
+          this.collections.set(collections);
+
+          // A collection disappears with its last prompt; a filter on it
+          // would otherwise hide everything with no way to clear it.
+          const collectionFilter = this.searchForm.controls.collection;
+          if (
+            collectionFilter.value &&
+            !collections.includes(collectionFilter.value)
+          ) {
+            collectionFilter.reset();
+          }
+
+          const { category, targetLanguage, cefr, collection, searchTerm } =
+            this.searchForm.getRawValue();
+          this.filteredPrompts.set(
+            this.libraryService.filterPrompts(prompts, {
+              category,
+              targetLanguage,
+              cefr,
+              collection,
+              searchTerm: searchTerm.trim(),
+            })
           );
         },
         error: (error: unknown) => {
@@ -125,40 +163,31 @@ export class LibraryComponent implements OnInit {
   }
 
   onSearch(): void {
-    const { category, targetLanguage, cefr, collection, searchTerm } =
-      this.searchForm.value;
-    this.libraryService
-      .searchPrompts({
-        category: category || undefined,
-        targetLanguage: targetLanguage || undefined,
-        cefr: cefr || undefined,
-        collection: collection || undefined,
-        searchTerm: searchTerm || undefined,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (prompts) => {
-          this.prompts = prompts;
-          this.filteredPrompts.set(prompts);
-        },
-        error: (error: unknown) => {
-          console.error('Error searching prompts:', error);
-          this.snackBar.open('Fehler beim Suchen der Prompts', 'Schließen', {
-            duration: 3000,
-          });
-        },
-      });
+    this.refresh();
   }
 
   resetSearch(): void {
     this.searchForm.reset();
-    this.loadPrompts();
+    this.refresh();
   }
 
   viewPrompt(prompt: LibraryPrompt): void {
     this.selectedPrompt.set(prompt);
     this.editedPrompt.set(null);
     this.isEditMode.set(false);
+    this.scrollToViewer();
+  }
+
+  /** The viewer sits below the prompt grid, so bring it into view. */
+  private scrollToViewer(): void {
+    // Deferred: the viewer card is only rendered by the change detection
+    // that follows this event handler.
+    setTimeout(() => {
+      const viewer = this.promptViewer?.nativeElement;
+      if (viewer) {
+        this.scrollService.scrollToBottom(viewer, this.VIEWER_SCROLL_OFFSET);
+      }
+    });
   }
 
   /** Download the whole library as a JSON backup file. */
@@ -224,20 +253,8 @@ export class LibraryComponent implements OnInit {
       });
       return;
     }
-    const rawPrompts = Array.isArray(parsed)
-      ? parsed
-      : (parsed as { prompts?: unknown })?.prompts;
-    const candidates = Array.isArray(rawPrompts) ? rawPrompts : [];
-    const valid = candidates.filter(
-      (p): p is LibraryPrompt =>
-        !!p &&
-        typeof p.name === 'string' &&
-        typeof p.content === 'string' &&
-        !!p.category &&
-        !!p.targetLanguage &&
-        !!p.cefr
-    );
-    if (!valid.length) {
+    const { prompts: candidates, invalidCount } = parseLibraryImport(parsed);
+    if (!candidates.length) {
       this.snackBar.open(
         'Keine gültigen Prompts in der Datei gefunden',
         'Schließen',
@@ -246,11 +263,54 @@ export class LibraryComponent implements OnInit {
       return;
     }
 
+    // Skip prompts that are already in the library (and repeats within the
+    // file), so re-importing a backup does not duplicate everything.
+    this.libraryService
+      .getAllPrompts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (existing) => {
+          const known = new Set(existing.map(promptFingerprint));
+          const fresh = candidates.filter((prompt) => {
+            const fingerprint = promptFingerprint(prompt);
+            if (known.has(fingerprint)) return false;
+            known.add(fingerprint);
+            return true;
+          });
+          const duplicateCount = candidates.length - fresh.length;
+
+          if (!fresh.length) {
+            this.snackBar.open(
+              'Alle Prompts aus der Datei sind bereits in Ihrer Bibliothek vorhanden',
+              'Schließen',
+              { duration: 4000 }
+            );
+            return;
+          }
+          this.confirmImport(fresh, duplicateCount, invalidCount);
+        },
+        error: (error: unknown) => this.reportImportError(error),
+      });
+  }
+
+  private confirmImport(
+    prompts: ImportablePrompt[],
+    duplicateCount: number,
+    invalidCount: number
+  ): void {
+    const skipped = [
+      duplicateCount ? `${duplicateCount} bereits vorhanden` : '',
+      invalidCount ? `${invalidCount} ungültig` : '',
+    ].filter(Boolean);
+    const skippedNote = skipped.length
+      ? ` Übersprungen: ${skipped.join(', ')}.`
+      : '';
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
         title: 'Bibliothek importieren?',
-        message: `${valid.length} Prompt(s) gefunden. Sie werden zusätzlich zu Ihrer bestehenden Bibliothek angelegt.`,
+        message: `${prompts.length} neue Prompt(s) gefunden. Sie werden zusätzlich zu Ihrer bestehenden Bibliothek angelegt.${skippedNote}`,
         confirmText: 'Importieren',
         cancelText: 'Abbrechen',
       },
@@ -260,41 +320,31 @@ export class LibraryComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
         if (!confirmed) return;
-        forkJoin(
-          valid.map((p) =>
-            this.libraryService.addPrompt({
-              name: p.name,
-              description: p.description,
-              category: p.category,
-              targetLanguage: p.targetLanguage,
-              cefr: p.cefr,
-              content: p.content,
-              tags: p.tags ?? [],
-              collection: p.collection,
-              editorConfig: p.editorConfig,
-            })
-          )
-        )
+        forkJoin(prompts.map((p) => this.libraryService.addPrompt(p)))
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
               this.snackBar.open(
-                `${valid.length} Prompts importiert`,
+                `${prompts.length} Prompts importiert`,
                 'Schließen',
                 { duration: 3000 }
               );
-              this.loadPrompts();
+              this.refresh();
             },
             error: (error: unknown) => {
-              console.error('Error importing prompts:', error);
-              this.snackBar.open(
-                'Fehler beim Importieren der Prompts',
-                'Schließen',
-                { duration: 3000 }
-              );
+              this.reportImportError(error);
+              // Some prompts may have been written before the failure
+              this.refresh();
             },
           });
       });
+  }
+
+  private reportImportError(error: unknown): void {
+    console.error('Error importing prompts:', error);
+    this.snackBar.open('Fehler beim Importieren der Prompts', 'Schließen', {
+      duration: 3000,
+    });
   }
 
   /** Reopen the prompt's saved editor configuration for regeneration. */
@@ -397,7 +447,7 @@ export class LibraryComponent implements OnInit {
           this.snackBar.open('Prompt aktualisiert', 'Schließen', {
             duration: 3000,
           });
-          this.loadPrompts();
+          this.refresh();
           this.editedPrompt.set(this.editablePrompt);
         },
         error: (error: unknown) => {
@@ -441,7 +491,7 @@ export class LibraryComponent implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
               next: () => {
-                this.loadPrompts();
+                this.refresh();
                 if (this.selectedPrompt()?.id === prompt.id) {
                   this.closePrompt();
                 }
@@ -462,15 +512,8 @@ export class LibraryComponent implements OnInit {
 
   getCategoryLabel(category: PromptCategory | undefined): string {
     if (!category) return 'Unbekannt';
-    const labels: Record<PromptCategory, string> = {
-      vocabulary: 'Vokabeln',
-      grammar: 'Grammatik',
-      comprehension: 'Textverständnis',
-      clone: 'Klon',
-      wordfield: 'Wortfeld',
-      korrektur: 'Korrektur',
-    };
-    return labels[category];
+    // Entries stored by older versions may carry an unknown category
+    return PROMPT_CATEGORY_LABELS[category] ?? 'Unbekannt';
   }
 
   navigateToDashboard(): void {

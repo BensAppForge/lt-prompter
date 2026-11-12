@@ -96,6 +96,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'persona',
+    loadComponent: () =>
+      import('./components/persona/persona.component').then(
+        (m) => m.PersonaComponent
+      ),
+  },
+  {
     path: 'help',
     loadComponent: () =>
       import('./components/help/help.component').then((m) => m.HelpComponent),

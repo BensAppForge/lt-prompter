@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 import { SettingsService, ThemePreference } from '../../services/settings.service';
 import { LanguageService } from '../../services/language.service';
 import { CEFRLevel, Language } from '../../models/preferences.model';
+import { OUTPUT_FORMATS, OutputFormat } from '../../models/output-format.model';
 
 @Component({
   selector: 'app-settings',
@@ -111,6 +112,21 @@ import { CEFRLevel, Language } from '../../models/preferences.model';
                   }
                 </mat-select>
               </mat-form-field>
+
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="output-format-default">
+                <mat-label>Standard-Ausgabe als Datei</mat-label>
+                <mat-select
+                  [value]="settingsService.getSettings()().defaultOutputFormat"
+                  (selectionChange)="onDefaultOutputFormatChange($event.value)">
+                  @for (format of outputFormats; track format.value) {
+                    <mat-option [value]="format.value">{{ format.label }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>
+                  Lässt die Prompts eine fertige Word- oder PDF-Datei anfordern. Nicht jedes
+                  KI-Tool kann Dateien erstellen.
+                </mat-hint>
+              </mat-form-field>
             </div>
           </section>
         </mat-card-content>
@@ -199,6 +215,10 @@ import { CEFRLevel, Language } from '../../models/preferences.model';
         flex: 1;
         min-width: 220px;
       }
+
+      .output-format-default {
+        flex-basis: 100%;
+      }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -215,6 +235,8 @@ export class SettingsComponent {
     'C1', 'C1+', 'C2',
   ];
 
+  readonly outputFormats = OUTPUT_FORMATS;
+
   displayLanguage(language: Language): string {
     return this.languageService.displayLanguage(language);
   }
@@ -229,5 +251,9 @@ export class SettingsComponent {
 
   onDefaultCefrChange(cefr: CEFRLevel | null) {
     this.settingsService.updateDefaultCefr(cefr);
+  }
+
+  onDefaultOutputFormatChange(format: OutputFormat) {
+    this.settingsService.updateDefaultOutputFormat(format);
   }
 }

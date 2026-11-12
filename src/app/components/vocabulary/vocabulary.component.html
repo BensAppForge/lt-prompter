@@ -179,12 +179,14 @@
         }
 
         <div class="form-row context-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Kontext (Optional)</mat-label>
-            <textarea matInput formControlName="situationalContext" rows="3"
-              placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."></textarea>
-            <mat-hint>Falls nicht angegeben, wird automatisch ein passender Kontext generiert</mat-hint>
-          </mat-form-field>
+          @if (showContextField()) {
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Kontext (Optional)</mat-label>
+              <textarea matInput formControlName="situationalContext" rows="3"
+                placeholder="Beschreiben Sie eine spezifische Situation oder ein Thema für die Übung..."></textarea>
+              <mat-hint>{{ contextHint() }}</mat-hint>
+            </mat-form-field>
+          }
 
           @if (hasGapFillingSelected) {
             <mat-slide-toggle formControlName="situationalContextIsDialog" class="dialog-toggle" color="primary">
@@ -192,6 +194,8 @@
             </mat-slide-toggle>
           }
         </div>
+
+        <app-output-format-field [(value)]="outputFormat" />
 
         <div class="button-container">
           <button mat-raised-button color="primary" type="submit" [disabled]="!canSubmit()">

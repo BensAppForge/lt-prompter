@@ -91,7 +91,7 @@
                 </div>
             </form>
 
-            @if (prompts.length > 0) {
+            @if (filteredPrompts().length > 0) {
                 <div class="prompts-grid" auto-animate>
                     @for (prompt of filteredPrompts(); track prompt.id) {
                         <div class="prompt-card">
@@ -139,7 +139,7 @@
 
     <!-- Prompt Container -->
     @if (selectedPrompt()) {
-        <mat-card class="prompt-container">
+        <mat-card class="prompt-container" #promptViewer>
             <div class="button-group">
                 <button mat-button (click)="toggleEditMode()" [class.active]="isEditMode()"
                     [attr.aria-label]="isEditMode() ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren'">

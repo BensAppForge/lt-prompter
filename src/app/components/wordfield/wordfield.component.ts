@@ -22,7 +22,7 @@ import {
 } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Language } from '../../models/preferences.model';
+import { OutputFormat } from '../../models/output-format.model';
 import {
   WordfieldPromptConfig,
   WordfieldSourceType,
@@ -31,7 +31,11 @@ import {
   WORDFIELD_OUTPUT_TYPES,
 } from '../../models/wordfield.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
-import { BaseExerciseComponent } from '../shared/base-exercise.component';
+import {
+  BaseExerciseComponent,
+  SaveToLibraryData,
+} from '../shared/base-exercise.component';
+import { OutputFormatFieldComponent } from '../shared/output-format-field/output-format-field.component';
 
 @Component({
   selector: 'app-wordfield',
@@ -49,6 +53,7 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
     MatDialogModule,
     ReactiveFormsModule,
     FormsModule,
+    OutputFormatFieldComponent,
   ],
   templateUrl: './wordfield.component.html',
   styleUrls: ['./wordfield.component.scss'],
@@ -115,6 +120,18 @@ export class WordfieldComponent extends BaseExerciseComponent {
     }
   }
 
+  /**
+   * Markdown for a mind-mapping app is meant to be copied or imported as
+   * text, so a Word/PDF file is only offered for the table.
+   */
+  offersFileForCurrentOutput(): boolean {
+    return this.form.getRawValue().outputType !== 'markdown';
+  }
+
+  protected override effectiveOutputFormat(): OutputFormat {
+    return this.offersFileForCurrentOutput() ? this.outputFormat() : 'chat';
+  }
+
   onSubmit(): void {
     if (this.form.valid) {
       const formValue = this.form.getRawValue();
@@ -127,7 +144,8 @@ export class WordfieldComponent extends BaseExerciseComponent {
       };
 
       this.commitGeneratedPrompt(
-        this.promptService.generateWordfieldPrompt(config)
+        this.promptService.generateWordfieldPrompt(config),
+        this.buildSaveData()
       );
     }
   }
@@ -141,9 +159,9 @@ export class WordfieldComponent extends BaseExerciseComponent {
     return this.outputTypeTranslations[type] || type;
   }
 
-  saveToLibrary(): void {
+  private buildSaveData(): SaveToLibraryData {
     const formValue = this.form.getRawValue();
-    this.openSaveDialog({
+    return {
       category: 'wordfield',
       editorConfig: { route: '/wordfield', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
@@ -151,6 +169,6 @@ export class WordfieldComponent extends BaseExerciseComponent {
       name: `Wortfeld - ${this.getSourceTypeTranslation(formValue.sourceType)} (${this.getOutputTypeTranslation(formValue.outputType)})`,
       description: `Wortfeld für ${formValue.targetLanguage} (${formValue.cefr}) basierend auf ${this.getSourceTypeTranslation(formValue.sourceType)}, Ausgabe als ${this.getOutputTypeTranslation(formValue.outputType)}`,
       tags: ['wordfield', formValue.sourceType, formValue.outputType],
-    });
+    };
   }
 }

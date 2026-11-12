@@ -153,6 +153,13 @@ export class DashboardComponent {
         'Visualisieren Sie Sprachfehler in Schülertexten',
     },
     {
+      title: 'Persona-Chat',
+      icon: 'theater_comedy',
+      route: '/persona',
+      description:
+        'Lassen Sie die KI in eine Rolle schlüpfen – z. B. Dante Alighieri im Gespräch mit Ihrer Klasse',
+    },
+    {
       title: 'Bibliothek',
       icon: 'library_books',
       route: '/library',

@@ -18,7 +18,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { LibraryPrompt, PromptCategory } from '../../../models/library.model';
+import {
+  LibraryPrompt,
+  PROMPT_CATEGORY_LABELS,
+  PromptCategory,
+} from '../../../models/library.model';
 import { Language, CEFRLevel } from '../../../models/preferences.model';
 
 export interface SaveToLibraryDialogData {
@@ -268,14 +272,6 @@ export class SaveToLibraryDialogComponent {
   }
 
   getCategoryLabel(category: PromptCategory): string {
-    const labels: Record<PromptCategory, string> = {
-      vocabulary: 'Vokabeln',
-      grammar: 'Grammatik',
-      comprehension: 'Textverständnis',
-      clone: 'Klon',
-      wordfield: 'Wortfeld',
-      korrektur: 'Korrektur',
-    };
-    return labels[category] || category;
+    return PROMPT_CATEGORY_LABELS[category] || category;
   }
 }

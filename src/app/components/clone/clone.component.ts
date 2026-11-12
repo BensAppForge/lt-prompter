@@ -21,7 +21,11 @@ import {
 import { FormsModule } from '@angular/forms';
 import { CloneSourceType, ClonePromptConfig } from '../../models/clone.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
-import { BaseExerciseComponent } from '../shared/base-exercise.component';
+import {
+  BaseExerciseComponent,
+  SaveToLibraryData,
+} from '../shared/base-exercise.component';
+import { OutputFormatFieldComponent } from '../shared/output-format-field/output-format-field.component';
 
 @Component({
   selector: 'app-clone',
@@ -37,6 +41,7 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
     MatDialogModule,
     ReactiveFormsModule,
     FormsModule,
+    OutputFormatFieldComponent,
   ],
   templateUrl: './clone.component.html',
   styleUrls: ['./clone.component.scss'],
@@ -90,13 +95,16 @@ export class CloneComponent extends BaseExerciseComponent {
           : undefined,
       };
 
-      this.commitGeneratedPrompt(this.promptService.generateClonePrompt(config));
+      this.commitGeneratedPrompt(
+        this.promptService.generateClonePrompt(config),
+        this.buildSaveData()
+      );
     }
   }
 
-  saveToLibrary(): void {
+  private buildSaveData(): SaveToLibraryData {
     const formValue = this.form.getRawValue();
-    this.openSaveDialog({
+    return {
       category: 'clone',
       editorConfig: { route: '/clone', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage,
@@ -104,6 +112,6 @@ export class CloneComponent extends BaseExerciseComponent {
       name: `Klonübung - ${formValue.sourceType}`,
       description: `Klonübung für ${formValue.targetLanguage} (${formValue.cefr}) basierend auf ${formValue.sourceType}${formValue.newContext ? ' mit neuem Kontext' : ''}`,
       tags: ['clone', formValue.sourceType],
-    });
+    };
   }
 }

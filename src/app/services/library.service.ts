@@ -84,30 +84,32 @@ export class LibraryService {
 
   searchPrompts(query: SearchQuery): Observable<LibraryPrompt[]> {
     return this.getAllPrompts().pipe(
-      map((prompts) => {
-        return prompts.filter((prompt) => {
-          const matchesCategory =
-            !query.category || prompt.category === query.category;
-          const matchesLanguage =
-            !query.targetLanguage ||
-            prompt.targetLanguage === query.targetLanguage;
-          const matchesCefr = !query.cefr || prompt.cefr === query.cefr;
-          const matchesCollection =
-            !query.collection || prompt.collection === query.collection;
-          const matchesSearch =
-            !query.searchTerm ||
-            this.matchesSearchTerm(prompt, query.searchTerm);
-
-          return (
-            matchesCategory &&
-            matchesLanguage &&
-            matchesCefr &&
-            matchesCollection &&
-            matchesSearch
-          );
-        });
-      })
+      map((prompts) => this.filterPrompts(prompts, query))
     );
+  }
+
+  /** Applies a search query to an already loaded list of prompts. */
+  filterPrompts(prompts: LibraryPrompt[], query: SearchQuery): LibraryPrompt[] {
+    return prompts.filter((prompt) => {
+      const matchesCategory =
+        !query.category || prompt.category === query.category;
+      const matchesLanguage =
+        !query.targetLanguage ||
+        prompt.targetLanguage === query.targetLanguage;
+      const matchesCefr = !query.cefr || prompt.cefr === query.cefr;
+      const matchesCollection =
+        !query.collection || prompt.collection === query.collection;
+      const matchesSearch =
+        !query.searchTerm || this.matchesSearchTerm(prompt, query.searchTerm);
+
+      return (
+        matchesCategory &&
+        matchesLanguage &&
+        matchesCefr &&
+        matchesCollection &&
+        matchesSearch
+      );
+    });
   }
 
   private updateLastUsed(id: string): Observable<void> {
@@ -132,12 +134,15 @@ export class LibraryService {
     prompt: LibraryPrompt,
     searchTerm: string
   ): boolean {
+    // Entries imported by older versions were not validated, so a field may
+    // hold something other than a string — never let that break the search.
     const searchLower = searchTerm.toLowerCase();
+    const contains = (value: unknown): boolean =>
+      typeof value === 'string' && value.toLowerCase().includes(searchLower);
     return (
-      prompt.name.toLowerCase().includes(searchLower) ||
-      (prompt.description?.toLowerCase().includes(searchLower) ?? false) ||
-      (prompt.tags?.some((tag) => tag.toLowerCase().includes(searchLower)) ??
-        false)
+      contains(prompt.name) ||
+      contains(prompt.description) ||
+      (Array.isArray(prompt.tags) && prompt.tags.some(contains))
     );
   }
 }

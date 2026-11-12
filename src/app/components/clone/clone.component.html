@@ -75,6 +75,8 @@
           </mat-form-field>
         </div>
 
+        <app-output-format-field [(value)]="outputFormat" />
+
         <div class="button-row">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
             Prompt generieren

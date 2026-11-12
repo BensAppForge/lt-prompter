@@ -6,7 +6,36 @@ export type PromptCategory =
   | 'comprehension'
   | 'clone'
   | 'wordfield'
-  | 'korrektur';
+  | 'korrektur'
+  | 'persona';
+
+/** Each category's editor route — the only routes an `EditorConfig` may
+ * point to. */
+export const EDITOR_ROUTES: Readonly<Record<PromptCategory, string>> = {
+  vocabulary: '/vocabulary',
+  grammar: '/grammar',
+  comprehension: '/comprehension',
+  clone: '/clone',
+  wordfield: '/wordfield',
+  korrektur: '/korrektur',
+  persona: '/persona',
+};
+
+export const PROMPT_CATEGORIES = Object.keys(
+  EDITOR_ROUTES
+) as readonly PromptCategory[];
+
+/** German display names of the categories (library filter, save dialog). */
+export const PROMPT_CATEGORY_LABELS: Readonly<Record<PromptCategory, string>> =
+  {
+    vocabulary: 'Vokabeln',
+    grammar: 'Grammatik',
+    comprehension: 'Textverständnis',
+    clone: 'Klon',
+    wordfield: 'Wortfeld',
+    korrektur: 'Korrektur',
+    persona: 'Persona-Chat',
+  };
 
 /** Snapshot of an editor's form state so a saved prompt can be reopened
  * and regenerated with adjusted settings. */

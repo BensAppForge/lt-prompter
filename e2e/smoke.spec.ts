@@ -171,3 +171,93 @@ test('settings: defaults prefill editors', async ({ page }) => {
     page.locator('mat-select[formcontrolname="cefr"]')
   ).toContainText('A2');
 });
+
+test('output as file: prompt asks for the chosen file, saved prompt restores it', async ({ page }) => {
+  await page.goto('/clone');
+  await selectMat(page, 'targetLanguage', 'English');
+  await selectMat(page, 'cefr', 'B1');
+  await selectMat(page, 'sourceType', 'PDF');
+  let prompt = await generatedPrompt(page);
+  expect(prompt).not.toContain('Output format:');
+
+  await page.click('app-output-format-field mat-select');
+  await page.getByRole('option', { name: 'Word- und PDF-Datei', exact: true }).click();
+  await page.waitForTimeout(250);
+  prompt = await generatedPrompt(page);
+  expectNoPlaceholders(prompt);
+  expect(prompt).toContain('Output format:');
+  expect(prompt).toContain('a Word document (.docx) and a PDF file');
+  expect(prompt).toContain('If you cannot create files');
+
+  await page.locator('.save-button').click();
+  await page.waitForSelector('mat-dialog-container');
+  await page
+    .locator('mat-dialog-container button', { hasText: /Speichern/ })
+    .last()
+    .click();
+  await page.waitForTimeout(600);
+  await page.goto('/library');
+  await page
+    .locator('.prompt-card button[aria-label="Prompt im Editor öffnen"]')
+    .first()
+    .click();
+  await page.waitForURL('**/clone');
+  await expect(page.locator('app-output-format-field mat-select')).toContainText(
+    'Word- und PDF-Datei'
+  );
+});
+
+test('output as file: not offered for Korrektur or mind-map markdown', async ({ page }) => {
+  await page.goto('/korrektur');
+  await expect(page.locator('form')).toBeVisible();
+  await expect(page.locator('app-output-format-field')).toHaveCount(0);
+
+  await page.goto('/wordfield');
+  await expect(page.locator('app-output-format-field')).toHaveCount(1);
+  await selectMat(page, 'outputType', 'Markdown für Mind-Mapping');
+  await expect(page.locator('app-output-format-field')).toHaveCount(0);
+});
+
+test('persona chat: generate, save and reopen from the library', async ({ page }) => {
+  await page.goto('/dashboard');
+  await page.locator('.card-link', { hasText: 'Persona-Chat' }).click();
+  await page.waitForURL('**/persona');
+
+  await expect(page.getByRole('button', { name: 'Prompt generieren' })).toBeDisabled();
+  await selectMat(page, 'targetLanguage', 'Italiano');
+  await selectMat(page, 'cefr', 'A2');
+  await page.locator('input[formcontrolname="persona"]').fill('Dante Alighieri');
+  await page
+    .locator('input[formcontrolname="personaDescription"]')
+    .fill('il famoso poeta italiano');
+  await page
+    .locator('textarea[formcontrolname="researchGoal"]')
+    .fill('Scoprire perché Dante ha lasciato Firenze');
+
+  const prompt = await generatedPrompt(page);
+  expectNoPlaceholders(prompt);
+  expect(prompt).toContain('interpreta Dante Alighieri, il famoso poeta italiano.');
+  expect(prompt).toContain('livello A2 del QCER');
+  expect(prompt).toContain('Non usare mai il passato remoto');
+  expect(prompt).toContain('non più di 4 frasi per risposta');
+  expect(prompt).toContain('«Scoprire perché Dante ha lasciato Firenze»');
+  expect(prompt).toContain('4. Limiti e moderazione');
+  expect(prompt).toContain('5. Fine della conversazione');
+  expect(prompt).not.toContain('Formato di output');
+
+  await page.locator('.save-button').click();
+  await page.waitForSelector('mat-dialog-container');
+  await page
+    .locator('mat-dialog-container button', { hasText: /Speichern/ })
+    .last()
+    .click();
+  await page.waitForTimeout(600);
+
+  await page.goto('/library');
+  const card = page.locator('.prompt-card', { hasText: 'Persona-Chat - Dante Alighieri' });
+  await expect(card).toHaveCount(1);
+  await card.locator('button[aria-label="Prompt im Editor öffnen"]').click();
+  await page.waitForURL('**/persona');
+  await expect(page.locator('input[formcontrolname="persona"]')).toHaveValue('Dante Alighieri');
+  await expect(page.locator('mat-select[formcontrolname="cefr"]')).toContainText('A2');
+});

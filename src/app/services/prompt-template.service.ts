@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Language } from '../models/preferences.model';
-import { VocabularyPromptConfig, VocabularyExerciseType } from '../models/vocabulary.model';
+import {
+  VocabularyPromptConfig,
+  VocabularyExerciseType,
+  VOCABULARY_EXERCISE_TYPES,
+} from '../models/vocabulary.model';
 import {
   getBaseIntro,
   getExerciseTypeContent,
@@ -43,6 +47,9 @@ import {
   korrekturPromptTemplates,
   korrekturCriteriaSourceTypeTranslations,
 } from '../templates/korrektur-prompts';
+
+import { PersonaPromptConfig } from '../models/persona.model';
+import { buildPersonaPrompt } from '../templates/persona-prompts';
 
 @Injectable({
   providedIn: 'root',
@@ -248,14 +255,33 @@ export class PromptTemplateService {
     // attach a screenshot/PDF/Word doc in their AI tool — in which case the
     // prompt instructs the LLM to pull the vocab from that attachment.
     const inputMode = config.inputMode ?? 'manual';
+    const typeMeta = (type: VocabularyExerciseType) =>
+      VOCABULARY_EXERCISE_TYPES.find((t) => t.value === type);
+
+    // Explicit item count set by the teacher for a type. With a typed word
+    // list the list itself fixes the size of the word-bound types, so a
+    // count for those only applies in file mode.
+    const countFor = (type: VocabularyExerciseType): number | null => {
+      if (inputMode === 'manual' && typeMeta(type)?.countBoundToWords) {
+        return null;
+      }
+      return config.itemCounts?.[type] || null;
+    };
+    const hasCounts = exerciseTypes.some((type) => countFor(type) !== null);
+
     if (inputMode === 'file' && config.sourceType) {
       const sourceTypeLabel =
         vocabularySourceTypeTranslations[language][config.sourceType];
+      const fileParts = vocabularyFileSourceParts[language];
+      // "Use every word" would contradict "exactly N items"
       parts.push(
-        vocabularyFileSourceParts[language].attachmentInstruction.replace(
+        fileParts.attachmentInstruction.replace(
           '[SOURCE_TYPE]',
           sourceTypeLabel
-        )
+        ) +
+          ' ' +
+          (hasCounts ? fileParts.useSelectedWords : fileParts.useAllWords) +
+          '\n'
       );
     } else {
       parts.push(
@@ -265,12 +291,31 @@ export class PromptTemplateService {
       );
     }
 
-    // Always add context (as per user request)
-    const trimmedContext = config.situationalContext?.trim() ?? '';
-    if (trimmedContext) {
-      parts.push('', templateParts.contextIntro, trimmedContext);
-    } else {
-      parts.push('', templateParts.autoContextIntro);
+    // A context only makes sense for types built around running text or
+    // sentences — a matching table or a categorization has none. When only
+    // some of the selected types take a context, say which ones.
+    const contextTypes = exerciseTypes.filter(
+      (type) => typeMeta(type)?.supportsContext
+    );
+    if (contextTypes.length > 0) {
+      const trimmedContext = config.situationalContext?.trim() ?? '';
+      const isPartial = contextTypes.length < exerciseTypes.length;
+      if (trimmedContext) {
+        parts.push('', templateParts.contextIntro, trimmedContext);
+      } else if (isPartial) {
+        parts.push('', templateParts.autoContextIntro.trimEnd());
+      } else {
+        parts.push('', templateParts.autoContextIntro);
+      }
+      if (isPartial) {
+        const contextTypeLabels = contextTypes.map(
+          (type) => vocabularyExerciseTypeTranslations[language][type]
+        );
+        parts.push(
+          templateParts.contextScopeIntro + contextTypeLabels.join(', ') + '.',
+          ''
+        );
+      }
     }
 
     // Add dialog requirement if requested and gap-filling is selected.
@@ -284,45 +329,43 @@ export class PromptTemplateService {
     // Add requirements for each exercise type
     parts.push('', templateParts.requirementsIntro);
     
-    // Explicit item count set by the teacher for a type, as a requirement line
-    const countRequirement = (type: VocabularyExerciseType): string | null => {
-      const count = config.itemCounts?.[type];
-      if (!count) return null;
-      return itemCountRequirements[language][type].replaceAll(
+    // A type's requirement lines. For the word-bound types the count line
+    // defines the exercise's word list, so it leads; for the others it is
+    // one more requirement at the end.
+    const requirementsFor = (type: VocabularyExerciseType): string[] => {
+      const requirements = getExerciseTypeContent(
+        language,
+        type
+      ).requirements.map((req) => req.replace('[CEFR]', config.cefr));
+      const count = countFor(type);
+      if (count === null) return requirements;
+      const countLine = itemCountRequirements[language][type].replaceAll(
         '[COUNT]',
         String(count)
       );
+      return typeMeta(type)?.countBoundToWords
+        ? [countLine, ...requirements]
+        : [...requirements, countLine];
     };
 
     if (exerciseTypes.length === 1) {
       // Single exercise type - simple requirements list
-      const exerciseContent = getExerciseTypeContent(language, exerciseTypes[0]);
-      exerciseContent.requirements.forEach((req, index) => {
-        parts.push(`${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
+      requirementsFor(exerciseTypes[0]).forEach((req, index) => {
+        parts.push(`${index + 1}. ${req}`);
       });
-      const countReq = countRequirement(exerciseTypes[0]);
-      if (countReq) {
-        parts.push(`${exerciseContent.requirements.length + 1}. ${countReq}`);
-      }
     } else {
       // Multiple exercise types - group requirements by type
       exerciseTypes.forEach((exerciseType, typeIndex) => {
-        const exerciseContent = getExerciseTypeContent(language, exerciseType);
         const typeLabel = vocabularyExerciseTypeTranslations[language]?.[exerciseType] || exerciseType;
+        const requirements = requirementsFor(exerciseType);
+        if (config.isDialog && exerciseType === 'gap-filling') {
+          requirements.push(templateParts.dialogRequirement);
+        }
 
         parts.push(`\n${typeLabel}:`);
-        exerciseContent.requirements.forEach((req, index) => {
-          parts.push(`  ${index + 1}. ${req.replace('[CEFR]', config.cefr)}`);
+        requirements.forEach((req, index) => {
+          parts.push(`  ${index + 1}. ${req}`);
         });
-        let extraIndex = exerciseContent.requirements.length + 1;
-        const countReq = countRequirement(exerciseType);
-        if (countReq) {
-          parts.push(`  ${extraIndex}. ${countReq}`);
-          extraIndex++;
-        }
-        if (config.isDialog && exerciseType === 'gap-filling') {
-          parts.push(`  ${extraIndex}. ${templateParts.dialogRequirement}`);
-        }
       });
     }
 
@@ -561,6 +604,11 @@ export class PromptTemplateService {
         error instanceof Error ? error.message : 'Unknown error'
       }`;
     }
+  }
+
+  /** System prompt that makes a chatbot play a persona for the learners. */
+  generatePersonaPrompt(config: PersonaPromptConfig): string {
+    return buildPersonaPrompt(config);
   }
 
   generateKorrekturPrompt(config: KorrekturPromptConfig): string {

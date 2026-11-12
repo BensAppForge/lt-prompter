@@ -287,6 +287,24 @@ export class VersionService {
         • Vokabeln: Eingefügte Wortlisten (durch Kommas, Semikolons oder Zeilenumbrüche getrennt) werden automatisch in einzelne Wörter aufgeteilt
       `.trim(),
     },
+    {
+      id: 24,
+      versionNumber: '1.9.0',
+      releaseDate: new Date('2026-11-12'),
+      shortDescription:
+        'Persona-Chat, Ausgabe als Datei und Verbesserungen der Bibliothek',
+      longDescription: `
+        • Neu: Persona-Chat – erstellen Sie einen Prompt, mit dem ein KI-Chatbot in eine Rolle schlüpft (z.B. Dante Alighieri) und in der Zielsprache mit Ihren Lernenden spricht. Einstellbar sind Persona, Niveau, Themen, Rechercheziel, Gesprächsform, Antwortlänge und der Umgang mit Sprachfehlern
+        • Persona-Chat: Regeln für einen sicheren Einsatz im Unterricht sind immer enthalten; Gesprächslänge, Abschluss mit Zusammenfassung oder Sprachfeedback und eigene Regeln lassen sich ergänzen
+        • Neu: "Ausgabe als Datei" in den Editoren für Vokabeln, Grammatik, Textverständnis, Klonen und Wortfelder – der Prompt fordert auf Wunsch eine fertige Word-Datei, eine PDF-Datei oder beides an. Kann ein KI-Tool keine Dateien erstellen, bittet der Prompt ersatzweise um druckfertigen Text im Chat
+        • Einstellungen: Standard für "Ausgabe als Datei" festlegen
+        • Wortfelder: Das Feld "Ausgabeformat" heißt jetzt "Darstellung"
+        • Bibliothek: Der Import prüft die Datei genauer und überspringt Prompts, die bereits vorhanden sind
+        • Bibliothek: Gesetzte Filter bleiben nach dem Löschen, Bearbeiten oder Importieren erhalten; ein geöffneter Prompt wird direkt in den sichtbaren Bereich gescrollt
+        • Vokabeln: Klarere Formulierungen im Prompt, wenn bei angehängter Datei eine feste Aufgabenanzahl gewählt ist oder der Kontext nur für einzelne Übungstypen gilt
+        • Hilfe: Neue Abschnitte zu Persona-Chat und zur Ausgabe als Datei
+      `.trim(),
+    },
   ];
 
   constructor() {

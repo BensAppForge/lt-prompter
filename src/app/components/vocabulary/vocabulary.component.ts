@@ -40,7 +40,11 @@ import {
 } from '../../models/vocabulary.model';
 import { PromptTemplateService } from '../../services/prompt-template.service';
 import { AutoAnimateDirective } from '../../shared/directives/auto-animate.directive';
-import { BaseExerciseComponent } from '../shared/base-exercise.component';
+import {
+  BaseExerciseComponent,
+  SaveToLibraryData,
+} from '../shared/base-exercise.component';
+import { OutputFormatFieldComponent } from '../shared/output-format-field/output-format-field.component';
 
 @Component({
   selector: 'app-vocabulary',
@@ -48,6 +52,7 @@ import { BaseExerciseComponent } from '../shared/base-exercise.component';
   imports: [
     ReactiveFormsModule,
     FormsModule,
+    OutputFormatFieldComponent,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -123,14 +128,22 @@ export class VocabularyComponent extends BaseExerciseComponent {
       this.sourceType.set(state['sourceType'] as VocabularySourceType);
     }
     const f = (state['form'] ?? {}) as Record<string, unknown>;
+    // The state may come from an imported file, so don't trust its shape
+    const savedWords = Array.isArray(f['words']) ? f['words'] : [];
+    const savedTypes = Array.isArray(f['exerciseTypes'])
+      ? f['exerciseTypes']
+      : [];
     this.words.clear();
-    ((f['words'] as string[]) ?? []).forEach((word) =>
-      this.words.push(this.fb.control(word))
-    );
+    savedWords
+      .filter((word): word is string => typeof word === 'string')
+      .forEach((word) => this.words.push(this.fb.control(word)));
     this.form.patchValue({
       targetLanguage: (f['targetLanguage'] as Language) ?? null,
       cefr: (f['cefr'] as CEFRLevel) ?? null,
-      exerciseTypes: (f['exerciseTypes'] as VocabularyExerciseType[]) ?? [],
+      exerciseTypes: savedTypes.filter(
+        (type): type is VocabularyExerciseType =>
+          this.exerciseTypes.some((t) => t.value === type)
+      ),
       situationalContext: (f['situationalContext'] as string) ?? '',
       situationalContextIsDialog: !!f['situationalContextIsDialog'],
     });
@@ -220,6 +233,37 @@ export class VocabularyComponent extends BaseExerciseComponent {
 
   get hasGapFillingSelected(): boolean {
     return this.selectedExerciseTypes.includes('gap-filling');
+  }
+
+  /** Selected types that can be embedded in a situational context (running
+   * text or sentences); matching, categorization and odd-one-out cannot. */
+  private contextCapableSelectedTypes(): typeof VOCABULARY_EXERCISE_TYPES {
+    const selected = this.selectedExerciseTypes;
+    return this.exerciseTypes.filter(
+      (t) => t.supportsContext && selected.includes(t.value)
+    );
+  }
+
+  /** The context field is hidden once the selection contains only types
+   * without a context — the prompt would ignore it. */
+  showContextField(): boolean {
+    return (
+      this.selectedExerciseTypes.length === 0 ||
+      this.contextCapableSelectedTypes().length > 0
+    );
+  }
+
+  contextHint(): string {
+    const capable = this.contextCapableSelectedTypes();
+    const autoHint =
+      'Falls nicht angegeben, wird automatisch ein passender Kontext generiert';
+    if (
+      capable.length === 0 ||
+      capable.length === this.selectedExerciseTypes.length
+    ) {
+      return autoHint;
+    }
+    return `Gilt nur für: ${capable.map((t) => t.label).join(', ')}. ${autoHint}`;
   }
 
   isExerciseTypeSelected(type: VocabularyExerciseType): boolean {
@@ -318,7 +362,8 @@ export class VocabularyComponent extends BaseExerciseComponent {
     };
 
     this.commitGeneratedPrompt(
-      this.promptTemplateService.generateVocabularyPrompt(config)
+      this.promptTemplateService.generateVocabularyPrompt(config),
+      this.buildSaveData()
     );
   }
 
@@ -336,7 +381,7 @@ export class VocabularyComponent extends BaseExerciseComponent {
     }
   }
 
-  saveToLibrary(): void {
+  private buildSaveData(): SaveToLibraryData {
     const formValue = this.form.getRawValue();
     const mode = this.inputMode();
     const sourceLabel = mode === 'manual'
@@ -355,7 +400,7 @@ export class VocabularyComponent extends BaseExerciseComponent {
           formValue.exerciseTypes?.length || 1
         } Übungstyp(en) – Quelle: ${sourceLabel}`;
 
-    this.openSaveDialog({
+    return {
       category: 'vocabulary',
       editorConfig: { route: '/vocabulary', state: this.captureEditorState() },
       targetLanguage: formValue.targetLanguage!,
@@ -363,6 +408,6 @@ export class VocabularyComponent extends BaseExerciseComponent {
       name: `Vokabelübung - ${sourceLabel}`,
       description,
       tags,
-    });
+    };
   }
 }

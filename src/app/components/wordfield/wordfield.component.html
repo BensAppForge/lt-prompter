@@ -55,14 +55,14 @@
                 </div>
                 <div class="form-row">
                     <mat-form-field appearance="outline">
-                        <mat-label>Ausgabeformat</mat-label>
+                        <mat-label>Darstellung</mat-label>
                         <mat-select formControlName="outputType" required>
                             @for (type of outputTypes; track type) {
                                 <mat-option [value]="type">{{ getOutputTypeTranslation(type) }}</mat-option>
                             }
                         </mat-select>
                         @if (form.get('outputType')?.hasError('required')) {
-                            <mat-error>Bitte wählen Sie Ausgabeformat aus</mat-error>
+                            <mat-error>Bitte wählen Sie eine Darstellung aus</mat-error>
                         }
                     </mat-form-field>
                 </div>
@@ -86,6 +86,10 @@
                         </p>
                     }
                 </div>
+
+                @if (offersFileForCurrentOutput()) {
+                    <app-output-format-field [(value)]="outputFormat" />
+                }
 
                 <div class="button-container">
                     <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">

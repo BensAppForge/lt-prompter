@@ -15,6 +15,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CEFRLevel, Language } from '../../models/preferences.model';
 import {
+  isOutputFormat,
+  OutputFormat,
+} from '../../models/output-format.model';
+import { appendOutputFormat } from '../../templates/output-format-prompts';
+import {
   EditorConfig,
   LibraryPrompt,
   PromptCategory,
@@ -25,6 +30,17 @@ import { LanguageService } from '../../services/language.service';
 import { SettingsService } from '../../services/settings.service';
 import { ScrollService } from '../../shared/services/scroll.service';
 import { SaveToLibraryDialogComponent } from './save-to-library-dialog/save-to-library-dialog.component';
+
+/** Library metadata for a generated prompt. */
+export interface SaveToLibraryData {
+  category: PromptCategory;
+  targetLanguage: Language;
+  cefr: CEFRLevel;
+  name: string;
+  description: string;
+  tags: string[];
+  editorConfig?: EditorConfig;
+}
 
 /**
  * Base class for all exercise prompt-generator components.
@@ -63,6 +79,20 @@ export abstract class BaseExerciseComponent {
   readonly isSavedToLibrary = computed(() => this._isSavedToLibrary());
 
   editablePrompt = '';
+
+  /**
+   * Whether this editor shows the "Ausgabe als Datei" control. Editors whose
+   * prompt has its own output (Korrektur page, persona chat) turn it off.
+   */
+  protected readonly offersFileOutput: boolean = true;
+
+  /** File format the prompt should ask the AI tool for ("Ausgabe als Datei"). */
+  readonly outputFormat = signal<OutputFormat>(
+    this.settingsService.getSettings()().defaultOutputFormat
+  );
+
+  /** Library metadata captured when the displayed prompt was generated. */
+  private saveData: SaveToLibraryData | null = null;
 
   @ViewChild('promptContainer') promptContainer?: ElementRef;
 
@@ -107,7 +137,21 @@ export abstract class BaseExerciseComponent {
     const config = (navState as Record<string, unknown> | undefined)?.[
       'editorConfig'
     ] as EditorConfig | undefined;
-    return config?.state ?? null;
+    const state = config?.state ?? null;
+    if (state) {
+      // Prompts saved before the option existed were generated without it
+      const saved = state['outputFormat'];
+      this.outputFormat.set(isOutputFormat(saved) ? saved : 'chat');
+    }
+    return state;
+  }
+
+  /**
+   * The output format that applies to the prompt being generated. Override
+   * where a file only makes sense for some settings.
+   */
+  protected effectiveOutputFormat(): OutputFormat {
+    return this.offersFileOutput ? this.outputFormat() : 'chat';
   }
 
   /**
@@ -157,9 +201,37 @@ export abstract class BaseExerciseComponent {
   /**
    * Commit a freshly generated prompt: discards any previous edit and
    * re-enables saving, so regeneration never shows stale edited text.
+   *
+   * `saveData` is the library metadata for exactly this prompt. It is
+   * captured here rather than read from the form when saving, because the
+   * form can be changed afterwards without regenerating — the saved entry
+   * would then describe settings the prompt was never generated with.
+   *
+   * The file-output instruction ("Ausgabe als Datei") is appended here, so
+   * every editor that offers the control gets it without further wiring.
    */
-  protected commitGeneratedPrompt(prompt: string): void {
-    this._generatedPrompt.set(prompt);
+  protected commitGeneratedPrompt(
+    prompt: string,
+    saveData: SaveToLibraryData
+  ): void {
+    const editorConfig =
+      saveData.editorConfig && this.offersFileOutput
+        ? {
+            ...saveData.editorConfig,
+            state: {
+              ...saveData.editorConfig.state,
+              outputFormat: this.outputFormat(),
+            },
+          }
+        : saveData.editorConfig;
+    this.saveData = { ...saveData, editorConfig };
+    this._generatedPrompt.set(
+      appendOutputFormat(
+        prompt,
+        saveData.targetLanguage,
+        this.effectiveOutputFormat()
+      )
+    );
     this._editedPrompt.set(null);
     this.editablePrompt = '';
     this._isEditMode.set(false);
@@ -188,15 +260,9 @@ export abstract class BaseExerciseComponent {
   }
 
   // --- Save to library ---
-  protected openSaveDialog(data: {
-    category: PromptCategory;
-    targetLanguage: Language;
-    cefr: CEFRLevel;
-    name: string;
-    description: string;
-    tags: string[];
-    editorConfig?: EditorConfig;
-  }): void {
+  saveToLibrary(): void {
+    const data = this.saveData;
+    if (!data) return;
     this.libraryService
       .getCollections()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -204,21 +270,16 @@ export abstract class BaseExerciseComponent {
   }
 
   private openSaveDialogWith(
-    data: {
-      category: PromptCategory;
-      targetLanguage: Language;
-      cefr: CEFRLevel;
-      name: string;
-      description: string;
-      tags: string[];
-      editorConfig?: EditorConfig;
-    },
+    data: SaveToLibraryData,
     collections: string[]
   ): void {
     const dialogRef = this.dialog.open(SaveToLibraryDialogComponent, {
       width: '600px',
       data: {
         ...data,
+        // The dialog edits its tag list in place — hand it a copy so a
+        // cancelled dialog leaves the captured metadata untouched.
+        tags: [...data.tags],
         content: this.currentPromptText(),
         collections,
       },
