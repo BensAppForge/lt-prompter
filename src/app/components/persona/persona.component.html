@@ -77,7 +77,7 @@
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Themenschwerpunkte (optional)</mat-label>
             <input matInput formControlName="topics" maxlength="300"
-              placeholder="z. B. Firenze, l'esilio, Beatrice, la Divina Commedia"
+              placeholder="z. B. le invenzioni, la pittura, la vita in bottega, gli anni a Milano"
               [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)">
             <mat-hint>Worüber soll vor allem gesprochen werden?</mat-hint>
           </mat-form-field>
@@ -87,7 +87,7 @@
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Rechercheziel (optional)</mat-label>
             <textarea matInput formControlName="researchGoal" rows="3" maxlength="500"
-              placeholder="z. B. Scoprire perché Dante ha lasciato Firenze e perché ha scritto in volgare"
+              placeholder="z. B. Scoprire quali macchine ha disegnato Leonardo e perché quasi nessuna è stata costruita"
               [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"></textarea>
             <mat-hint>
               Was sollen die Lernenden herausfinden? Die Persona hilft ihnen, das Ziel über eigene Fragen zu
@@ -202,7 +202,7 @@
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Zusätzliche Regeln (optional)</mat-label>
             <textarea matInput formControlName="extraRules" rows="2" maxlength="500"
-              placeholder="z. B. Non descrivere in dettaglio le pene dell'Inferno"
+              placeholder="z. B. Non parlare in dettaglio degli studi di anatomia"
               [attr.lang]="getLanguageCode(form.get('targetLanguage')?.value)" [attr.spellcheck]="true"></textarea>
             <mat-hint>Eigene Grenzen für dieses Gespräch, etwa Themen, die ausgespart bleiben sollen.</mat-hint>
           </mat-form-field>

@@ -101,10 +101,10 @@ describe('PromptTemplateService', () => {
               targetLanguage,
               cefr,
               personaType: type.value,
-              persona: 'Dante Alighieri',
-              personaDescription: 'il famoso poeta italiano',
-              topics: 'Firenze, Beatrice',
-              researchGoal: 'Scoprire perché Dante ha lasciato Firenze',
+              persona: 'Leonardo da Vinci',
+              personaDescription: 'pittore e inventore del Rinascimento',
+              topics: 'le invenzioni, la pittura',
+              researchGoal: 'Scoprire quali macchine ha disegnato Leonardo',
               conversationStyle: 'dialogue',
               maxSentences: 4,
               errorHandling: 'explicit',
@@ -113,7 +113,7 @@ describe('PromptTemplateService', () => {
               turnLimit: 12,
               closingSummary: true,
               closingFeedback: true,
-              extraRules: "Non descrivere le pene dell'Inferno",
+              extraRules: 'Non parlare degli studi di anatomia',
             })
           ),
           ...OUTPUT_FORMATS.map((format) =>
@@ -201,29 +201,31 @@ describe('PromptTemplateService', () => {
         targetLanguage: 'italiano',
         cefr: 'A2',
         personaType: 'historical',
-        persona: 'Dante Alighieri',
+        persona: 'Leonardo da Vinci',
         conversationStyle: 'interview',
         maxSentences: 4,
         errorHandling: 'recast',
         ...overrides,
       });
 
-    it('covers what the ISB example prompt asks for', () => {
+    it('contains the essentials of a persona chat', () => {
       const prompt = persona({
-        personaDescription: 'il famoso poeta italiano.',
+        personaDescription: 'pittore e inventore del Rinascimento.',
         avoidLiteraryTense: true,
       });
       expect(prompt).toContain(
-        'interpreta Dante Alighieri, il famoso poeta italiano. Parli'
+        'vesti i panni di Leonardo da Vinci, pittore e inventore del Rinascimento. Ti scrivono'
       );
-      expect(prompt).toContain('in prima persona come Dante Alighieri');
+      expect(prompt).toContain('messaggio sei Leonardo da Vinci: racconta');
       expect(prompt).toContain('livello A2 del QCER');
-      expect(prompt).toContain('Non usare mai il passato remoto');
-      expect(prompt).toContain('spiegala brevemente tra parentesi');
-      expect(prompt).toContain('non più di 4 frasi per risposta');
-      expect(prompt).toContain("invita gli studenti a fare un'altra domanda");
-      expect(prompt).toContain('1. Ruolo e tono');
-      expect(prompt).toContain('4. Limiti e moderazione');
+      expect(prompt).toContain('Il passato remoto è escluso');
+      expect(prompt).toContain('fra parentesi, una breve parafrasi facile');
+      expect(prompt).toContain('al massimo 4 frasi');
+      expect(prompt).toContain('Chiudi ogni messaggio con un breve spunto');
+      expect(prompt).toContain('1. Chi sei');
+      expect(prompt).toContain('2. Come si svolge lo scambio');
+      expect(prompt).toContain('3. La tua lingua: livello A2');
+      expect(prompt).toContain('4. Regole da rispettare');
     });
 
     it('bans the literary past tense only where the language has one', () => {
@@ -232,7 +234,7 @@ describe('PromptTemplateService', () => {
       );
       expect(
         persona({ targetLanguage: 'français', avoidLiteraryTense: true })
-      ).toContain("N'utilisez jamais le passé simple");
+      ).toContain('Le passé simple est exclu');
       const english = persona({
         targetLanguage: 'English',
         avoidLiteraryTense: true,
@@ -253,17 +255,19 @@ describe('PromptTemplateService', () => {
         personaType: 'everyday',
         persona: 'Camille, boulangère à Lyon',
       });
-      expect(prompt).toContain('qui incarne Camille, boulangère à Lyon. Vous');
-      expect(prompt).toContain('en tant que Camille et restez');
+      expect(prompt).toContain(
+        'dans la peau de Camille, boulangère à Lyon. Ceux'
+      );
+      expect(prompt).toContain('vous êtes Camille : racontez');
     });
 
     it('handles facts according to the kind of persona', () => {
-      expect(persona()).toContain('fatti accertati');
+      expect(persona()).toContain('ciò che si sa con certezza');
       expect(persona({ personaType: 'fictional' })).toContain(
-        "resta fedele all'opera"
+        "Resta fedele all'opera"
       );
       expect(persona({ personaType: 'everyday' })).toContain(
-        'una persona inventata ma realistica'
+        'Sei una persona inventata ma realistica'
       );
     });
 
@@ -273,7 +277,7 @@ describe('PromptTemplateService', () => {
       expect(plain).not.toContain('FINE');
 
       const withClosing = persona({ closingSummary: true });
-      expect(withClosing).toContain('5. Fine della conversazione');
+      expect(withClosing).toContain('5. Per concludere');
       expect(withClosing).toContain('possono scrivere «FINE»');
       expect(withClosing).toContain('- Riassunto:');
       expect(withClosing).not.toContain('Feedback linguistico');
@@ -285,14 +289,14 @@ describe('PromptTemplateService', () => {
 
     it('includes goal, topics, limits and own rules as written', () => {
       const prompt = persona({
-        topics: 'Firenze,  Beatrice',
-        researchGoal: 'Scoprire perché Dante\nha lasciato Firenze.',
+        topics: 'le invenzioni,  la pittura',
+        researchGoal: 'Scoprire quali macchine\nha disegnato Leonardo.',
         turnLimit: 10,
         extraRules: 'Costa $& [CEFR] poco',
       });
-      expect(prompt).toContain('su questi temi: Firenze, Beatrice.');
+      expect(prompt).toContain('su questi temi: le invenzioni, la pittura.');
       expect(prompt).toContain(
-        '«Scoprire perché Dante ha lasciato Firenze». Aiutali'
+        '«Scoprire quali macchine ha disegnato Leonardo». Aiutali'
       );
       expect(prompt).toContain('Dopo circa 10 messaggi degli studenti');
       // Typed text is neither treated as a placeholder nor as a pattern

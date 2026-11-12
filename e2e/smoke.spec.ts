@@ -226,23 +226,25 @@ test('persona chat: generate, save and reopen from the library', async ({ page }
   await expect(page.getByRole('button', { name: 'Prompt generieren' })).toBeDisabled();
   await selectMat(page, 'targetLanguage', 'Italiano');
   await selectMat(page, 'cefr', 'A2');
-  await page.locator('input[formcontrolname="persona"]').fill('Dante Alighieri');
+  await page.locator('input[formcontrolname="persona"]').fill('Leonardo da Vinci');
   await page
     .locator('input[formcontrolname="personaDescription"]')
-    .fill('il famoso poeta italiano');
+    .fill('pittore e inventore del Rinascimento');
   await page
     .locator('textarea[formcontrolname="researchGoal"]')
-    .fill('Scoprire perché Dante ha lasciato Firenze');
+    .fill('Scoprire quali macchine ha disegnato Leonardo');
 
   const prompt = await generatedPrompt(page);
   expectNoPlaceholders(prompt);
-  expect(prompt).toContain('interpreta Dante Alighieri, il famoso poeta italiano.');
+  expect(prompt).toContain(
+    'vesti i panni di Leonardo da Vinci, pittore e inventore del Rinascimento.'
+  );
   expect(prompt).toContain('livello A2 del QCER');
-  expect(prompt).toContain('Non usare mai il passato remoto');
-  expect(prompt).toContain('non più di 4 frasi per risposta');
-  expect(prompt).toContain('«Scoprire perché Dante ha lasciato Firenze»');
-  expect(prompt).toContain('4. Limiti e moderazione');
-  expect(prompt).toContain('5. Fine della conversazione');
+  expect(prompt).toContain('Il passato remoto è escluso');
+  expect(prompt).toContain('al massimo 4 frasi');
+  expect(prompt).toContain('«Scoprire quali macchine ha disegnato Leonardo»');
+  expect(prompt).toContain('4. Regole da rispettare');
+  expect(prompt).toContain('5. Per concludere');
   expect(prompt).not.toContain('Formato di output');
 
   await page.locator('.save-button').click();
@@ -254,10 +256,10 @@ test('persona chat: generate, save and reopen from the library', async ({ page }
   await page.waitForTimeout(600);
 
   await page.goto('/library');
-  const card = page.locator('.prompt-card', { hasText: 'Persona-Chat - Dante Alighieri' });
+  const card = page.locator('.prompt-card', { hasText: 'Persona-Chat - Leonardo da Vinci' });
   await expect(card).toHaveCount(1);
   await card.locator('button[aria-label="Prompt im Editor öffnen"]').click();
   await page.waitForURL('**/persona');
-  await expect(page.locator('input[formcontrolname="persona"]')).toHaveValue('Dante Alighieri');
+  await expect(page.locator('input[formcontrolname="persona"]')).toHaveValue('Leonardo da Vinci');
   await expect(page.locator('mat-select[formcontrolname="cefr"]')).toContainText('A2');
 });

@@ -49,7 +49,7 @@ describe('PersonaComponent', () => {
     expect(component.form.valid).toBeFalse();
     component.form.patchValue({ persona: '   ' });
     expect(component.form.valid).toBeFalse();
-    component.form.patchValue({ persona: 'Dante Alighieri' });
+    component.form.patchValue({ persona: 'Leonardo da Vinci' });
     expect(component.form.valid).toBeTrue();
   });
 
@@ -58,7 +58,7 @@ describe('PersonaComponent', () => {
     component.form.patchValue({
       targetLanguage: 'italiano',
       cefr: 'A2',
-      persona: 'Dante Alighieri',
+      persona: 'Leonardo da Vinci',
     });
     component.maxSentences.set(3);
     component.limitTurns.set(true);
@@ -66,10 +66,10 @@ describe('PersonaComponent', () => {
     component.onSubmit();
 
     const prompt = component.generatedPrompt();
-    expect(prompt).toContain('interpreta Dante Alighieri');
-    expect(prompt).toContain('non più di 3 frasi');
+    expect(prompt).toContain('vesti i panni di Leonardo da Vinci');
+    expect(prompt).toContain('al massimo 3 frasi');
     expect(prompt).toContain('Dopo circa 8 messaggi');
-    expect(prompt).toContain('Non usare mai il passato remoto');
+    expect(prompt).toContain('Il passato remoto è escluso');
     expect(prompt).not.toContain('Formato di output');
   });
 
@@ -91,7 +91,7 @@ describe('PersonaComponent', () => {
     component.form.patchValue({
       targetLanguage: 'italiano',
       cefr: 'A2',
-      persona: ' Dante  Alighieri ',
+      persona: ' Leonardo  da Vinci ',
     });
     component.onSubmit();
     component.saveToLibrary();
@@ -102,7 +102,7 @@ describe('PersonaComponent', () => {
       editorConfig: { route: string; state: Record<string, unknown> };
     };
     expect(data.category).toBe('persona');
-    expect(data.name).toBe('Persona-Chat - Dante Alighieri');
+    expect(data.name).toBe('Persona-Chat - Leonardo da Vinci');
     expect(data.editorConfig.route).toBe('/persona');
     expect(data.editorConfig.state['maxSentences']).toBe(4);
     expect(data.editorConfig.state['outputFormat']).toBeUndefined();

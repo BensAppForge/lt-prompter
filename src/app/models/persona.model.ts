@@ -14,13 +14,13 @@ export const PERSONA_TYPES: readonly {
   {
     value: 'historical',
     label: 'Reale Persönlichkeit',
-    example: 'z. B. Dante Alighieri, Frida Kahlo, Marie Curie',
-    descriptionExample: 'z. B. il famoso poeta italiano del Trecento',
+    example: 'z. B. Leonardo da Vinci, Frida Kahlo, Marie Curie',
+    descriptionExample: 'z. B. pittore, inventore e scienziato del Rinascimento',
   },
   {
     value: 'fictional',
     label: 'Literarische oder fiktive Figur',
-    example: 'z. B. Sherlock Holmes, Don Quijote, Le Petit Prince',
+    example: "z. B. Sherlock Holmes, Don Quijote, d'Artagnan",
     descriptionExample: 'z. B. the detective from the stories by Arthur Conan Doyle',
   },
   {
@@ -71,7 +71,7 @@ export const PERSONA_ERROR_HANDLING: readonly {
 
 /**
  * Literary past tenses that learners below the upper levels have not met.
- * The ISB example prompt bans the passato remoto for exactly this reason.
+ * The prompt can ban them so that the persona stays readable at A and B levels.
  */
 export const PERSONA_LITERARY_TENSE: Partial<
   Record<Language, { tense: string; instead: string }>
@@ -90,9 +90,9 @@ export interface PersonaPromptConfig {
   targetLanguage: Language;
   cefr: CEFRLevel;
   personaType: PersonaType;
-  /** Who the AI plays, e.g. "Dante Alighieri". */
+  /** Who the AI plays, e.g. "Leonardo da Vinci". */
   persona: string;
-  /** Optional apposition, e.g. "il famoso poeta italiano". */
+  /** Optional apposition, e.g. "pittore e inventore del Rinascimento". */
   personaDescription?: string;
   /** Topics the conversation should centre on. */
   topics?: string;

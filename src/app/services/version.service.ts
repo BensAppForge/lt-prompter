@@ -294,7 +294,7 @@ export class VersionService {
       shortDescription:
         'Persona-Chat, Ausgabe als Datei und Verbesserungen der Bibliothek',
       longDescription: `
-        • Neu: Persona-Chat – erstellen Sie einen Prompt, mit dem ein KI-Chatbot in eine Rolle schlüpft (z.B. Dante Alighieri) und in der Zielsprache mit Ihren Lernenden spricht. Einstellbar sind Persona, Niveau, Themen, Rechercheziel, Gesprächsform, Antwortlänge und der Umgang mit Sprachfehlern
+        • Neu: Persona-Chat – erstellen Sie einen Prompt, mit dem ein KI-Chatbot in eine Rolle schlüpft (z.B. Leonardo da Vinci) und in der Zielsprache mit Ihren Lernenden spricht. Einstellbar sind Persona, Niveau, Themen, Rechercheziel, Gesprächsform, Antwortlänge und der Umgang mit Sprachfehlern
         • Persona-Chat: Regeln für einen sicheren Einsatz im Unterricht sind immer enthalten; Gesprächslänge, Abschluss mit Zusammenfassung oder Sprachfeedback und eigene Regeln lassen sich ergänzen
         • Neu: "Ausgabe als Datei" in den Editoren für Vokabeln, Grammatik, Textverständnis, Klonen und Wortfelder – der Prompt fordert auf Wunsch eine fertige Word-Datei, eine PDF-Datei oder beides an. Kann ein KI-Tool keine Dateien erstellen, bittet der Prompt ersatzweise um druckfertigen Text im Chat
         • Einstellungen: Standard für "Ausgabe als Datei" festlegen
@@ -303,6 +303,18 @@ export class VersionService {
         • Bibliothek: Gesetzte Filter bleiben nach dem Löschen, Bearbeiten oder Importieren erhalten; ein geöffneter Prompt wird direkt in den sichtbaren Bereich gescrollt
         • Vokabeln: Klarere Formulierungen im Prompt, wenn bei angehängter Datei eine feste Aufgabenanzahl gewählt ist oder der Kontext nur für einzelne Übungstypen gilt
         • Hilfe: Neue Abschnitte zu Persona-Chat und zur Ausgabe als Datei
+      `.trim(),
+    },
+    {
+      id: 25,
+      versionNumber: '1.9.1',
+      releaseDate: new Date('2026-11-12'),
+      shortDescription: 'Persona-Chat: neu formulierte Prompts und neue Beispiele',
+      longDescription: `
+        • Persona-Chat: Die Prompts sind in allen vier Sprachen neu formuliert und neu gegliedert (Rolle, Gesprächsablauf, Sprache, Regeln)
+        • Persona-Chat: Neue Beispiele im Formular, auf dem Dashboard und in der Hilfe
+        • Bereits gespeicherte Persona-Chat-Prompts bleiben unverändert – öffnen Sie sie im Editor und generieren Sie sie neu, um die neue Fassung zu erhalten
+        • Installierte Apps erhalten Aktualisierungen wieder zuverlässig
       `.trim(),
     },
   ];

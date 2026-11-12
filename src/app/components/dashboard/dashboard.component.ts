@@ -157,7 +157,7 @@ export class DashboardComponent {
       icon: 'theater_comedy',
       route: '/persona',
       description:
-        'Lassen Sie die KI in eine Rolle schlüpfen – z. B. Dante Alighieri im Gespräch mit Ihrer Klasse',
+        'Lassen Sie die KI in eine Rolle schlüpfen – z. B. Leonardo da Vinci im Gespräch mit Ihrer Klasse',
     },
     {
       title: 'Bibliothek',
